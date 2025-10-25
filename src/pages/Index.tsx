@@ -1,13 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Link, useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [currentBook, setCurrentBook] = useState<any>(null);
+  const [session, setSession] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    })
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleAuthClick = async (type: 'signIn' | 'signUp') => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: globalThis.location.origin,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+      toast.success(`${type === 'signIn' ? 'Συνδεθήκατε' : 'Εγγραφήκατε'} επιτυχώς!`);
+    } catch (error: any) {
+      console.error('Authentication error:', error.message);
+      toast.error(`Αποτυχία ${type === 'signIn' ? 'σύνδεσης' : 'εγγραφής'}: ${error.message}`);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+      toast.success("Αποσυνδεθήκατε επιτυχώς.");
+      navigate("/");
+    } catch (error: any) {
+      console.error('Error signing out:', error.message);
+      toast.error(`Αποτυχία αποσύνδεσης: ${error.message}`);
+    }
+  };
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
@@ -47,8 +96,34 @@ const Index = () => {
     }
   };
 
-  const handleSaveBook = () => {
-    toast.success("Book added to your favorites!");
+  const handleSaveBook = async (book: Omit<any, 'onSave'>) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Πρέπει να συνδεθείτε για να αποθηκεύσετε βιβλία.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_books')
+        .insert({
+          user_id: user.id,
+          book_title: book.title,
+          book_author: book.author,
+          book_description: book.description,
+          book_year: book.year,
+          book_cover_url: book.coverUrl,
+        });
+
+      if (error) {
+        throw error;
+      }
+      toast.success("Το βιβλίο προστέθηκε στα αγαπημένα σας!");
+    } catch (error: any) {
+      console.error('Error saving book:', error.message);
+      toast.error(`Αποτυχία αποθήκευσης βιβλίου: ${error.message}`);
+    }
   };
 
   return (
@@ -56,14 +131,34 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <BookOpen className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-serif font-bold text-primary">Book Fainder</h1>
+          </Link>
+          <div className="flex items-center gap-2">
+            {session ? (
+              <>
+                <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => navigate("/profile")}>
+                  <User className="mr-2 h-5 w-5" />
+                  Προφίλ
+                </Button>
+                <Button variant="outline" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-5 w-5" />
+                  Αποσύνδεση
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => handleAuthClick('signIn')}>
+                  <User className="mr-2 h-5 w-5" />
+                  Σύνδεση
+                </Button>
+                <Button variant="outline" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => handleAuthClick('signUp')}>
+                  Εγγραφή
+                </Button>
+              </>
+            )}
           </div>
-          <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors">
-            <User className="mr-2 h-5 w-5" />
-            Sign In
-          </Button>
         </div>
       </header>
 

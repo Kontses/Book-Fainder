@@ -8,10 +8,11 @@ interface BookCardProps {
   description: string;
   year?: string;
   coverUrl?: string;
-  onSave?: () => void;
+  onSave?: (book: Omit<BookCardProps, 'onSave'>) => void;
 }
 
 export const BookCard = ({ title, author, description, year, coverUrl, onSave }: BookCardProps) => {
+  const bookDetails = { title, author, description, year, coverUrl };
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm">
       <div className="flex flex-col md:flex-row">
@@ -39,7 +40,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, onSave }:
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={onSave}
+                  onClick={() => onSave?.(bookDetails)}
                   className="text-primary hover:text-primary-glow hover:bg-primary/10 transition-colors"
                 >
                   <Heart className="h-5 w-5" />
