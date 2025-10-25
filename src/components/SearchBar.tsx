@@ -35,7 +35,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           size="lg"
         >
           <Sparkles className="mr-2 h-5 w-5" />
-          {isLoading ? "Searching..." : "Find My Book"}
+          {isLoading ? "Searching..." : "Suggest me a book"}
         </Button>
       </div>
     </form>
