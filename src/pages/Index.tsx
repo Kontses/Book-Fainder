@@ -12,23 +12,43 @@ const Index = () => {
   const handleSearch = async (query: string) => {
     setIsSearching(true);
     
-    // Simulate AI processing and database query
-    setTimeout(() => {
-      // Mock book data
-      setCurrentBook({
-        title: "Η Γενιά του '30",
-        author: "Γιώργος Σεφέρης",
-        description: "Ένα από τα σημαντικότερα έργα της νεοελληνικής λογοτεχνίας, που αντιπροσωπεύει την ποιητική κίνηση της γενιάς του 1930. Συνδυάζει τον μοντερνισμό με την ελληνική παράδοση.",
-        year: "1935",
-        coverUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/search-books`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: query }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to search for books');
+      }
+
+      const data = await response.json();
+      
+      if (data.book) {
+        setCurrentBook({
+          title: data.book.title,
+          author: data.book.authors?.[0] || "Unknown Author",
+          description: data.book.synopsis || "No description available.",
+          year: data.book.date_published || "Unknown",
+          coverUrl: data.book.image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
+        });
+        toast.success("Found the perfect book for you!");
+      } else {
+        toast.error("No books found matching your criteria. Try a different search!");
+      }
+    } catch (error) {
+      console.error('Error searching for books:', error);
+      toast.error("Failed to search for books. Please try again.");
+    } finally {
       setIsSearching(false);
-      toast.success("Βρήκαμε το τέλειο βιβλίο για εσάς!");
-    }, 2000);
+    }
   };
 
   const handleSaveBook = () => {
-    toast.success("Το βιβλίο προστέθηκε στις αγαπημένες σας!");
+    toast.success("Book added to your favorites!");
   };
 
   return (
@@ -38,11 +58,11 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-serif font-bold text-primary">Βιβλιοθήκη</h1>
+            <h1 className="text-2xl font-serif font-bold text-primary">Book Fainder</h1>
           </div>
           <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors">
             <User className="mr-2 h-5 w-5" />
-            Είσοδος
+            Sign In
           </Button>
         </div>
       </header>
@@ -51,10 +71,10 @@ const Index = () => {
       <main className="container mx-auto px-4 py-12 md:py-20">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4">
-            Ανακαλύψτε το επόμενο σας βιβλίο
+            Discover your next book
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Περιγράψτε με τα λόγια σας το βιβλίο που αναζητάτε και η τεχνητή νοημοσύνη θα βρει την τέλεια πρόταση για εσάς.
+            Describe the book you're looking for and AI will find the perfect recommendation for you.
           </p>
         </div>
 
@@ -67,7 +87,7 @@ const Index = () => {
         {currentBook && (
           <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h3 className="text-2xl font-serif font-semibold text-foreground mb-6 text-center">
-              Η πρόταση μας για εσάς
+              Our recommendation for you
             </h3>
             <BookCard
               title={currentBook.title}
@@ -84,7 +104,7 @@ const Index = () => {
         {!currentBook && !isSearching && (
           <div className="text-center py-20 text-muted-foreground">
             <BookOpen className="h-20 w-20 mx-auto mb-4 opacity-40" />
-            <p className="text-lg">Ξεκινήστε την αναζήτησή σας παραπάνω</p>
+            <p className="text-lg">Start your search above</p>
           </div>
         )}
       </main>

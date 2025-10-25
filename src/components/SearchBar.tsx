@@ -24,7 +24,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
         <Textarea
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Περιγράψτε το βιβλίο που αναζητάτε... π.χ. Θέλω ένα βιβλίο Έλληνα συγγραφέα γραμμένο από το '30"
+          placeholder="Describe the book you're looking for... e.g. I want a mystery novel from the 1930s"
           className="min-h-[120px] pr-4 text-base resize-none bg-card/80 backdrop-blur-sm border-border/50 focus:border-primary transition-colors"
           disabled={isLoading}
         />
@@ -35,7 +35,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           size="lg"
         >
           <Sparkles className="mr-2 h-5 w-5" />
-          {isLoading ? "Αναζήτηση..." : "Βρες το βιβλίο μου"}
+          {isLoading ? "Searching..." : "Find My Book"}
         </Button>
       </div>
     </form>
