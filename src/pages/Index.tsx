@@ -25,23 +25,8 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleAuthClick = async (type: 'signIn' | 'signUp') => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: globalThis.location.origin,
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-      toast.success(`${type === 'signIn' ? 'Συνδεθήκατε' : 'Εγγραφήκατε'} επιτυχώς!`);
-    } catch (error: any) {
-      console.error('Authentication error:', error.message);
-      toast.error(`Αποτυχία ${type === 'signIn' ? 'σύνδεσης' : 'εγγραφής'}: ${error.message}`);
-    }
+  const handleAuthClick = () => {
+    navigate("/auth");
   };
 
   const handleSignOut = async () => {
@@ -148,15 +133,10 @@ const Index = () => {
                 </Button>
               </>
             ) : (
-              <>
-                <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => handleAuthClick('signIn')}>
-                  <User className="mr-2 h-5 w-5" />
-                  Σύνδεση
-                </Button>
-                <Button variant="outline" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => handleAuthClick('signUp')}>
-                  Εγγραφή
-                </Button>
-              </>
+              <Button variant="outline" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={handleAuthClick}>
+                <User className="mr-2 h-5 w-5" />
+                Σύνδεση / Εγγραφή
+              </Button>
             )}
           </div>
         </div>
