@@ -13,7 +13,7 @@ interface BookCardProps {
 
 export const BookCard = ({ title, author, description, year, coverUrl, onSave }: BookCardProps) => {
   const bookDetails = { title, author, description, year, coverUrl };
-  const cleanedDescription = description.replaceAll(/<p>|<\/p>/g, '');
+  const cleanedDescription = description.replace(/<p>|<\/p>/g, '');
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm">
       <div className="flex flex-col md:flex-row">

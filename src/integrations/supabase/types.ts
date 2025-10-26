@@ -14,7 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      user_books: {
+        Row: {
+          book_author: string
+          book_cover_url: string | null
+          book_description: string | null
+          book_title: string
+          book_year: string | null
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          book_author: string
+          book_cover_url?: string | null
+          book_description?: string | null
+          book_title: string
+          book_year?: string | null
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          book_author?: string
+          book_cover_url?: string | null
+          book_description?: string | null
+          book_title?: string
+          book_year?: string | null
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
