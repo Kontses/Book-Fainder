@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface UserBook {
   id: string;
@@ -19,6 +21,7 @@ const Profile = () => {
   const [userBooks, setUserBooks] = useState<UserBook[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchUserBooks();
@@ -29,7 +32,7 @@ const Profile = () => {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      toast.error("Πρέπει να συνδεθείτε για να δείτε τα αποθηκευμένα βιβλία.");
+      toast.error(t('mustSignIn'));
       setLoading(false);
       navigate("/");
       return;
@@ -47,7 +50,7 @@ const Profile = () => {
       setUserBooks(data || []);
     } catch (error: any) {
       console.error('Error fetching user books:', error.message);
-      toast.error(`Αποτυχία φόρτωσης βιβλίων: ${error.message}`);
+      toast.error(`${t('failedSearch')}: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -59,11 +62,11 @@ const Profile = () => {
       if (error) {
         throw error;
       }
-      toast.success("Αποσυνδεθήκατε επιτυχώς.");
+      toast.success(t('signedOut'));
       navigate("/");
     } catch (error: any) {
       console.error('Error signing out:', error.message);
-      toast.error(`Αποτυχία αποσύνδεσης: ${error.message}`);
+      toast.error(`${t('failedSignOut')}: ${error.message}`);
     }
   };
 
@@ -77,18 +80,18 @@ const Profile = () => {
       if (error) {
         throw error;
       }
-      toast.success("Το βιβλίο διαγράφηκε επιτυχώς.");
+      toast.success(t('bookSaved'));
       fetchUserBooks(); // Refresh the list
     } catch (error: any) {
       console.error('Error deleting book:', error.message);
-      toast.error(`Αποτυχία διαγραφής βιβλίου: ${error.message}`);
+      toast.error(`${t('failedSave')}: ${error.message}`);
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/30">
-        <p className="text-lg text-foreground">Φόρτωση βιβλίων...</p>
+        <p className="text-lg text-foreground">{t('loading')}</p>
       </div>
     );
   }
@@ -102,9 +105,10 @@ const Profile = () => {
             <h1 className="text-2xl font-serif font-bold text-primary">Book Fainder</h1>
           </Link>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Button variant="ghost" onClick={handleSignOut} className="hover:bg-primary/10 hover:text-primary transition-colors">
               <LogOut className="mr-2 h-5 w-5" />
-              Αποσύνδεση
+              {t('signOut')}
             </Button>
           </div>
         </div>
@@ -113,19 +117,20 @@ const Profile = () => {
       <main className="container mx-auto px-4 py-12 md:py-20">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4">
-            Τα αποθηκευμένα σας βιβλία
+            {t('myBooks')}
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Εδώ μπορείτε να δείτε όλα τα βιβλία που έχετε αποθηκεύσει.
+            {t('signInToView')}
           </p>
         </div>
 
         {userBooks.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
             <BookOpen className="h-20 w-20 mx-auto mb-4 opacity-40" />
-            <p className="text-lg">Δεν έχετε αποθηκεύσει ακόμη βιβλία. Ξεκινήστε την αναζήτηση!</p>
+            <p className="text-lg">{t('noSavedBooks')}</p>
+            <p className="text-sm mt-2">{t('startSaving')}</p>
             <Button className="mt-6" onClick={() => navigate("/")}>
-              Επιστροφή στην αναζήτηση
+              {t('startSearch')}
             </Button>
           </div>
         ) : (

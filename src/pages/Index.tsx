@@ -6,12 +6,15 @@ import { BookOpen, User, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [currentBook, setCurrentBook] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -35,11 +38,11 @@ const Index = () => {
       if (error) {
         throw error;
       }
-      toast.success("Αποσυνδεθήκατε επιτυχώς.");
+      toast.success(t('signedOut'));
       navigate("/");
     } catch (error: any) {
       console.error('Error signing out:', error.message);
-      toast.error(`Αποτυχία αποσύνδεσης: ${error.message}`);
+      toast.error(`${t('failedSignOut')}: ${error.message}`);
     }
   };
 
@@ -69,13 +72,13 @@ const Index = () => {
           year: data.book.date_published || "Unknown",
           coverUrl: data.book.image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
         });
-        toast.success("Found the perfect book for you!");
+        toast.success(t('foundBook'));
       } else {
-        toast.error("No books found matching your criteria. Try a different search!");
+        toast.error(t('noBooks'));
       }
     } catch (error) {
       console.error('Error searching for books:', error);
-      toast.error("Failed to search for books. Please try again.");
+      toast.error(t('failedSearch'));
     } finally {
       setIsSearching(false);
     }
@@ -85,7 +88,7 @@ const Index = () => {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      toast.error("Πρέπει να συνδεθείτε για να αποθηκεύσετε βιβλία.");
+      toast.error(t('mustSignIn'));
       return;
     }
 
@@ -104,10 +107,10 @@ const Index = () => {
       if (error) {
         throw error;
       }
-      toast.success("Το βιβλίο προστέθηκε στα αγαπημένα σας!");
+      toast.success(t('bookSaved'));
     } catch (error: any) {
       console.error('Error saving book:', error.message);
-      toast.error(`Αποτυχία αποθήκευσης βιβλίου: ${error.message}`);
+      toast.error(`${t('failedSave')}: ${error.message}`);
     }
   };
 
@@ -121,21 +124,22 @@ const Index = () => {
             <h1 className="text-2xl font-serif font-bold text-primary">Book Fainder</h1>
           </Link>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             {session ? (
               <>
                 <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => navigate("/profile")}>
                   <User className="mr-2 h-5 w-5" />
-                  Προφίλ
+                  {t('profile')}
                 </Button>
                 <Button variant="outline" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={handleSignOut}>
                   <LogOut className="mr-2 h-5 w-5" />
-                  Αποσύνδεση
+                  {t('signOut')}
                 </Button>
               </>
             ) : (
               <Button variant="outline" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={handleAuthClick}>
                 <User className="mr-2 h-5 w-5" />
-                Σύνδεση / Εγγραφή
+                {t('loginRegister')}
               </Button>
             )}
           </div>
@@ -146,10 +150,10 @@ const Index = () => {
       <main className="container mx-auto px-4 py-12 md:py-20">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4">
-            Discover your next book
+            {t('discoverYourNextBook')}
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Describe the book you're looking for and AI will find the perfect recommendation for you.
+            {t('describeBookAI')}
           </p>
         </div>
 
@@ -162,7 +166,7 @@ const Index = () => {
         {currentBook && (
           <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h3 className="text-2xl font-serif font-semibold text-foreground mb-6 text-center">
-              Our recommendation for you
+              {t('ourRecommendation')}
             </h3>
             <BookCard
               title={currentBook.title}
@@ -179,7 +183,7 @@ const Index = () => {
         {!currentBook && !isSearching && (
           <div className="text-center py-20 text-muted-foreground">
             <BookOpen className="h-20 w-20 mx-auto mb-4 opacity-40" />
-            <p className="text-lg">Start your search above</p>
+            <p className="text-lg">{t('startSearch')}</p>
           </div>
         )}
       </main>

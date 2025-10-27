@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Heart } from "lucide-react";
 
 interface BookCardProps {
@@ -12,19 +14,34 @@ interface BookCardProps {
 }
 
 export const BookCard = ({ title, author, description, year, coverUrl, onSave }: BookCardProps) => {
+  const [isImageOpen, setIsImageOpen] = useState(false);
   const bookDetails = { title, author, description, year, coverUrl };
   const cleanedDescription = description.replace(/<p>|<\/p>/g, '');
+  
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm">
       <div className="flex flex-col md:flex-row">
         {coverUrl && (
-          <div className="md:w-48 h-64 md:h-auto bg-muted flex-shrink-0">
-            <img 
-              src={coverUrl} 
-              alt={`Εξώφυλλο: ${title}`}
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
+            <DialogTrigger asChild>
+              <div className="md:w-48 h-64 md:h-auto bg-muted flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity">
+                <img 
+                  src={coverUrl} 
+                  alt={`Εξώφυλλο: ${title}`}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl">
+              <div className="flex items-center justify-center p-4">
+                <img 
+                  src={coverUrl} 
+                  alt={`Εξώφυλλο: ${title}`}
+                  className="max-h-[80vh] w-auto object-contain"
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
         <div className="flex-1">
           <CardHeader>

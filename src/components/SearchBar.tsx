@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Dices } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -10,6 +11,12 @@ interface SearchBarProps {
 
 export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
   const [query, setQuery] = useState("");
+  const { t } = useLanguage();
+
+  const randomPrompts = [
+    'randomPrompt1', 'randomPrompt2', 'randomPrompt3', 'randomPrompt4',
+    'randomPrompt5', 'randomPrompt6', 'randomPrompt7', 'randomPrompt8'
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,16 +25,33 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
     }
   };
 
+  const handleRandomPrompt = () => {
+    const randomKey = randomPrompts[Math.floor(Math.random() * randomPrompts.length)];
+    setQuery(t(randomKey));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
       <div className="relative">
-        <Textarea
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Describe the book you're looking for... e.g. I want a mystery novel from the 1930s"
-          className="min-h-[120px] pr-4 text-base resize-none bg-card/80 backdrop-blur-sm border-border/50 focus:border-primary transition-colors"
-          disabled={isLoading}
-        />
+        <div className="relative">
+          <Textarea
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            className="min-h-[120px] pr-12 text-base resize-none bg-card/80 backdrop-blur-sm border-border/50 focus:border-primary transition-colors"
+            disabled={isLoading}
+          />
+          <Button
+            type="button"
+            onClick={handleRandomPrompt}
+            disabled={isLoading}
+            variant="ghost"
+            size="icon"
+            className="absolute bottom-2 right-2 text-primary hover:text-primary-glow hover:bg-primary/10"
+          >
+            <Dices className="h-5 w-5" />
+          </Button>
+        </div>
         <Button
           type="submit"
           disabled={isLoading || !query.trim()}
@@ -35,7 +59,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           size="lg"
         >
           <Sparkles className="mr-2 h-5 w-5" />
-          {isLoading ? "Searching..." : "Suggest me a book"}
+          {isLoading ? t('searching') : t('suggestMeBook')}
         </Button>
       </div>
     </form>
