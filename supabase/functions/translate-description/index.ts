@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional translator. Translate the book description to ${targetLanguageName}. Maintain the original tone and meaning. Return only the translated text without any additional comments or explanations.`
+            content: `You are a professional translator. Translate the book description to ${targetLanguageName}. Maintain the original tone and meaning. IMPORTANT: Remove all HTML tags (like <b>, <i>, <br>, etc.) from the text and return only plain text without any HTML formatting. Do not add any additional comments or explanations.`
           },
           {
             role: 'user',
