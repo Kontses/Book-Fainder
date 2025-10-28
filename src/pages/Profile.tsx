@@ -3,10 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
 import { BookOpen, LogOut } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ProfileSettings } from "@/components/profile/ProfileSettings";
+import { GenreSelector } from "@/components/profile/GenreSelector";
+import { LanguagePreferences } from "@/components/profile/LanguagePreferences";
+import { BookLists } from "@/components/profile/BookLists";
 
 interface UserBook {
   id: string;
@@ -117,37 +122,62 @@ const Profile = () => {
       <main className="container mx-auto px-4 py-12 md:py-20">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4">
-            {t('myBooks')}
+            {t('profile')}
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            {t('signInToView')}
-          </p>
         </div>
 
-        {userBooks.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            <BookOpen className="h-20 w-20 mx-auto mb-4 opacity-40" />
-            <p className="text-lg">{t('noSavedBooks')}</p>
-            <p className="text-sm mt-2">{t('startSaving')}</p>
-            <Button className="mt-6" onClick={() => navigate("/")}>
-              {t('startSearch')}
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {userBooks.map((book) => (
-              <BookCard
-                key={book.id}
-                title={book.book_title}
-                author={book.book_author || "Άγνωστος Συγγραφέας"}
-                description={book.book_description || "Δεν υπάρχει περιγραφή."}
-                year={book.book_year || "Άγνωστο Έτος"}
-                coverUrl={book.book_cover_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"}
-                onSave={() => handleDeleteBook(book.id)}
-              />
-            ))}
-          </div>
-        )}
+        <Tabs defaultValue="books" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
+            <TabsTrigger value="books">{t('myBooks')}</TabsTrigger>
+            <TabsTrigger value="settings">{t('profileSettings')}</TabsTrigger>
+            <TabsTrigger value="genres">{t('genrePreferences')}</TabsTrigger>
+            <TabsTrigger value="languages">{t('languagePreferences')}</TabsTrigger>
+            <TabsTrigger value="lists">{t('myLists')}</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="books">
+            {userBooks.length === 0 ? (
+              <div className="text-center py-20 text-muted-foreground">
+                <BookOpen className="h-20 w-20 mx-auto mb-4 opacity-40" />
+                <p className="text-lg">{t('noSavedBooks')}</p>
+                <p className="text-sm mt-2">{t('startSaving')}</p>
+                <Button className="mt-6" onClick={() => navigate("/")}>
+                  {t('startSearch')}
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {userBooks.map((book) => (
+                  <BookCard
+                    key={book.id}
+                    title={book.book_title}
+                    author={book.book_author || "Άγνωστος Συγγραφέας"}
+                    description={book.book_description || "Δεν υπάρχει περιγραφή."}
+                    year={book.book_year || "Άγνωστο Έτος"}
+                    coverUrl={book.book_cover_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"}
+                    onSave={() => handleDeleteBook(book.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <ProfileSettings />
+          </TabsContent>
+
+          <TabsContent value="genres">
+            <GenreSelector />
+          </TabsContent>
+
+          <TabsContent value="languages">
+            <LanguagePreferences />
+          </TabsContent>
+
+          <TabsContent value="lists">
+            <BookLists />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
