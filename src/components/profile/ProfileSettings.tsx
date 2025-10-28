@@ -47,13 +47,13 @@ export const ProfileSettings = () => {
 
       // Validate file size (5MB)
       if (file.size > 5242880) {
-        toast.error("Το αρχείο είναι πολύ μεγάλο. Μέγιστο μέγεθος: 5MB");
+        toast.error(t('fileTooLarge') as string);
         return;
       }
 
       // Validate file type
       if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
-        toast.error("Μη έγκυρος τύπος αρχείου. Επιτρέπονται μόνο εικόνες.");
+        toast.error(t('invalidFileType') as string);
         return;
       }
 
@@ -95,7 +95,7 @@ export const ProfileSettings = () => {
       if (updateError) throw updateError;
 
       setAvatarUrl(publicUrl);
-      toast.success("Η φωτογραφία ενημερώθηκε επιτυχώς!");
+      toast.success(t('photoUpdatedSuccess') as string);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -125,7 +125,7 @@ export const ProfileSettings = () => {
       if (error) throw error;
 
       setAvatarUrl(null);
-      toast.success("Η φωτογραφία διαγράφηκε επιτυχώς!");
+      toast.success(t('photoDeletedSuccess') as string);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -135,7 +135,7 @@ export const ProfileSettings = () => {
 
   const handleSave = async () => {
     if (!nickname.trim()) {
-      toast.error("Το nickname δεν μπορεί να είναι κενό");
+      toast.error(t('nicknameEmpty') as string);
       return;
     }
 
@@ -155,12 +155,12 @@ export const ProfileSettings = () => {
       if (error) {
         // Check for unique constraint violation
         if (error.code === '23505') {
-          toast.error("Αυτό το nickname χρησιμοποιείται ήδη. Παρακαλώ επιλέξτε άλλο.");
+          toast.error(t('nicknameInUse') as string);
         } else {
           throw error;
         }
       } else {
-        toast.success(t('savedSuccessfully'));
+        toast.success(t('savedSuccessfully') as string);
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -178,7 +178,7 @@ export const ProfileSettings = () => {
       <CardContent className="space-y-6">
         {/* Avatar Upload Section */}
         <div className="space-y-4">
-          <Label>Φωτογραφία Προφίλ</Label>
+          <Label>{t('profilePhoto')}</Label>
           <div className="flex items-center gap-4">
             <Avatar className="h-24 w-24">
               {avatarUrl ? (
@@ -205,7 +205,7 @@ export const ProfileSettings = () => {
                 disabled={uploading}
               >
                 <Upload className="mr-2 h-4 w-4" />
-                {uploading ? "Ανέβασμα..." : "Ανέβασμα Φωτογραφίας"}
+                {uploading ? t('uploading') : t('uploadPhoto')}
               </Button>
               {avatarUrl && (
                 <Button
@@ -216,13 +216,13 @@ export const ProfileSettings = () => {
                   disabled={uploading}
                 >
                   <X className="mr-2 h-4 w-4" />
-                  Διαγραφή Φωτογραφίας
+                  {t('deletePhoto')}
                 </Button>
               )}
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
-            Επιτρέπονται μόνο εικόνες (JPEG, PNG, WebP, GIF) μέχρι 5MB
+            {t('imageRequirements')}
           </p>
         </div>
 
@@ -236,7 +236,7 @@ export const ProfileSettings = () => {
             placeholder={t('nickname') as string}
           />
           <p className="text-sm text-muted-foreground">
-            Το nickname πρέπει να είναι μοναδικό
+            {t('nicknameUnique')}
           </p>
         </div>
 
