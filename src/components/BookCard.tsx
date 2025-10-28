@@ -99,7 +99,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, onSave }:
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-foreground/80 leading-relaxed">
+            <p className="text-foreground/80 leading-relaxed max-h-32 overflow-y-auto">
               {cleanedDescription}
             </p>
           </CardContent>
