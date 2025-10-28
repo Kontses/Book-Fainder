@@ -33,6 +33,11 @@ export const GenreSelector = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Ensure profile exists
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({ id: user.id, nickname: 'user_' + user.id.substring(0, 8) }, { onConflict: 'id' });
+
     const { data } = await supabase
       .from('user_genres')
       .select('genre_id')
