@@ -14,6 +14,173 @@ export type Database = {
   }
   public: {
     Tables: {
+      book_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_lists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          friend_id: string | null
+          id: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          friend_id?: string | null
+          id?: string
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string | null
+          id?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_friend_id_fkey"
+            columns: ["friend_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      genres: {
+        Row: {
+          id: string
+          isbndb_code: string | null
+          name: string
+        }
+        Insert: {
+          id?: string
+          isbndb_code?: string | null
+          name: string
+        }
+        Update: {
+          id?: string
+          isbndb_code?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      languages: {
+        Row: {
+          id: string
+          iso_code: string
+          name: string
+        }
+        Insert: {
+          id?: string
+          iso_code: string
+          name: string
+        }
+        Update: {
+          id?: string
+          iso_code?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      list_books: {
+        Row: {
+          added_at: string
+          book_id: string | null
+          id: string
+          list_id: string | null
+        }
+        Insert: {
+          added_at?: string
+          book_id?: string | null
+          id?: string
+          list_id?: string | null
+        }
+        Update: {
+          added_at?: string
+          book_id?: string | null
+          id?: string
+          list_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_books_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "user_books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_books_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "book_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          nickname: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          nickname: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nickname?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_books: {
         Row: {
           book_author: string
@@ -46,6 +213,72 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_genres: {
+        Row: {
+          genre_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          genre_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          genre_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_genres_genre_id_fkey"
+            columns: ["genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_genres_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_languages: {
+        Row: {
+          id: string
+          language_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          language_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          language_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_languages_language_id_fkey"
+            columns: ["language_id"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_languages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
