@@ -15,7 +15,7 @@ const Index = () => {
   const [previousBookIds, setPreviousBookIds] = useState<string[]>([]);
   const [session, setSession] = useState<any>(null);
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -71,10 +71,38 @@ const Index = () => {
           setPreviousBookIds(prev => [...prev, bookId]);
         }
         
+        const originalDescription = data.book.synopsis || "No description available.";
+        let translatedDescription = originalDescription;
+
+        // Translate description if language is not English
+        if (language !== 'en') {
+          try {
+            const translateResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-description`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                description: originalDescription, 
+                targetLanguage: language 
+              }),
+            });
+
+            if (translateResponse.ok) {
+              const translateData = await translateResponse.json();
+              translatedDescription = translateData.translatedDescription || originalDescription;
+            } else {
+              console.error('Translation failed, using original description');
+            }
+          } catch (translateError) {
+            console.error('Error translating description:', translateError);
+          }
+        }
+        
         setCurrentBook({
           title: data.book.title,
           author: data.book.authors?.[0] || "Unknown Author",
-          description: data.book.synopsis || "No description available.",
+          description: translatedDescription,
           year: data.book.date_published || "Unknown",
           coverUrl: data.book.image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
         });
