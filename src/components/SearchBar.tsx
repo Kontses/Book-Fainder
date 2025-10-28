@@ -13,11 +13,6 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
   const [query, setQuery] = useState("");
   const { t } = useLanguage();
 
-  const randomPrompts = [
-    'randomPrompt1', 'randomPrompt2', 'randomPrompt3', 'randomPrompt4',
-    'randomPrompt5', 'randomPrompt6', 'randomPrompt7', 'randomPrompt8'
-  ];
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
@@ -26,8 +21,11 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
   };
 
   const handleRandomPrompt = () => {
-    const randomKey = randomPrompts[Math.floor(Math.random() * randomPrompts.length)];
-    setQuery(t(randomKey));
+    const prompts = t('randomPrompts');
+    if (Array.isArray(prompts)) {
+      const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+      setQuery(randomPrompt);
+    }
   };
 
   return (
@@ -37,7 +35,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           <Textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t('searchPlaceholder')}
+            placeholder={t('searchPlaceholder') as string}
             className="min-h-[120px] pr-12 text-base resize-none bg-card/80 backdrop-blur-sm border-border/50 focus:border-primary transition-colors"
             disabled={isLoading}
           />
@@ -59,7 +57,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           size="lg"
         >
           <Sparkles className="mr-2 h-5 w-5" />
-          {isLoading ? t('searching') : t('suggestMeBook')}
+          {isLoading ? t('searching') as string : t('suggestMeBook') as string}
         </Button>
       </div>
     </form>

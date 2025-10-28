@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, previousBookIds = [] } = await req.json();
     
     if (!prompt) {
       return new Response(
@@ -194,6 +194,18 @@ Deno.serve(async (req) => {
     // If no books match after filtering, return all books
     if (filteredBooks.length === 0) {
       filteredBooks = isbndbData.books;
+    }
+
+    // Filter out previously shown books
+    if (previousBookIds.length > 0) {
+      const availableBooks = filteredBooks.filter((book: any) => 
+        !previousBookIds.includes(book.isbn13 || book.isbn)
+      );
+      
+      // Use available books if any, otherwise use all filtered books
+      if (availableBooks.length > 0) {
+        filteredBooks = availableBooks;
+      }
     }
 
     // Pick a random book from the results

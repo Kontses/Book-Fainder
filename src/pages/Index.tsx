@@ -12,6 +12,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [currentBook, setCurrentBook] = useState<any>(null);
+  const [previousBookIds, setPreviousBookIds] = useState<string[]>([]);
   const [session, setSession] = useState<any>(null);
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -55,7 +56,7 @@ const Index = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: query }),
+        body: JSON.stringify({ prompt: query, previousBookIds }),
       });
 
       if (!response.ok) {
@@ -65,6 +66,11 @@ const Index = () => {
       const data = await response.json();
       
       if (data.book) {
+        const bookId = data.book.isbn13 || data.book.isbn;
+        if (bookId) {
+          setPreviousBookIds(prev => [...prev, bookId]);
+        }
+        
         setCurrentBook({
           title: data.book.title,
           author: data.book.authors?.[0] || "Unknown Author",
@@ -72,13 +78,13 @@ const Index = () => {
           year: data.book.date_published || "Unknown",
           coverUrl: data.book.image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
         });
-        toast.success(t('foundBook'));
+        toast.success(t('foundBook') as string);
       } else {
-        toast.error(t('noBooks'));
+        toast.error(t('noBooks') as string);
       }
     } catch (error) {
       console.error('Error searching for books:', error);
-      toast.error(t('failedSearch'));
+      toast.error(t('failedSearch') as string);
     } finally {
       setIsSearching(false);
     }

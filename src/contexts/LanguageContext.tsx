@@ -4,7 +4,7 @@ type Language = 'en' | 'el' | 'es' | 'fr' | 'de' | 'it';
 
 interface Translations {
   [key: string]: {
-    [key: string]: string;
+    [key: string]: string | string[];
   };
 }
 
@@ -52,14 +52,28 @@ const translations: Translations = {
     noSavedBooks: 'No saved books yet',
     startSaving: 'Start searching for books and save your favorites!',
     // Random prompts
-    randomPrompt1: 'I want a mystery novel from the 1930s',
-    randomPrompt2: 'Looking for a sci-fi book about space exploration',
-    randomPrompt3: 'A romantic comedy set in Paris',
-    randomPrompt4: 'Historical fiction about ancient Rome',
-    randomPrompt5: 'A thriller with unexpected twists',
-    randomPrompt6: 'Fantasy novel with dragons and magic',
-    randomPrompt7: 'Biography of an inspiring leader',
-    randomPrompt8: 'Psychological horror that keeps you up at night',
+    randomPrompts: [
+      'I want a mystery novel from the 1930s',
+      'Looking for a sci-fi book about space exploration',
+      'A romantic comedy set in Paris',
+      'Historical fiction about ancient Rome',
+      'A thriller with unexpected twists',
+      'Fantasy novel with dragons and magic',
+      'Biography of an inspiring leader',
+      'Psychological horror that keeps you up at night',
+      'Adventure story set in the Amazon rainforest',
+      'A book about personal growth and mindfulness',
+      'Classic literature from the Victorian era',
+      'True story about survival against all odds',
+      'Poetry collection celebrating love and life',
+      'Cookbook with traditional Italian recipes',
+      'Political drama set during the Cold War',
+      'Coming-of-age story in a small town',
+      'Epic fantasy saga with complex world-building',
+      'Business book about innovation and disruption',
+      'Art book about impressionist painters',
+      'Sports autobiography of an Olympic champion'
+    ],
   },
   el: {
     // Auth page
@@ -104,14 +118,28 @@ const translations: Translations = {
     noSavedBooks: 'Δεν υπάρχουν αποθηκευμένα βιβλία ακόμα',
     startSaving: 'Ξεκινήστε να αναζητάτε βιβλία και αποθηκεύστε τα αγαπημένα σας!',
     // Random prompts
-    randomPrompt1: 'Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
-    randomPrompt2: 'Ψάχνω για ένα βιβλίο επιστημονικής φαντασίας για διαστημική εξερεύνηση',
-    randomPrompt3: 'Μια ρομαντική κωμωδία στο Παρίσι',
-    randomPrompt4: 'Ιστορική μυθοπλασία για την αρχαία Ρώμη',
-    randomPrompt5: 'Ένα θρίλερ με απροσδόκητες ανατροπές',
-    randomPrompt6: 'Μυθιστόρημα φαντασίας με δράκους και μαγεία',
-    randomPrompt7: 'Βιογραφία ενός εμπνευσμένου ηγέτη',
-    randomPrompt8: 'Ψυχολογικός τρόμος που σε κρατάει ξάγρυπνο',
+    randomPrompts: [
+      'Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
+      'Ψάχνω για ένα βιβλίο επιστημονικής φαντασίας για διαστημική εξερεύνηση',
+      'Μια ρομαντική κωμωδία στο Παρίσι',
+      'Ιστορική μυθοπλασία για την αρχαία Ρώμη',
+      'Ένα θρίλερ με απροσδόκητες ανατροπές',
+      'Μυθιστόρημα φαντασίας με δράκους και μαγεία',
+      'Βιογραφία ενός εμπνευσμένου ηγέτη',
+      'Ψυχολογικός τρόμος που σε κρατάει ξάγρυπνο',
+      'Ιστορία περιπέτειας στον Αμαζόνιο',
+      'Βιβλίο για προσωπική ανάπτυξη και ενσυνειδητότητα',
+      'Κλασική λογοτεχνία από τη Βικτωριανή εποχή',
+      'Αληθινή ιστορία επιβίωσης ενάντια σε όλες τις δυσκολίες',
+      'Συλλογή ποιημάτων για την αγάπη και τη ζωή',
+      'Βιβλίο μαγειρικής με παραδοσιακές ιταλικές συνταγές',
+      'Πολιτικό δράμα κατά τη διάρκεια του Ψυχρού Πολέμου',
+      'Ιστορία ενηλικίωσης σε μια μικρή πόλη',
+      'Επική φαντασία με πολύπλοκο κόσμο',
+      'Βιβλίο επιχειρήσεων για καινοτομία και διακοπή',
+      'Βιβλίο τέχνης για ιμπρεσιονιστές ζωγράφους',
+      'Αθλητική αυτοβιογραφία Ολυμπιονίκη'
+    ],
   },
   es: {
     // Auth page
@@ -156,14 +184,28 @@ const translations: Translations = {
     noSavedBooks: 'Aún no hay libros guardados',
     startSaving: '¡Comienza a buscar libros y guarda tus favoritos!',
     // Random prompts
-    randomPrompt1: 'Quiero una novela de misterio de los años 30',
-    randomPrompt2: 'Busco un libro de ciencia ficción sobre exploración espacial',
-    randomPrompt3: 'Una comedia romántica ambientada en París',
-    randomPrompt4: 'Ficción histórica sobre la antigua Roma',
-    randomPrompt5: 'Un thriller con giros inesperados',
-    randomPrompt6: 'Novela de fantasía con dragones y magia',
-    randomPrompt7: 'Biografía de un líder inspirador',
-    randomPrompt8: 'Terror psicológico que te mantiene despierto',
+    randomPrompts: [
+      'Quiero una novela de misterio de los años 30',
+      'Busco un libro de ciencia ficción sobre exploración espacial',
+      'Una comedia romántica ambientada en París',
+      'Ficción histórica sobre la antigua Roma',
+      'Un thriller con giros inesperados',
+      'Novela de fantasía con dragones y magia',
+      'Biografía de un líder inspirador',
+      'Terror psicológico que te mantiene despierto',
+      'Historia de aventuras en la selva amazónica',
+      'Libro sobre crecimiento personal y mindfulness',
+      'Literatura clásica de la era victoriana',
+      'Historia real sobre supervivencia contra todo pronóstico',
+      'Colección de poesía celebrando amor y vida',
+      'Libro de cocina con recetas italianas tradicionales',
+      'Drama político durante la Guerra Fría',
+      'Historia de mayoría de edad en un pueblo pequeño',
+      'Saga de fantasía épica con construcción de mundo compleja',
+      'Libro de negocios sobre innovación y disrupción',
+      'Libro de arte sobre pintores impresionistas',
+      'Autobiografía deportiva de un campeón olímpico'
+    ],
   },
   fr: {
     // Auth page
@@ -208,14 +250,28 @@ const translations: Translations = {
     noSavedBooks: 'Aucun livre enregistré pour le moment',
     startSaving: 'Commencez à rechercher des livres et enregistrez vos favoris!',
     // Random prompts
-    randomPrompt1: 'Je veux un roman policier des années 1930',
-    randomPrompt2: 'À la recherche d\'un livre de science-fiction sur l\'exploration spatiale',
-    randomPrompt3: 'Une comédie romantique se déroulant à Paris',
-    randomPrompt4: 'Fiction historique sur la Rome antique',
-    randomPrompt5: 'Un thriller avec des rebondissements inattendus',
-    randomPrompt6: 'Roman fantastique avec des dragons et de la magie',
-    randomPrompt7: 'Biographie d\'un leader inspirant',
-    randomPrompt8: 'Horreur psychologique qui vous tient éveillé',
+    randomPrompts: [
+      'Je veux un roman policier des années 1930',
+      'À la recherche d\'un livre de science-fiction sur l\'exploration spatiale',
+      'Une comédie romantique se déroulant à Paris',
+      'Fiction historique sur la Rome antique',
+      'Un thriller avec des rebondissements inattendus',
+      'Roman fantastique avec des dragons et de la magie',
+      'Biographie d\'un leader inspirant',
+      'Horreur psychologique qui vous tient éveillé',
+      'Histoire d\'aventure dans la forêt amazonienne',
+      'Livre sur la croissance personnelle et la pleine conscience',
+      'Littérature classique de l\'ère victorienne',
+      'Histoire vraie de survie contre toute attente',
+      'Recueil de poésie célébrant l\'amour et la vie',
+      'Livre de cuisine avec des recettes italiennes traditionnelles',
+      'Drame politique pendant la Guerre froide',
+      'Histoire de passage à l\'âge adulte dans une petite ville',
+      'Saga fantasy épique avec construction de monde complexe',
+      'Livre d\'affaires sur l\'innovation et la disruption',
+      'Livre d\'art sur les peintres impressionnistes',
+      'Autobiographie sportive d\'un champion olympique'
+    ],
   },
   de: {
     // Auth page
@@ -260,14 +316,28 @@ const translations: Translations = {
     noSavedBooks: 'Noch keine gespeicherten Bücher',
     startSaving: 'Beginnen Sie mit der Suche nach Büchern und speichern Sie Ihre Favoriten!',
     // Random prompts
-    randomPrompt1: 'Ich möchte einen Kriminalroman aus den 1930er Jahren',
-    randomPrompt2: 'Auf der Suche nach einem Science-Fiction-Buch über Weltraumforschung',
-    randomPrompt3: 'Eine romantische Komödie in Paris',
-    randomPrompt4: 'Historische Fiktion über das antike Rom',
-    randomPrompt5: 'Ein Thriller mit unerwarteten Wendungen',
-    randomPrompt6: 'Fantasy-Roman mit Drachen und Magie',
-    randomPrompt7: 'Biografie eines inspirierenden Führers',
-    randomPrompt8: 'Psycho-Horror, der Sie wach hält',
+    randomPrompts: [
+      'Ich möchte einen Kriminalroman aus den 1930er Jahren',
+      'Auf der Suche nach einem Science-Fiction-Buch über Weltraumforschung',
+      'Eine romantische Komödie in Paris',
+      'Historische Fiktion über das antike Rom',
+      'Ein Thriller mit unerwarteten Wendungen',
+      'Fantasy-Roman mit Drachen und Magie',
+      'Biografie eines inspirierenden Führers',
+      'Psycho-Horror, der Sie wach hält',
+      'Abenteuergeschichte im Amazonas-Regenwald',
+      'Buch über persönliches Wachstum und Achtsamkeit',
+      'Klassische Literatur aus der viktorianischen Ära',
+      'Wahre Geschichte über Überleben gegen alle Widrigkeiten',
+      'Gedichtsammlung über Liebe und Leben',
+      'Kochbuch mit traditionellen italienischen Rezepten',
+      'Politisches Drama während des Kalten Krieges',
+      'Coming-of-Age-Geschichte in einer Kleinstadt',
+      'Epische Fantasy-Saga mit komplexem Weltenbau',
+      'Geschäftsbuch über Innovation und Disruption',
+      'Kunstbuch über impressionistische Maler',
+      'Sportautobiografie eines olympischen Champions'
+    ],
   },
   it: {
     // Auth page
@@ -312,21 +382,35 @@ const translations: Translations = {
     noSavedBooks: 'Nessun libro salvato ancora',
     startSaving: 'Inizia a cercare libri e salva i tuoi preferiti!',
     // Random prompts
-    randomPrompt1: 'Voglio un romanzo giallo degli anni \'30',
-    randomPrompt2: 'Cerco un libro di fantascienza sull\'esplorazione spaziale',
-    randomPrompt3: 'Una commedia romantica ambientata a Parigi',
-    randomPrompt4: 'Narrativa storica sull\'antica Roma',
-    randomPrompt5: 'Un thriller con colpi di scena inaspettati',
-    randomPrompt6: 'Romanzo fantasy con draghi e magia',
-    randomPrompt7: 'Biografia di un leader ispiratore',
-    randomPrompt8: 'Horror psicologico che ti tiene sveglio',
+    randomPrompts: [
+      'Voglio un romanzo giallo degli anni \'30',
+      'Cerco un libro di fantascienza sull\'esplorazione spaziale',
+      'Una commedia romantica ambientata a Parigi',
+      'Narrativa storica sull\'antica Roma',
+      'Un thriller con colpi di scena inaspettati',
+      'Romanzo fantasy con draghi e magia',
+      'Biografia di un leader ispiratore',
+      'Horror psicologico che ti tiene sveglio',
+      'Storia d\'avventura nella foresta amazzonica',
+      'Libro sulla crescita personale e mindfulness',
+      'Letteratura classica dell\'era vittoriana',
+      'Storia vera di sopravvivenza contro ogni previsione',
+      'Raccolta di poesie che celebrano amore e vita',
+      'Libro di cucina con ricette italiane tradizionali',
+      'Dramma politico durante la Guerra Fredda',
+      'Storia di formazione in una piccola città',
+      'Saga fantasy epica con costruzione del mondo complessa',
+      'Libro di business su innovazione e disruption',
+      'Libro d\'arte sui pittori impressionisti',
+      'Autobiografia sportiva di un campione olimpico'
+    ],
   },
 };
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string) => string | string[];
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -346,7 +430,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('language', lang);
   };
 
-  const t = (key: string): string => {
+  const t = (key: string): string | string[] => {
     return translations[language][key] || key;
   };
 

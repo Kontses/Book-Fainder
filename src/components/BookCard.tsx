@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Heart } from "lucide-react";
+import { Heart, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface BookCardProps {
   title: string;
@@ -17,6 +18,27 @@ export const BookCard = ({ title, author, description, year, coverUrl, onSave }:
   const [isImageOpen, setIsImageOpen] = useState(false);
   const bookDetails = { title, author, description, year, coverUrl };
   const cleanedDescription = description.replace(/<p>|<\/p>/g, '');
+  
+  const handleShare = async () => {
+    const shareData = {
+      title: `Book Recommendation: ${title}`,
+      text: `Check out this book: "${title}" by ${author}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      // Fallback: copy to clipboard
+      const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+      navigator.clipboard.writeText(shareText);
+      toast.success('Link copied to clipboard!');
+    }
+  };
   
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm">
@@ -54,16 +76,26 @@ export const BookCard = ({ title, author, description, year, coverUrl, onSave }:
                   {author} {year && `• ${year}`}
                 </CardDescription>
               </div>
-              {onSave && (
+              <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onSave?.(bookDetails)}
+                  onClick={handleShare}
                   className="text-primary hover:text-primary-glow hover:bg-primary/10 transition-colors"
                 >
-                  <Heart className="h-5 w-5" />
+                  <Share2 className="h-5 w-5" />
                 </Button>
-              )}
+                {onSave && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onSave?.(bookDetails)}
+                    className="text-primary hover:text-primary-glow hover:bg-primary/10 transition-colors"
+                  >
+                    <Heart className="h-5 w-5" />
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
