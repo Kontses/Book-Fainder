@@ -2,3 +2,6 @@ project_id = "usexhvewvozfbunpwvis"
 
 [functions.search-books]
 verify_jwt = false
+
+[functions.translate-description]
+verify_jwt = false
