@@ -144,6 +144,11 @@ Deno.serve(async (req) => {
       searchQuery += ` ${searchCriteria.genres[0]}`;
     }
 
+    // Add language to search query for better filtering
+    if (searchCriteria.language) {
+      searchQuery += ` ${searchCriteria.language}`;
+    }
+
     if (!searchQuery.trim()) {
       searchQuery = 'fiction'; // Default fallback
     }

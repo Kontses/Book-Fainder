@@ -17,7 +17,8 @@ interface BookCardProps {
 export const BookCard = ({ title, author, description, year, coverUrl, onSave }: BookCardProps) => {
   const [isImageOpen, setIsImageOpen] = useState(false);
   const bookDetails = { title, author, description, year, coverUrl };
-  const cleanedDescription = description.replace(/<p>|<\/p>/g, '');
+  // Remove all HTML tags from description
+  const cleanedDescription = description.replace(/<[^>]*>/g, '');
   
   const handleShare = async () => {
     const shareData = {
