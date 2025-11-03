@@ -184,8 +184,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Filter books by year range if specified
+    // Filter books by year range and language if specified
     let filteredBooks = isbndbData.books;
+    
     if (searchCriteria.year_range) {
       filteredBooks = filteredBooks.filter((book: any) => {
         if (!book.date_published) return false;
@@ -194,6 +195,40 @@ Deno.serve(async (req) => {
         if (searchCriteria.year_range?.max && year > searchCriteria.year_range.max) return false;
         return true;
       });
+    }
+
+    // Filter by language if specified
+    if (searchCriteria.language) {
+      const languageBooksFiltered = filteredBooks.filter((book: any) => {
+        if (!book.language) return false;
+        const bookLang = book.language.toLowerCase();
+        const searchLang = searchCriteria.language!.toLowerCase();
+        
+        // Map common language names to their codes and variations
+        const languageMap: { [key: string]: string[] } = {
+          'greek': ['el', 'gr', 'greek', 'ελληνικά', 'ελληνική'],
+          'english': ['en', 'eng', 'english', 'αγγλικά', 'αγγλική'],
+          'french': ['fr', 'fra', 'french', 'γαλλικά', 'γαλλική'],
+          'german': ['de', 'deu', 'german', 'γερμανικά', 'γερμανική'],
+          'spanish': ['es', 'spa', 'spanish', 'ισπανικά', 'ισπανική'],
+          'italian': ['it', 'ita', 'italian', 'ιταλικά', 'ιταλική']
+        };
+        
+        // Check if searchLang matches any language mapping
+        for (const [key, variations] of Object.entries(languageMap)) {
+          if (variations.some(v => searchLang.includes(v) || v.includes(searchLang))) {
+            return variations.some(v => bookLang.includes(v) || v.includes(bookLang));
+          }
+        }
+        
+        // Fallback: direct comparison
+        return bookLang.includes(searchLang) || searchLang.includes(bookLang);
+      });
+      
+      // Only use language-filtered results if we found any, otherwise use all results
+      if (languageBooksFiltered.length > 0) {
+        filteredBooks = languageBooksFiltered;
+      }
     }
 
     // If no books match after filtering, return all books
