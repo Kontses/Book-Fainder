@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
@@ -158,6 +159,7 @@ const Index = () => {
             <h1 className="text-2xl font-serif font-bold text-primary">Book Fainder</h1>
           </Link>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSwitcher />
             {session ? (
               <>

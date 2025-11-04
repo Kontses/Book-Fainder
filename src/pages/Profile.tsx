@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { GenreSelector } from "@/components/profile/GenreSelector";
 import { LanguagePreferences } from "@/components/profile/LanguagePreferences";
@@ -110,6 +111,7 @@ const Profile = () => {
             <h1 className="text-2xl font-serif font-bold text-primary">Book Fainder</h1>
           </Link>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSwitcher />
             <Button variant="ghost" onClick={handleSignOut} className="hover:bg-primary/10 hover:text-primary transition-colors">
               <LogOut className="mr-2 h-5 w-5" />
