@@ -20,23 +20,35 @@ const Auth = () => {
   const { t } = useLanguage();
 
   useEffect(() => {
+    console.log('[Auth] Component mounted, setting up auth listener');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (session) {
+        console.log('[Auth] State change event:', event, 'Session exists:', !!session);
+        if (event === 'SIGNED_IN' && session) {
+          console.log('[Auth] User signed in, navigating to home');
           navigate("/");
+        }
+        if (event === 'SIGNED_OUT') {
+          console.log('[Auth] User signed out');
         }
       }
     );
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[Auth] Initial session check, session exists:', !!session);
       if (session) {
+        console.log('[Auth] Existing session found, navigating to home');
         navigate("/");
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('[Auth] Component unmounting, unsubscribing');
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,17 +101,31 @@ const Auth = () => {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'apple') => {
+    console.log('[Auth] Starting social login with provider:', provider);
+    console.log('[Auth] Redirect URL will be:', `${window.location.origin}/`);
+    
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/`,
         },
       });
 
-      if (error) throw error;
+      console.log('[Auth] OAuth response - data:', data, 'error:', error);
+
+      if (error) {
+        console.error('[Auth] OAuth error details:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        throw error;
+      }
+      
+      console.log('[Auth] OAuth initiated successfully, redirecting to provider...');
     } catch (error: any) {
-      console.error("Social auth error:", error);
+      console.error("[Auth] Social auth error:", error);
       toast.error(error.message || t('errorOccurred'));
     }
   };
