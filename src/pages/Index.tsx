@@ -15,6 +15,7 @@ const Index = () => {
   const [currentBook, setCurrentBook] = useState<any>(null);
   const [previousBookIds, setPreviousBookIds] = useState<string[]>([]);
   const [session, setSession] = useState<any>(null);
+  const [isExiting, setIsExiting] = useState(false);
   const navigate = useNavigate();
   const { t, language } = useLanguage();
 
@@ -49,6 +50,15 @@ const Index = () => {
   };
 
   const handleSearch = async (query: string) => {
+    // Trigger exit animation if there's a current book
+    if (currentBook) {
+      setIsExiting(true);
+      // Wait for exit animation to complete
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setCurrentBook(null);
+      setIsExiting(false);
+    }
+    
     setIsSearching(true);
     
     try {
@@ -200,7 +210,16 @@ const Index = () => {
 
         {/* Results Section */}
         {currentBook && (
-          <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div 
+            className={`max-w-4xl mx-auto transition-all duration-500 ${
+              isExiting 
+                ? 'opacity-0 scale-95 -translate-y-8' 
+                : 'opacity-100 scale-100 translate-y-0 animate-in fade-in slide-in-from-bottom-8'
+            }`}
+            style={{
+              animation: isExiting ? 'none' : undefined
+            }}
+          >
             <h3 className="text-2xl font-serif font-semibold text-foreground mb-6 text-center">
               {t('ourRecommendation')}
             </h3>

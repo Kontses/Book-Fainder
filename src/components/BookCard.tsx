@@ -42,16 +42,16 @@ export const BookCard = ({ title, author, description, year, coverUrl, onSave }:
   };
   
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm">
       <div className="flex flex-col md:flex-row">
         {coverUrl && (
           <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
             <DialogTrigger asChild>
-              <div className="md:w-48 h-64 md:h-auto bg-muted flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity">
+              <div className="md:w-48 h-64 md:h-auto bg-muted flex-shrink-0 cursor-pointer hover:opacity-90 transition-all duration-300 overflow-hidden group">
                 <img 
                   src={coverUrl} 
                   alt={`Εξώφυλλο: ${title}`}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
             </DialogTrigger>
