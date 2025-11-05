@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Heart, Share2 } from "lucide-react";
+import { Heart, Share2, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
 interface BookCardProps {
@@ -11,14 +11,24 @@ interface BookCardProps {
   description: string;
   year?: string;
   coverUrl?: string;
+  isbn?: string;
   onSave?: (book: Omit<BookCardProps, 'onSave'>) => void;
 }
 
-export const BookCard = ({ title, author, description, year, coverUrl, onSave }: BookCardProps) => {
+export const BookCard = ({ title, author, description, year, coverUrl, isbn, onSave }: BookCardProps) => {
   const [isImageOpen, setIsImageOpen] = useState(false);
   const bookDetails = { title, author, description, year, coverUrl };
   // Remove all HTML tags from description
   const cleanedDescription = description.replace(/<[^>]*>/g, '');
+  
+  // Amazon Affiliate configuration
+  const AMAZON_AFFILIATE_TAG = import.meta.env.VITE_AMAZON_AFFILIATE_TAG || 'your-tag-20';
+  
+  const getAmazonLink = () => {
+    // Use ISBN if available, otherwise search by title and author
+    const searchQuery = isbn || `${title} ${author}`;
+    return `https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}&tag=${AMAZON_AFFILIATE_TAG}`;
+  };
   
   const handleShare = async () => {
     const shareData = {
@@ -100,9 +110,16 @@ export const BookCard = ({ title, author, description, year, coverUrl, onSave }:
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-foreground/80 leading-relaxed max-h-32 overflow-y-auto">
+            <p className="text-foreground/80 leading-relaxed max-h-32 overflow-y-auto mb-6">
               {cleanedDescription}
             </p>
+            <Button
+              className="w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg"
+              onClick={() => window.open(getAmazonLink(), '_blank', 'noopener,noreferrer')}
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              View on Amazon
+            </Button>
           </CardContent>
         </div>
       </div>

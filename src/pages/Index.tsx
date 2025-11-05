@@ -113,7 +113,8 @@ const Index = () => {
           author: data.book.authors?.[0] || "Unknown Author",
           description: translatedDescription,
           year: data.book.date_published || "Unknown",
-          coverUrl: data.book.image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
+          coverUrl: data.book.image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop",
+          isbn: data.book.isbn13 || data.book.isbn
         });
         setIsExiting(false);
         toast.success(t('foundBook') as string);
@@ -228,6 +229,7 @@ const Index = () => {
               description={currentBook.description}
               year={currentBook.year}
               coverUrl={currentBook.coverUrl}
+              isbn={currentBook.isbn}
               onSave={handleSaveBook}
             />
           </div>
