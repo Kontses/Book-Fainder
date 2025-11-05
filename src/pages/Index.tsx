@@ -50,15 +50,6 @@ const Index = () => {
   };
 
   const handleSearch = async (query: string) => {
-    // Trigger exit animation if there's a current book
-    if (currentBook) {
-      setIsExiting(true);
-      // Wait for exit animation to complete
-      await new Promise(resolve => setTimeout(resolve, 400));
-      setCurrentBook(null);
-      setIsExiting(false);
-    }
-    
     setIsSearching(true);
     
     try {
@@ -110,6 +101,13 @@ const Index = () => {
           }
         }
         
+        // Trigger exit animation if there's a current book, right before showing new one
+        if (currentBook) {
+          setIsExiting(true);
+          // Wait for exit animation to complete
+          await new Promise(resolve => setTimeout(resolve, 400));
+        }
+        
         setCurrentBook({
           title: data.book.title,
           author: data.book.authors?.[0] || "Unknown Author",
@@ -117,6 +115,7 @@ const Index = () => {
           year: data.book.date_published || "Unknown",
           coverUrl: data.book.image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
         });
+        setIsExiting(false);
         toast.success(t('foundBook') as string);
       } else {
         toast.error(t('noBooks') as string);
