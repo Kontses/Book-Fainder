@@ -52,12 +52,12 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   };
   
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm">
-      <div className="flex flex-col sm:flex-row h-full">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm h-full">
+      <div className="flex flex-row items-start">
         {coverUrl && (
           <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
             <DialogTrigger asChild>
-              <div className="sm:w-32 h-48 flex-shrink-0 cursor-pointer hover:opacity-90 transition-all duration-300 overflow-hidden group">
+              <div className="w-32 h-48 flex-shrink-0 cursor-pointer hover:opacity-90 transition-all duration-300 overflow-hidden group">
                 <img 
                   src={coverUrl} 
                   alt={`Εξώφυλλο: ${title}`}
@@ -76,7 +76,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
             </DialogContent>
           </Dialog>
         )}
-        <div className="flex-1 flex flex-col p-4">
+        <div className="flex-1 flex flex-col p-4 pt-0">
           <CardHeader className="p-0 pb-3">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
@@ -109,20 +109,20 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0 flex-1 flex flex-col justify-between">
-            <p className="text-foreground/80 leading-relaxed text-sm mb-4 overflow-y-auto">
-              {cleanedDescription}
-            </p>
-            <Button
-              className="w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg mt-auto"
-              onClick={() => window.open(getAmazonLink(), '_blank', 'noopener,noreferrer')}
-            >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              View on Amazon
-            </Button>
-          </CardContent>
         </div>
       </div>
+      <CardContent className="p-4 pt-0 flex-1 flex flex-col justify-between">
+        <p className="text-foreground/80 leading-relaxed text-sm line-clamp-4 mb-4 overflow-y-auto max-h-24">
+          {cleanedDescription}
+        </p>
+        <Button
+          className="w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg mt-auto"
+          onClick={() => window.open(getAmazonLink(), '_blank', 'noopener,noreferrer')}
+        >
+          <ShoppingCart className="mr-2 h-5 w-5" />
+          View on Amazon
+        </Button>
+      </CardContent>
     </Card>
   );
 };
