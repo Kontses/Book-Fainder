@@ -19,7 +19,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   const [isImageOpen, setIsImageOpen] = useState(false);
   const bookDetails = { title, author, description, year, coverUrl };
   // Remove all HTML tags from description
-  const cleanedDescription = description.replace(/<[^>]*>/g, '');
+  const cleanedDescription = description.replaceAll(/<[^>]*>/g, '');
   
   // Amazon Affiliate configuration
   const AMAZON_AFFILIATE_TAG = import.meta.env.VITE_AMAZON_AFFILIATE_TAG || 'your-tag-20';
@@ -34,7 +34,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
     const shareData = {
       title: `Book Recommendation: ${title}`,
       text: `Check out this book: "${title}" by ${author}`,
-      url: window.location.href,
+      url: globalThis.location.href,
     };
 
     if (navigator.share) {
@@ -110,7 +110,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
             </div>
           </CardHeader>
           <CardContent className="p-0 flex-1 flex flex-col justify-between">
-            <p className="text-foreground/80 leading-relaxed text-sm line-clamp-4 mb-4">
+            <p className="text-foreground/80 leading-relaxed text-sm line-clamp-4 mb-4 overflow-y-auto max-h-24">
               {cleanedDescription}
             </p>
             <Button
