@@ -158,6 +158,7 @@ const Profile = () => {
                     year={book.book_year || "Άγνωστο Έτος"}
                     coverUrl={book.book_cover_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"}
                     onSave={() => handleDeleteBook(book.id)}
+                    isSaved={true} // Mark as saved
                   />
                 ))}
               </div>
