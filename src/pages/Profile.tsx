@@ -129,7 +129,7 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="books" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8">
             <TabsTrigger value="books">{t('myBooks')}</TabsTrigger>
             <TabsTrigger value="settings">{t('profileSettings')}</TabsTrigger>
             <TabsTrigger value="genres">{t('genrePreferences')}</TabsTrigger>

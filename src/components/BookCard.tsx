@@ -52,12 +52,12 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   };
   
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm">
-      <div className="flex flex-col md:flex-row">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm h-full">
+      <div className="flex flex-col sm:flex-row h-full">
         {coverUrl && (
           <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
             <DialogTrigger asChild>
-              <div className="md:w-48 h-64 md:h-auto bg-muted flex-shrink-0 cursor-pointer hover:opacity-90 transition-all duration-300 overflow-hidden group">
+              <div className="sm:w-32 h-48 flex-shrink-0 cursor-pointer hover:opacity-90 transition-all duration-300 overflow-hidden group">
                 <img 
                   src={coverUrl} 
                   alt={`Εξώφυλλο: ${title}`}
@@ -76,14 +76,14 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
             </DialogContent>
           </Dialog>
         )}
-        <div className="flex-1">
-          <CardHeader>
+        <div className="flex-1 flex flex-col p-4">
+          <CardHeader className="p-0 pb-3">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <CardTitle className="text-2xl md:text-3xl font-serif text-primary mb-2">
+                <CardTitle className="text-xl font-serif text-primary line-clamp-2 mb-1">
                   {title}
                 </CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
+                <CardDescription className="text-sm text-muted-foreground line-clamp-1">
                   {author} {year && `• ${year}`}
                 </CardDescription>
               </div>
@@ -109,12 +109,12 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <p className="text-foreground/80 leading-relaxed max-h-32 overflow-y-auto mb-6">
+          <CardContent className="p-0 flex-1 flex flex-col justify-between">
+            <p className="text-foreground/80 leading-relaxed text-sm line-clamp-4 mb-4">
               {cleanedDescription}
             </p>
             <Button
-              className="w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg"
+              className="w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg mt-auto"
               onClick={() => window.open(getAmazonLink(), '_blank', 'noopener,noreferrer')}
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
