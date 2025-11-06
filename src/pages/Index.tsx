@@ -185,7 +185,7 @@ const Index = () => {
             ) : (
               <Button variant="outline" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={handleAuthClick}>
                 <User className="mr-2 h-5 w-5" />
-                {t('loginRegister')}
+                {t('signIn')}
               </Button>
             )}
           </div>

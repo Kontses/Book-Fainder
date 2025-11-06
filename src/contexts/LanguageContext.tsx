@@ -31,7 +31,6 @@ const translations: Translations = {
     // Main page
     profile: 'Profile',
     signOut: 'Sign Out',
-    loginRegister: 'Login / Register',
     discoverYourNextBook: 'Discover your next book',
     describeBookAI: 'Describe the book you\'re looking for and AI will find the perfect recommendation for you.',
     searchPlaceholder: 'Describe the book you\'re looking for... e.g. I want a mystery novel from the 1930s',
@@ -127,7 +126,6 @@ const translations: Translations = {
     // Main page
     profile: 'Προφίλ',
     signOut: 'Αποσύνδεση',
-    loginRegister: 'Σύνδεση / Εγγραφή',
     discoverYourNextBook: 'Ανακαλύψτε το επόμενο βιβλίο σας',
     describeBookAI: 'Περιγράψτε το βιβλίο που ψάχνετε και η τεχνητή νοημοσύνη θα βρει την τέλεια σύσταση για εσάς.',
     searchPlaceholder: 'Περιγράψτε το βιβλίο που ψάχνετε... π.χ. Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
@@ -223,7 +221,6 @@ const translations: Translations = {
     // Main page
     profile: 'Perfil',
     signOut: 'Cerrar sesión',
-    loginRegister: 'Iniciar sesión / Registrarse',
     discoverYourNextBook: 'Descubre tu próximo libro',
     describeBookAI: 'Describe el libro que buscas y la IA encontrará la recomendación perfecta para ti.',
     searchPlaceholder: 'Describe el libro que buscas... ej. Quiero una novela de misterio de los años 30',
@@ -315,7 +312,6 @@ const translations: Translations = {
     // Main page
     profile: 'Profil',
     signOut: 'Se déconnecter',
-    loginRegister: 'Connexion / Inscription',
     discoverYourNextBook: 'Découvrez votre prochain livre',
     describeBookAI: 'Décrivez le livre que vous recherchez et l\'IA trouvera la recommandation parfaite pour vous.',
     searchPlaceholder: 'Décrivez le livre que vous cherchez... ex. Je veux un roman policier des années 1930',
@@ -407,7 +403,6 @@ const translations: Translations = {
     // Main page
     profile: 'Profil',
     signOut: 'Abmelden',
-    loginRegister: 'Anmelden / Registrieren',
     discoverYourNextBook: 'Entdecken Sie Ihr nächstes Buch',
     describeBookAI: 'Beschreiben Sie das Buch, das Sie suchen, und die KI findet die perfekte Empfehlung für Sie.',
     searchPlaceholder: 'Beschreiben Sie das Buch, das Sie suchen... z.B. Ich möchte einen Kriminalroman aus den 1930er Jahren',
@@ -499,7 +494,6 @@ const translations: Translations = {
     // Main page
     profile: 'Profilo',
     signOut: 'Esci',
-    loginRegister: 'Accedi / Registrati',
     discoverYourNextBook: 'Scopri il tuo prossimo libro',
     describeBookAI: 'Descrivi il libro che stai cercando e l\'IA troverà la raccomandazione perfetta per te.',
     searchPlaceholder: 'Descrivi il libro che stai cercando... es. Voglio un romanzo giallo degli anni \'30',
@@ -598,8 +592,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translations[language][key] || key;
   };
 
+  const contextValue = React.useMemo(() => ({ language, setLanguage: handleSetLanguage, t }), [language, handleSetLanguage, t]);
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
