@@ -52,7 +52,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   };
   
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm h-full">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm">
       <div className="flex flex-col sm:flex-row h-full">
         {coverUrl && (
           <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
@@ -110,7 +110,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
             </div>
           </CardHeader>
           <CardContent className="p-0 flex-1 flex flex-col justify-between">
-            <p className="text-foreground/80 leading-relaxed text-sm line-clamp-4 mb-4 overflow-y-auto max-h-24">
+            <p className="text-foreground/80 leading-relaxed text-sm mb-4 overflow-y-auto">
               {cleanedDescription}
             </p>
             <Button
