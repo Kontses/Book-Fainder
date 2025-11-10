@@ -53,7 +53,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   };
   
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm min-h-[22rem]">
       <div className="flex flex-col sm:flex-row">
         {coverUrl && (
           <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>

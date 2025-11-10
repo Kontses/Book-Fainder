@@ -5,13 +5,11 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, LogOut } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
-import { GenreSelector } from "@/components/profile/GenreSelector";
-import { LanguagePreferences } from "@/components/profile/LanguagePreferences";
 import { BookLists } from "@/components/profile/BookLists";
 
 interface UserBook {
@@ -26,36 +24,73 @@ interface UserBook {
 const Profile = () => {
   const [userBooks, setUserBooks] = useState<UserBook[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileUser, setProfileUser] = useState<any>(null); // New state for profile user
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { nickname } = useParams();
 
   useEffect(() => {
-    fetchUserBooks();
-  }, []);
+    fetchUserProfileAndBooks();
+  }, [nickname]); // Re-run effect when nickname changes
 
-  const fetchUserBooks = async () => {
+  const fetchUserProfileAndBooks = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    let currentUserId: string | null = null;
 
-    if (!user) {
-      toast.error(t('mustSignIn'));
-      setLoading(false);
-      navigate("/");
-      return;
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser) {
+      currentUserId = currentUser.id;
+    }
+
+    if (!nickname) {
+      if (currentUserId) {
+        // If no nickname in URL, navigate to current user's profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('nickname')
+          .eq('id', currentUserId)
+          .single();
+        if (profileError || !profileData) {
+          toast.error(t('profileNotFound'));
+          navigate("/");
+          setLoading(false);
+          return;
+        }
+        navigate(`/profile/${profileData.nickname}`);
+        return;
+      } else {
+        toast.error(t('mustSignIn'));
+        navigate("/");
+        setLoading(false);
+        return;
+      }
     }
 
     try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, nickname')
+        .eq('nickname', nickname)
+        .single();
+
+      if (profileError || !profileData) {
+        toast.error(t('profileNotFound'));
+        navigate("/");
+        return;
+      }
+      setProfileUser(profileData);
+
       const { data, error } = await supabase
         .from('user_books')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', profileData.id);
 
       if (error) {
         throw error;
       }
       setUserBooks(data || []);
     } catch (error: any) {
-      console.error('Error fetching user books:', error.message);
+      console.error('Error fetching user profile or books:', error.message);
       toast.error(`${t('failedSearch')}: ${error.message}`);
     } finally {
       setLoading(false);
@@ -87,7 +122,7 @@ const Profile = () => {
         throw error;
       }
       toast.success(t('bookSaved'));
-      fetchUserBooks(); // Refresh the list
+      fetchUserProfileAndBooks(); // Refresh the list
     } catch (error: any) {
       console.error('Error deleting book:', error.message);
       toast.error(`${t('failedSave')}: ${error.message}`);
@@ -124,7 +159,7 @@ const Profile = () => {
       <main className="container mx-auto px-4 py-12 md:py-20">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4">
-            {t('profile')}
+            {profileUser ? profileUser.nickname : t('profile')}
           </h2>
         </div>
 
@@ -132,8 +167,6 @@ const Profile = () => {
           <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8">
             <TabsTrigger value="books">{t('myBooks')}</TabsTrigger>
             <TabsTrigger value="settings">{t('profileSettings')}</TabsTrigger>
-            <TabsTrigger value="genres">{t('genrePreferences')}</TabsTrigger>
-            <TabsTrigger value="languages">{t('languagePreferences')}</TabsTrigger>
             <TabsTrigger value="lists">{t('myLists')}</TabsTrigger>
           </TabsList>
 
@@ -167,14 +200,6 @@ const Profile = () => {
 
           <TabsContent value="settings">
             <ProfileSettings />
-          </TabsContent>
-
-          <TabsContent value="genres">
-            <GenreSelector />
-          </TabsContent>
-
-          <TabsContent value="languages">
-            <LanguagePreferences />
           </TabsContent>
 
           <TabsContent value="lists">
