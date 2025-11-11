@@ -53,10 +53,13 @@ const Index = () => {
     setIsSearching(true);
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/search-books`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
         },
         body: JSON.stringify({ prompt: query, previousBookIds }),
       });
@@ -79,10 +82,13 @@ const Index = () => {
         // Translate description if language is not English
         if (language !== 'en') {
           try {
+            const { data: { session } } = await supabase.auth.getSession();
+            
             const translateResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-description`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token || ''}`,
               },
               body: JSON.stringify({ 
                 description: originalDescription, 

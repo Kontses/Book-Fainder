@@ -8,6 +8,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Upload, User, X } from "lucide-react";
+import { z } from "zod";
+
+const nicknameSchema = z.string().min(1, "Nickname cannot be empty").max(50, "Nickname too long").regex(/^[a-zA-Z0-9_\s]+$/, "Nickname can only contain letters, numbers, spaces and underscores");
 
 export const ProfileSettings = () => {
   const [nickname, setNickname] = useState("");
@@ -134,8 +137,10 @@ export const ProfileSettings = () => {
   };
 
   const handleSave = async () => {
-    if (!nickname.trim()) {
-      toast.error(t('nicknameEmpty') as string);
+    const validation = nicknameSchema.safeParse(nickname.trim());
+    
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
       return;
     }
 
@@ -148,7 +153,7 @@ export const ProfileSettings = () => {
         .from('profiles')
         .upsert({ 
           id: user.id,
-          nickname: nickname.trim(),
+          nickname: validation.data,
           avatar_url: avatarUrl
         }, { onConflict: 'id' });
 

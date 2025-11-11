@@ -10,6 +10,12 @@ import { toast } from "sonner";
 import { BookOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { z } from "zod";
+
+const authSchema = z.object({
+  email: z.string().email("Invalid email address").max(255, "Email too long"),
+  password: z.string().min(6, "Password must be at least 6 characters").max(128, "Password too long")
+});
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -54,13 +60,11 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      toast.error(t('pleaseComplete'));
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error(t('passwordLength'));
+    const validation = authSchema.safeParse({ email, password });
+    
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
+      toast.error(firstError.message);
       return;
     }
 

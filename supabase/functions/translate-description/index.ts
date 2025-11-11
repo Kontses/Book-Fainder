@@ -1,7 +1,16 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const requestSchema = z.object({
+  description: z.string().min(1, "Description is required").max(5000, "Description too long"),
+  targetLanguage: z.enum(['en', 'el', 'es', 'fr', 'de', 'it'], { 
+    errorMap: () => ({ message: "Invalid target language" })
+  })
+});
 
 const languageMap: Record<string, string> = {
   'en': 'English',
@@ -18,14 +27,19 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { description, targetLanguage } = await req.json();
+    const body = await req.json();
     
-    if (!description || !targetLanguage) {
+    const validation = requestSchema.safeParse(body);
+    
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
       return new Response(
-        JSON.stringify({ error: 'Description and target language are required' }), 
+        JSON.stringify({ error: firstError.message }), 
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    const { description, targetLanguage } = validation.data;
 
     // If target language is English, return the original description
     if (targetLanguage === 'en') {

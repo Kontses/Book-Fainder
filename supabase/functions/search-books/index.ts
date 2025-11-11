@@ -1,7 +1,14 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const requestSchema = z.object({
+  prompt: z.string().min(1, "Prompt is required").max(500, "Prompt too long"),
+  previousBookIds: z.array(z.string()).optional()
+});
 
 interface SearchCriteria {
   genres?: string[];
@@ -20,14 +27,19 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { prompt, previousBookIds = [] } = await req.json();
+    const body = await req.json();
     
-    if (!prompt) {
+    const validation = requestSchema.safeParse(body);
+    
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
       return new Response(
-        JSON.stringify({ error: 'Prompt is required' }), 
+        JSON.stringify({ error: firstError.message }), 
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    const { prompt, previousBookIds = [] } = validation.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const ISBNDB_API_KEY = Deno.env.get('ISBNDB_API_KEY');
