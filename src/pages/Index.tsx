@@ -15,6 +15,7 @@ const Index = () => {
   const [currentBook, setCurrentBook] = useState<any>(null);
   const [previousBookIds, setPreviousBookIds] = useState<string[]>([]);
   const [session, setSession] = useState<any>(null);
+  const [userNickname, setUserNickname] = useState<string | null>(null); // New state for user nickname
   const [isExiting, setIsExiting] = useState(false);
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -26,10 +27,30 @@ const Index = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session?.user) {
+        fetchUserNickname(session.user.id);
+      } else {
+        setUserNickname(null);
+      }
     })
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserNickname = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('nickname')
+        .eq('id', userId)
+        .single();
+      if (error) throw error;
+      setUserNickname(data?.nickname || null);
+    } catch (error) {
+      console.error("Error fetching user nickname:", error);
+      setUserNickname(null);
+    }
+  };
 
   const handleAuthClick = () => {
     navigate("/auth");
@@ -179,7 +200,7 @@ const Index = () => {
             <LanguageSwitcher />
             {session ? (
               <>
-                <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => navigate("/profile")}>
+                <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => userNickname ? navigate(`/profile/${userNickname}`) : navigate("/auth")}>
                   <User className="mr-2 h-5 w-5" />
                   {t('profile')}
                 </Button>
