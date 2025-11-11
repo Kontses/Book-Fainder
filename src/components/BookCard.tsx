@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Heart, Share2, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
@@ -53,7 +54,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   };
   
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm min-h-[22rem]">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm min-h-[26rem]">
       <div className="flex flex-col sm:flex-row">
         {coverUrl && (
           <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
@@ -111,9 +112,11 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
             </div>
           </CardHeader>
           <CardContent className="p-0 flex-1 flex flex-col justify-between">
-            <p className="text-foreground/80 leading-relaxed text-sm line-clamp-4 mb-4 overflow-y-auto max-h-24">
-              {cleanedDescription}
-            </p>
+            <ScrollArea className="flex-1 pr-2 mb-4">
+              <p className="text-foreground/80 leading-relaxed text-sm min-h-[8rem]">
+                {cleanedDescription}
+              </p>
+            </ScrollArea>
             <Button
               className="w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg mt-auto"
               onClick={() => window.open(getAmazonLink(), '_blank', 'noopener,noreferrer')}
