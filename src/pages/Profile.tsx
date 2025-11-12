@@ -75,7 +75,7 @@ const Profile = () => {
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('id, nickname')
+        .select('id, nickname, avatar_url')
         .eq('nickname', nickname)
         .single();
 
@@ -95,7 +95,19 @@ const Profile = () => {
       if (error) {
         throw error;
       }
-      setUserBooks(data || []);
+      
+      // Remove duplicate books (same title + author)
+      const uniqueBooks = data?.reduce((acc: UserBook[], book) => {
+        const isDuplicate = acc.some(
+          b => b.book_title === book.book_title && b.book_author === book.book_author
+        );
+        if (!isDuplicate) {
+          acc.push(book);
+        }
+        return acc;
+      }, []) || [];
+      
+      setUserBooks(uniqueBooks);
 
       // Fetch book lists count
       const { data: listsData } = await supabase
@@ -210,10 +222,27 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="books" className="w-full">
-          <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8 bg-card">
-            <TabsTrigger value="books">{t('myBooks')}</TabsTrigger>
-            {isOwnProfile && <TabsTrigger value="settings">{t('profileSettings')}</TabsTrigger>}
-            <TabsTrigger value="lists">{t('myLists')}</TabsTrigger>
+          <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8 bg-transparent gap-2">
+            <TabsTrigger 
+              value="books"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
+            >
+              {t('myBooks')}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="lists"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
+            >
+              {t('myLists')}
+            </TabsTrigger>
+            {isOwnProfile && (
+              <TabsTrigger 
+                value="settings"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
+              >
+                {t('profileSettings')}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="books">

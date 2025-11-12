@@ -17,6 +17,7 @@ const Index = () => {
   const [session, setSession] = useState<any>(null);
   const [userNickname, setUserNickname] = useState<string | null>(null); // New state for user nickname
   const [isExiting, setIsExiting] = useState(false);
+  const [isCurrentBookSaved, setIsCurrentBookSaved] = useState(false);
   const navigate = useNavigate();
   const { t, language } = useLanguage();
 
@@ -144,6 +145,7 @@ const Index = () => {
           isbn: data.book.isbn13 || data.book.isbn
         });
         setIsExiting(false);
+        setIsCurrentBookSaved(false); // Reset saved state for new book
         toast.success(t('foundBook') as string);
       } else {
         toast.error(t('noBooks') as string);
@@ -180,6 +182,7 @@ const Index = () => {
         throw error;
       }
       toast.success(t('bookSaved'));
+      setIsCurrentBookSaved(true); // Mark current book as saved
     } catch (error: any) {
       console.error('Error saving book:', error.message);
       toast.error(`${t('failedSave')}: ${error.message}`);
@@ -258,6 +261,7 @@ const Index = () => {
               coverUrl={currentBook.coverUrl}
               isbn={currentBook.isbn}
               onSave={handleSaveBook}
+              isSaved={isCurrentBookSaved}
             />
           </div>
         )}
