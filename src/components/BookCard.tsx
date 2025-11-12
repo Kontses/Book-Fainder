@@ -216,8 +216,8 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                         variant="ghost"
                         size="icon"
                         className={cn(
-                          "hover:bg-primary/10 transition-colors",
-                          isSaved && "text-red-500 hover:text-red-600"
+                          "transition-all duration-300",
+                          isSaved ? "text-red-500" : "text-foreground hover:text-red-500 hover:bg-red-500/20"
                         )}
                       >
                         <Heart 
