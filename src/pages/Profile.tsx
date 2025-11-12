@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut, Library, ListChecks } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -11,6 +11,8 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { BookLists } from "@/components/profile/BookLists";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
 
 interface UserBook {
   id: string;
@@ -24,7 +26,9 @@ interface UserBook {
 const Profile = () => {
   const [userBooks, setUserBooks] = useState<UserBook[]>([]);
   const [loading, setLoading] = useState(true);
-  const [profileUser, setProfileUser] = useState<any>(null); // New state for profile user
+  const [profileUser, setProfileUser] = useState<any>(null);
+  const [bookLists, setBookLists] = useState<any[]>([]);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { nickname } = useParams();
@@ -41,6 +45,8 @@ const Profile = () => {
     if (currentUser) {
       currentUserId = currentUser.id;
     }
+
+    setIsOwnProfile(false);
 
     if (!nickname) {
       if (currentUserId) {
@@ -79,6 +85,7 @@ const Profile = () => {
         return;
       }
       setProfileUser(profileData);
+      setIsOwnProfile(currentUserId === profileData.id);
 
       const { data, error } = await supabase
         .from('user_books')
@@ -89,6 +96,14 @@ const Profile = () => {
         throw error;
       }
       setUserBooks(data || []);
+
+      // Fetch book lists count
+      const { data: listsData } = await supabase
+        .from('book_lists')
+        .select('*')
+        .eq('user_id', profileData.id);
+      
+      setBookLists(listsData || []);
     } catch (error: any) {
       console.error('Error fetching user profile or books:', error.message);
       toast.error(`${t('failedSearch')}: ${error.message}`);
@@ -156,17 +171,48 @@ const Profile = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 md:py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4">
-            {profileUser ? profileUser.nickname : t('profile')}
-          </h2>
+      <main className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+        {/* Profile Header */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
+            {/* Avatar */}
+            <Avatar className="h-32 w-32 border-4 border-border shadow-lg">
+              {profileUser?.avatar_url ? (
+                <AvatarImage src={profileUser.avatar_url} alt={profileUser.nickname} />
+              ) : (
+                <AvatarFallback className="text-4xl">
+                  {profileUser?.nickname?.charAt(0).toUpperCase() || '?'}
+                </AvatarFallback>
+              )}
+            </Avatar>
+
+            {/* Profile Info */}
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+                {profileUser?.nickname || t('profile')}
+              </h1>
+              
+              {/* Stats */}
+              <div className="flex gap-6 mb-4">
+                <div className="flex items-center gap-2">
+                  <Library className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-lg font-semibold">{userBooks.length}</span>
+                  <span className="text-muted-foreground">{t('myBooks')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ListChecks className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-lg font-semibold">{bookLists.length}</span>
+                  <span className="text-muted-foreground">{t('myLists')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <Tabs defaultValue="books" className="w-full">
-          <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8">
+          <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8 bg-card">
             <TabsTrigger value="books">{t('myBooks')}</TabsTrigger>
-            <TabsTrigger value="settings">{t('profileSettings')}</TabsTrigger>
+            {isOwnProfile && <TabsTrigger value="settings">{t('profileSettings')}</TabsTrigger>}
             <TabsTrigger value="lists">{t('myLists')}</TabsTrigger>
           </TabsList>
 
@@ -198,9 +244,11 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="settings">
-            <ProfileSettings />
-          </TabsContent>
+          {isOwnProfile && (
+            <TabsContent value="settings">
+              <ProfileSettings profileUser={profileUser} onProfileUpdate={fetchUserProfileAndBooks} />
+            </TabsContent>
+          )}
 
           <TabsContent value="lists">
             <BookLists />

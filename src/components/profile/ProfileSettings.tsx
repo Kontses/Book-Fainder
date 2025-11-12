@@ -13,7 +13,12 @@ import { useNavigate } from "react-router-dom";
 
 const nicknameSchema = z.string().min(1, "Nickname cannot be empty").max(50, "Nickname too long").regex(/^[a-zA-Z0-9_\s]+$/, "Nickname can only contain letters, numbers, spaces and underscores");
 
-export const ProfileSettings = () => {
+interface ProfileSettingsProps {
+  profileUser?: any;
+  onProfileUpdate?: () => void;
+}
+
+export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSettingsProps) => {
   const [nickname, setNickname] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -101,6 +106,7 @@ export const ProfileSettings = () => {
 
       setAvatarUrl(publicUrl);
       toast.success(t('photoUpdatedSuccess') as string);
+      onProfileUpdate?.();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -131,6 +137,7 @@ export const ProfileSettings = () => {
 
       setAvatarUrl(null);
       toast.success(t('photoDeletedSuccess') as string);
+      onProfileUpdate?.();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -168,6 +175,7 @@ export const ProfileSettings = () => {
         }
       } else {
         toast.success(t('savedSuccessfully') as string);
+        onProfileUpdate?.();
         // Navigate to the new profile URL with the updated nickname
         navigate(`/profile/${validation.data}`);
       }
