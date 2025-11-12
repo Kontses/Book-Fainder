@@ -217,7 +217,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                         size="icon"
                         className={cn(
                           "transition-all duration-300",
-                          isSaved ? "text-red-500 bg-red-500/20" : "hover:text-red-500 hover:bg-red-500/20"
+                          isSaved ? "text-red-500 bg-red-500/20" : "text-red-500 hover:bg-red-500/20"
                         )}
                       >
                         <Heart 
