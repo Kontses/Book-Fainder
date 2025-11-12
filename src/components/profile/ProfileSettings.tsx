@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Upload, User, X } from "lucide-react";
 import { z } from "zod";
+import { useNavigate } from "react-router-dom";
 
 const nicknameSchema = z.string().min(1, "Nickname cannot be empty").max(50, "Nickname too long").regex(/^[a-zA-Z0-9_\s]+$/, "Nickname can only contain letters, numbers, spaces and underscores");
 
@@ -19,6 +20,7 @@ export const ProfileSettings = () => {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProfile();
@@ -166,6 +168,8 @@ export const ProfileSettings = () => {
         }
       } else {
         toast.success(t('savedSuccessfully') as string);
+        // Navigate to the new profile URL with the updated nickname
+        navigate(`/profile/${validation.data}`);
       }
     } catch (error: any) {
       toast.error(error.message);
