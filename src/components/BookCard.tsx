@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Heart, Share2, ShoppingCart, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +29,8 @@ interface BookCardProps {
 export const BookCard = ({ title, author, description, year, coverUrl, isbn, onSave, isSaved = false, variant = "default" }: BookCardProps) => {
   const [isImageOpen, setIsImageOpen] = useState(false);
   const [userLists, setUserLists] = useState<BookList[]>([]);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isHoverOpen, setIsHoverOpen] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
   const bookDetails = { title, author, description, year, coverUrl };
   
   // Proper HTML parsing to preserve spaces
@@ -111,7 +112,9 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
       if (error) throw error;
 
       toast.success('Added to list!');
-      setIsPopoverOpen(false);
+      setIsHoverOpen(false);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 600);
       
       // Trigger save callback to update UI
       if (onSave) {
@@ -207,20 +210,26 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                   <Share2 className={cn(isCompact ? "h-4 w-4" : "h-5 w-5")} />
                 </Button>
                 {onSave && (
-                  <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                    <PopoverTrigger asChild>
+                  <HoverCard open={isHoverOpen} onOpenChange={setIsHoverOpen} openDelay={200} closeDelay={300}>
+                    <HoverCardTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
                         className={cn(
                           "hover:bg-primary/10 transition-colors",
-                          isSaved ? "text-red-500 hover:text-red-600" : "text-primary hover:text-primary-glow"
+                          isSaved && "text-red-500 hover:text-red-600"
                         )}
                       >
-                        <Heart className={cn(isCompact ? "h-4 w-4" : "h-5 w-5")} fill={isSaved ? "currentColor" : "none"} />
+                        <Heart 
+                          className={cn(
+                            isCompact ? "h-4 w-4" : "h-5 w-5",
+                            justSaved && "animate-heart-pop"
+                          )} 
+                          fill={isSaved ? "currentColor" : "none"} 
+                        />
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 bg-popover/95 backdrop-blur-sm z-50">
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-64 bg-popover/95 backdrop-blur-sm z-50" side="bottom" align="end">
                       <div className="space-y-3">
                         <h4 className="font-semibold text-sm">Save to:</h4>
                         <Button
@@ -228,7 +237,9 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                           className="w-full justify-start"
                           onClick={() => {
                             onSave(bookDetails);
-                            setIsPopoverOpen(false);
+                            setIsHoverOpen(false);
+                            setJustSaved(true);
+                            setTimeout(() => setJustSaved(false), 600);
                           }}
                         >
                           <Heart className="mr-2 h-4 w-4" />
@@ -255,8 +266,8 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                           </>
                         )}
                       </div>
-                    </PopoverContent>
-                  </Popover>
+                    </HoverCardContent>
+                  </HoverCard>
                 )}
               </div>
             </div>

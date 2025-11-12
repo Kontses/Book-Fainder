@@ -80,10 +80,28 @@ export default {
             height: "0",
           },
         },
+        "heart-pop": {
+          "0%": {
+            transform: "scale(1)",
+          },
+          "25%": {
+            transform: "scale(1.3)",
+          },
+          "50%": {
+            transform: "scale(0.9) rotate(-5deg)",
+          },
+          "75%": {
+            transform: "scale(1.1) rotate(5deg)",
+          },
+          "100%": {
+            transform: "scale(1) rotate(0deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "heart-pop": "heart-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
       },
     },
   },
