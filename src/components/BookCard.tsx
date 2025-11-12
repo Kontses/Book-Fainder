@@ -65,12 +65,14 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   const AMAZON_AFFILIATE_TAG = import.meta.env.VITE_AMAZON_AFFILIATE_TAG || 'your-tag-20';
   
   const getAmazonLink = () => {
-    // Always use search format for better reliability - Amazon's search handles ISBN, title, and author well
+    // Clean ISBN by removing any non-alphanumeric characters
+    const cleanISBN = isbn?.replace(/[^0-9X]/gi, '');
+    
     let searchQuery = '';
     
-    if (isbn) {
-      // Search by ISBN first, but also include title for better matching
-      searchQuery = `${isbn} ${title}`;
+    if (cleanISBN && cleanISBN.length >= 10) {
+      // Use cleaned ISBN for search
+      searchQuery = cleanISBN;
     } else {
       // Fall back to title and author
       searchQuery = `${title} ${author}`;
