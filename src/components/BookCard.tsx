@@ -155,7 +155,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   return (
     <Card className={cn(
       "overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm",
-      isCompact ? "min-h-0" : "min-h-[26rem]"
+      isCompact ? "min-h-0" : ""
     )}>
       <div className={cn(
         "flex",
@@ -217,7 +217,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                         size="icon"
                         className={cn(
                           "transition-all duration-300",
-                          isSaved ? "text-red-500 bg-red-500/20" : "text-muted-foreground hover:text-red-500 hover:bg-red-500/20"
+                          isSaved ? "text-red-500 bg-red-500/20" : "hover:text-red-500 hover:bg-red-500/20"
                         )}
                       >
                         <Heart 
@@ -279,7 +279,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
               </p>
             ) : (
               <ScrollArea className="flex-1 pr-2 mb-4">
-                <p className="text-foreground/80 leading-relaxed text-sm min-h-[8rem]">
+                <p className="text-foreground/80 leading-relaxed text-sm">
                   {cleanedDescription}
                 </p>
               </ScrollArea>
