@@ -155,7 +155,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   return (
     <Card className={cn(
       "overflow-hidden transition-all duration-300 hover:shadow-elegant hover:scale-[1.02] border-border/50 bg-card/80 backdrop-blur-sm",
-      isCompact ? "min-h-0" : ""
+      isCompact ? "min-h-0 pb-4" : "pb-6"
     )}>
       <div className={cn(
         "flex",

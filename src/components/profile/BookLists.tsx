@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ListDetail } from "./ListDetail";
 
 interface BookList {
   id: string;
@@ -22,6 +23,7 @@ export const BookLists = () => {
   const [newListName, setNewListName] = useState("");
   const [newListDescription, setNewListDescription] = useState("");
   const [open, setOpen] = useState(false);
+  const [selectedList, setSelectedList] = useState<{ id: string; name: string } | null>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -80,6 +82,16 @@ export const BookLists = () => {
     }
   };
 
+  if (selectedList) {
+    return (
+      <ListDetail 
+        listId={selectedList.id}
+        listName={selectedList.name}
+        onBack={() => setSelectedList(null)}
+      />
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -136,21 +148,28 @@ export const BookLists = () => {
             lists.map((list) => (
               <div
                 key={list.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                onClick={() => setSelectedList({ id: list.id, name: list.name })}
               >
-                <div>
+                <div className="flex-1">
                   <h3 className="font-semibold">{list.name}</h3>
                   {list.description && (
                     <p className="text-sm text-muted-foreground">{list.description}</p>
                   )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteList(list.id)}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteList(list.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
             ))
           )}
