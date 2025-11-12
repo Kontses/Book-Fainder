@@ -251,6 +251,7 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder={t('nickname') as string}
+            className="max-w-sm"
           />
           <p className="text-sm text-muted-foreground">
             {t('nicknameUnique')}
