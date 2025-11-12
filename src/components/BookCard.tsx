@@ -65,11 +65,17 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   const AMAZON_AFFILIATE_TAG = import.meta.env.VITE_AMAZON_AFFILIATE_TAG || 'your-tag-20';
   
   const getAmazonLink = () => {
-    // Use direct product link with ISBN if available, otherwise search by title and author
+    // Always use search format for better reliability - Amazon's search handles ISBN, title, and author well
+    let searchQuery = '';
+    
     if (isbn) {
-      return `https://www.amazon.com/dp/${isbn}?tag=${AMAZON_AFFILIATE_TAG}`;
+      // Search by ISBN first, but also include title for better matching
+      searchQuery = `${isbn} ${title}`;
+    } else {
+      // Fall back to title and author
+      searchQuery = `${title} ${author}`;
     }
-    const searchQuery = `${title} ${author}`;
+    
     return `https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}&tag=${AMAZON_AFFILIATE_TAG}`;
   };
   
