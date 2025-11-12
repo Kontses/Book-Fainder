@@ -225,20 +225,20 @@ const Profile = () => {
           <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8 bg-transparent gap-2">
             <TabsTrigger 
               value="books"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-accent transition-colors"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
               {t('myBooks')}
             </TabsTrigger>
             <TabsTrigger 
               value="lists"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-accent transition-colors"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
               {t('myLists')}
             </TabsTrigger>
             {isOwnProfile && (
               <TabsTrigger 
                 value="settings"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-accent transition-colors"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
               >
                 {t('profileSettings')}
               </TabsTrigger>

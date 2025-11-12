@@ -35,6 +35,10 @@ All colors MUST be HSL.
     --accent: 30 80% 50%;
     --accent-foreground: 35 25% 97%;
 
+    /* Soft rose for hover states */
+    --hover-subtle: 355 40% 92%;
+    --hover-subtle-foreground: 25 20% 15%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 35 25% 97%;
 
@@ -87,6 +91,10 @@ All colors MUST be HSL.
 
     --accent: 30 85% 60%;
     --accent-foreground: 25 20% 10%;
+
+    /* Soft rose for hover states - dark mode */
+    --hover-subtle: 355 30% 25%;
+    --hover-subtle-foreground: 35 25% 95%;
 
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 35 25% 95%;
