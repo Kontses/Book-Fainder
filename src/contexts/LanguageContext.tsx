@@ -90,6 +90,9 @@ const translations: Translations = {
     newsletterSubscription: "Newsletter Subscription",
     receiveNewsletter: "Receive newsletter with book recommendations",
     emailPreferencesUpdated: "Email preferences updated successfully",
+    publicList: "Public List",
+    listNowPublic: "List is now visible to other users",
+    listNowPrivate: "List is now private",
     // Random prompts
     randomPrompts: [
       'I want a mystery novel from the 1930s',
@@ -182,6 +185,9 @@ const translations: Translations = {
     newsletterSubscription: "Εγγραφή Newsletter",
     receiveNewsletter: "Λήψη newsletter με προτάσεις βιβλίων",
     emailPreferencesUpdated: "Οι προτιμήσεις email ενημερώθηκαν επιτυχώς",
+    publicList: "Δημόσια Λίστα",
+    listNowPublic: "Η λίστα είναι πλέον ορατή σε άλλους χρήστες",
+    listNowPrivate: "Η λίστα είναι πλέον ιδιωτική",
     // Random prompts
     randomPrompts: [
       'Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
@@ -274,6 +280,9 @@ const translations: Translations = {
     newsletterSubscription: "Suscripción al Newsletter",
     receiveNewsletter: "Recibir newsletter con recomendaciones de libros",
     emailPreferencesUpdated: "Preferencias de email actualizadas exitosamente",
+    publicList: "Lista Pública",
+    listNowPublic: "La lista ahora es visible para otros usuarios",
+    listNowPrivate: "La lista ahora es privada",
     // Random prompts
     randomPrompts: [
       'Quiero una novela de misterio de los años 30',
@@ -366,6 +375,9 @@ const translations: Translations = {
     newsletterSubscription: "Abonnement à la Newsletter",
     receiveNewsletter: "Recevoir la newsletter avec des recommandations de livres",
     emailPreferencesUpdated: "Préférences email mises à jour avec succès",
+    publicList: "Liste Publique",
+    listNowPublic: "La liste est maintenant visible pour les autres utilisateurs",
+    listNowPrivate: "La liste est maintenant privée",
     // Random prompts
     randomPrompts: [
       'Je veux un roman policier des années 1930',
@@ -458,6 +470,9 @@ const translations: Translations = {
     newsletterSubscription: "Newsletter-Abonnement",
     receiveNewsletter: "Newsletter mit Buchempfehlungen erhalten",
     emailPreferencesUpdated: "E-Mail-Einstellungen erfolgreich aktualisiert",
+    publicList: "Öffentliche Liste",
+    listNowPublic: "Die Liste ist jetzt für andere Benutzer sichtbar",
+    listNowPrivate: "Die Liste ist jetzt privat",
     // Random prompts
     randomPrompts: [
       'Ich möchte einen Kriminalroman aus den 1930er Jahren',
@@ -550,6 +565,9 @@ const translations: Translations = {
     newsletterSubscription: "Abbonamento alla Newsletter",
     receiveNewsletter: "Ricevi newsletter con raccomandazioni di libri",
     emailPreferencesUpdated: "Preferenze email aggiornate con successo",
+    publicList: "Lista Pubblica",
+    listNowPublic: "La lista è ora visibile agli altri utenti",
+    listNowPrivate: "La lista è ora privata",
     // Random prompts
     randomPrompts: [
       'Voglio un romanzo giallo degli anni \'30',
