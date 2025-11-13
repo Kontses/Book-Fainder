@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Globe, Lock } from "lucide-react";
 import { BookCard } from "@/components/BookCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
@@ -24,11 +26,45 @@ interface ListDetailProps {
 export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPublic, setIsPublic] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
     fetchListBooks();
+    fetchListVisibility();
   }, [listId]);
+
+  const fetchListVisibility = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('book_lists')
+        .select('is_public')
+        .eq('id', listId)
+        .single();
+
+      if (error) throw error;
+      setIsPublic((data as any)?.is_public || false);
+    } catch (error: any) {
+      console.error('Error fetching list visibility:', error);
+    }
+  };
+
+  const handleVisibilityToggle = async (checked: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('book_lists')
+        .update({ is_public: checked })
+        .eq('id', listId);
+
+      if (error) throw error;
+      
+      setIsPublic(checked);
+      toast.success(checked ? t('listNowPublic') : t('listNowPrivate'));
+    } catch (error: any) {
+      console.error('Error updating list visibility:', error);
+      toast.error(`Error: ${error.message}`);
+    }
+  };
 
   const fetchListBooks = async () => {
     try {
@@ -96,7 +132,26 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
         {t('back') || 'Back'}
       </Button>
       
-      <h2 className="text-2xl font-serif font-bold mb-6">{listName}</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-serif font-bold">{listName}</h2>
+        
+        <div className="flex items-center gap-3">
+          {isPublic ? (
+            <Globe className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <Lock className="h-4 w-4 text-muted-foreground" />
+          )}
+          <Label htmlFor="list-visibility" className="text-sm font-normal cursor-pointer">
+            {t('publicList')}
+          </Label>
+          <Switch
+            id="list-visibility"
+            checked={isPublic}
+            onCheckedChange={handleVisibilityToggle}
+            className="scale-75"
+          />
+        </div>
+      </div>
 
       {books.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
