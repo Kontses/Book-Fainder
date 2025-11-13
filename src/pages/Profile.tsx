@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, Library, ListChecks, Users } from "lucide-react";
+import { BookOpen, LogOut, Library, ListChecks, Users, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -228,12 +228,14 @@ const Profile = () => {
               value="books"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
+              <BookOpen className="h-4 w-4 mr-2" />
               {t('myBooks')}
             </TabsTrigger>
             <TabsTrigger 
               value="lists"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
+              <ListChecks className="h-4 w-4 mr-2" />
               {t('myLists')}
             </TabsTrigger>
             <TabsTrigger 
@@ -248,6 +250,7 @@ const Profile = () => {
                 value="settings"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
               >
+                <Settings className="h-4 w-4 mr-2" />
                 {t('profileSettings')}
               </TabsTrigger>
             )}
