@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { BookOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { z } from "zod";
 
 const authSchema = z.object({
@@ -142,7 +143,8 @@ const Auth = () => {
           <span className="font-serif font-bold">Book Fainder</span>
         </Button>
       </div>
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <ThemeToggle />
         <LanguageSwitcher />
       </div>
       <Card className="w-full max-w-md">
