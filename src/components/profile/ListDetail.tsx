@@ -26,7 +26,7 @@ interface ListDetailProps {
 export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
         .single();
 
       if (error) throw error;
-      setIsPublic((data as any)?.is_public || false);
+      setIsPublic((data as any)?.is_public ?? true);
     } catch (error: any) {
       console.error('Error fetching list visibility:', error);
     }
