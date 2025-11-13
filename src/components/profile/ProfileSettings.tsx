@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Upload, User, X } from "lucide-react";
@@ -258,6 +259,27 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
           <p className="text-sm text-muted-foreground">
             {t('nicknameUnique')}
           </p>
+        </div>
+
+        {/* Email Preferences Section */}
+        <div className="space-y-4 border-t pt-6">
+          <div>
+            <h3 className="text-lg font-semibold">{t('emailPreferences')}</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t('newsletterSubscription')}
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="newsletter" className="flex-1">
+              {t('receiveNewsletter')}
+            </Label>
+            <Switch
+              id="newsletter"
+              checked={newsletterSubscribed}
+              onCheckedChange={setNewsletterSubscribed}
+            />
+          </div>
         </div>
 
         <Button onClick={handleSave} disabled={loading}>

@@ -86,6 +86,10 @@ const translations: Translations = {
     photoDeletedSuccess: 'Photo deleted successfully!',
     nicknameEmpty: 'Nickname cannot be empty',
     nicknameInUse: 'This nickname is already taken. Please choose another.',
+    emailPreferences: "Email Preferences",
+    newsletterSubscription: "Newsletter Subscription",
+    receiveNewsletter: "Receive newsletter with book recommendations",
+    emailPreferencesUpdated: "Email preferences updated successfully",
     // Random prompts
     randomPrompts: [
       'I want a mystery novel from the 1930s',
@@ -174,6 +178,10 @@ const translations: Translations = {
     photoDeletedSuccess: 'Η φωτογραφία διαγράφηκε επιτυχώς!',
     nicknameEmpty: 'Το nickname δεν μπορεί να είναι κενό',
     nicknameInUse: 'Αυτό το nickname χρησιμοποιείται ήδη. Παρακαλώ επιλέξτε άλλο.',
+    emailPreferences: "Προτιμήσεις Email",
+    newsletterSubscription: "Εγγραφή Newsletter",
+    receiveNewsletter: "Λήψη newsletter με προτάσεις βιβλίων",
+    emailPreferencesUpdated: "Οι προτιμήσεις email ενημερώθηκαν επιτυχώς",
     // Random prompts
     randomPrompts: [
       'Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
@@ -262,6 +270,10 @@ const translations: Translations = {
     photoDeletedSuccess: '¡Foto eliminada exitosamente!',
     nicknameEmpty: 'El apodo no puede estar vacío',
     nicknameInUse: 'Este apodo ya está en uso. Por favor elige otro.',
+    emailPreferences: "Preferencias de Email",
+    newsletterSubscription: "Suscripción al Newsletter",
+    receiveNewsletter: "Recibir newsletter con recomendaciones de libros",
+    emailPreferencesUpdated: "Preferencias de email actualizadas exitosamente",
     // Random prompts
     randomPrompts: [
       'Quiero una novela de misterio de los años 30',
@@ -350,6 +362,10 @@ const translations: Translations = {
     photoDeletedSuccess: 'Photo supprimée avec succès!',
     nicknameEmpty: 'Le pseudonyme ne peut pas être vide',
     nicknameInUse: 'Ce pseudonyme est déjà utilisé. Veuillez en choisir un autre.',
+    emailPreferences: "Préférences Email",
+    newsletterSubscription: "Abonnement à la Newsletter",
+    receiveNewsletter: "Recevoir la newsletter avec des recommandations de livres",
+    emailPreferencesUpdated: "Préférences email mises à jour avec succès",
     // Random prompts
     randomPrompts: [
       'Je veux un roman policier des années 1930',
@@ -438,6 +454,10 @@ const translations: Translations = {
     photoDeletedSuccess: 'Foto erfolgreich gelöscht!',
     nicknameEmpty: 'Der Spitzname darf nicht leer sein',
     nicknameInUse: 'Dieser Spitzname wird bereits verwendet. Bitte wählen Sie einen anderen.',
+    emailPreferences: "E-Mail-Einstellungen",
+    newsletterSubscription: "Newsletter-Abonnement",
+    receiveNewsletter: "Newsletter mit Buchempfehlungen erhalten",
+    emailPreferencesUpdated: "E-Mail-Einstellungen erfolgreich aktualisiert",
     // Random prompts
     randomPrompts: [
       'Ich möchte einen Kriminalroman aus den 1930er Jahren',
@@ -526,6 +546,10 @@ const translations: Translations = {
     photoDeletedSuccess: 'Foto eliminata con successo!',
     nicknameEmpty: 'Il soprannome non può essere vuoto',
     nicknameInUse: 'Questo soprannome è già in uso. Per favore scegline un altro.',
+    emailPreferences: "Preferenze Email",
+    newsletterSubscription: "Abbonamento alla Newsletter",
+    receiveNewsletter: "Ricevi newsletter con raccomandazioni di libri",
+    emailPreferencesUpdated: "Preferenze email aggiornate con successo",
     // Random prompts
     randomPrompts: [
       'Voglio un romanzo giallo degli anni \'30',
