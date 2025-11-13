@@ -38,7 +38,7 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
     try {
       const { data, error } = await supabase
         .from('book_lists')
-        .select('is_public')
+        .select('*')
         .eq('id', listId)
         .single();
 
@@ -53,7 +53,7 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
     try {
       const { error } = await supabase
         .from('book_lists')
-        .update({ is_public: checked })
+        .update({ is_public: checked } as any)
         .eq('id', listId);
 
       if (error) throw error;
