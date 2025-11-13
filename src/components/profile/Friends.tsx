@@ -221,7 +221,7 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
             className="w-full"
           >
             <UserPlus className="mr-2 h-5 w-5" />
-            Add Friend
+            {t('addFriend')}
           </Button>
         </Card>
       )}
@@ -229,7 +229,7 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
       {!isOwnProfile && friendshipStatus === 'pending' && (
         <Card className="p-6 text-center">
           <UserCheck className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-muted-foreground">Friend request pending</p>
+          <p className="text-muted-foreground">{t('friendRequestPending')}</p>
         </Card>
       )}
 
@@ -238,11 +238,11 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <Search className="h-5 w-5" />
-            Find Friends
+            {t('findFriends')}
           </h3>
           <div className="flex gap-2 mb-4">
             <Input
-              placeholder="Search by nickname..."
+              placeholder={t('searchByNickname') as string}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -289,7 +289,7 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Friend Requests
+            {t('friendRequests')}
           </h3>
           <div className="space-y-3">
             {pendingRequests.map((request) => (
@@ -339,7 +339,7 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
         {friends.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Users className="h-16 w-16 mx-auto mb-3 opacity-40" />
-            <p>No friends yet</p>
+            <p>{t('noFriends')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
