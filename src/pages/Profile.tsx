@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, Library, ListChecks } from "lucide-react";
+import { BookOpen, LogOut, Library, ListChecks, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -11,6 +11,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { BookLists } from "@/components/profile/BookLists";
+import { Friends } from "@/components/profile/Friends";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 
@@ -235,6 +236,13 @@ const Profile = () => {
             >
               {t('myLists')}
             </TabsTrigger>
+            <TabsTrigger 
+              value="friends"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Friends
+            </TabsTrigger>
             {isOwnProfile && (
               <TabsTrigger 
                 value="settings"
@@ -282,6 +290,10 @@ const Profile = () => {
 
           <TabsContent value="lists">
             <BookLists />
+          </TabsContent>
+
+          <TabsContent value="friends">
+            <Friends userId={profileUser.id} isOwnProfile={isOwnProfile} />
           </TabsContent>
         </Tabs>
       </main>
