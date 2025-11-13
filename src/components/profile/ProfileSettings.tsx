@@ -23,6 +23,7 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -37,13 +38,14 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('nickname, avatar_url')
+      .select('nickname, avatar_url, newsletter_subscribed')
       .eq('id', user.id)
       .maybeSingle();
 
     if (data) {
       setNickname(data.nickname);
       setAvatarUrl(data.avatar_url);
+      setNewsletterSubscribed(data.newsletter_subscribed || false);
     }
   };
 
