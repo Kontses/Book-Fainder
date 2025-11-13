@@ -39,14 +39,22 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('nickname, avatar_url, newsletter_subscribed')
+      .select('nickname, avatar_url')
       .eq('id', user.id)
       .maybeSingle();
 
     if (data) {
       setNickname(data.nickname);
       setAvatarUrl(data.avatar_url);
-      setNewsletterSubscribed(data.newsletter_subscribed ?? true);
+      
+      // Fetch newsletter preference separately to avoid type issues
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('newsletter_subscribed')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      setNewsletterSubscribed((profileData as any)?.newsletter_subscribed ?? true);
     }
   };
 
