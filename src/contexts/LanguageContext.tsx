@@ -93,6 +93,8 @@ const translations: Translations = {
     publicList: "Public List",
     listNowPublic: "List is now visible to other users",
     listNowPrivate: "List is now private",
+    makeListPublic: "Make list visible to others",
+    makeListPrivate: "Make list private",
     // Random prompts
     randomPrompts: [
       'I want a mystery novel from the 1930s',
@@ -188,6 +190,8 @@ const translations: Translations = {
     publicList: "Δημόσια Λίστα",
     listNowPublic: "Η λίστα είναι πλέον ορατή σε άλλους χρήστες",
     listNowPrivate: "Η λίστα είναι πλέον ιδιωτική",
+    makeListPublic: "Κάνε τη λίστα ορατή στους άλλους",
+    makeListPrivate: "Κάνε τη λίστα ιδιωτική",
     // Random prompts
     randomPrompts: [
       'Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
@@ -283,6 +287,8 @@ const translations: Translations = {
     publicList: "Lista Pública",
     listNowPublic: "La lista ahora es visible para otros usuarios",
     listNowPrivate: "La lista ahora es privada",
+    makeListPublic: "Hacer la lista visible para otros",
+    makeListPrivate: "Hacer la lista privada",
     // Random prompts
     randomPrompts: [
       'Quiero una novela de misterio de los años 30',
@@ -378,6 +384,8 @@ const translations: Translations = {
     publicList: "Liste Publique",
     listNowPublic: "La liste est maintenant visible pour les autres utilisateurs",
     listNowPrivate: "La liste est maintenant privée",
+    makeListPublic: "Rendre la liste visible aux autres",
+    makeListPrivate: "Rendre la liste privée",
     // Random prompts
     randomPrompts: [
       'Je veux un roman policier des années 1930',
@@ -473,6 +481,8 @@ const translations: Translations = {
     publicList: "Öffentliche Liste",
     listNowPublic: "Die Liste ist jetzt für andere Benutzer sichtbar",
     listNowPrivate: "Die Liste ist jetzt privat",
+    makeListPublic: "Liste für andere sichtbar machen",
+    makeListPrivate: "Liste privat machen",
     // Random prompts
     randomPrompts: [
       'Ich möchte einen Kriminalroman aus den 1930er Jahren',
@@ -568,6 +578,8 @@ const translations: Translations = {
     publicList: "Lista Pubblica",
     listNowPublic: "La lista è ora visibile agli altri utenti",
     listNowPrivate: "La lista è ora privata",
+    makeListPublic: "Rendi la lista visibile agli altri",
+    makeListPrivate: "Rendi la lista privata",
     // Random prompts
     randomPrompts: [
       'Voglio un romanzo giallo degli anni \'30',
