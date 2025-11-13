@@ -24,7 +24,7 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
     if (data) {
       setNickname(data.nickname);
       setAvatarUrl(data.avatar_url);
-      setNewsletterSubscribed(data.newsletter_subscribed || false);
+      setNewsletterSubscribed(data.newsletter_subscribed ?? true);
     }
   };
 
@@ -271,13 +271,14 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
           </div>
           
           <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="newsletter" className="flex-1">
+            <Label htmlFor="newsletter" className="flex-1 text-sm font-normal">
               {t('receiveNewsletter')}
             </Label>
             <Switch
               id="newsletter"
               checked={newsletterSubscribed}
               onCheckedChange={setNewsletterSubscribed}
+              className="scale-75"
             />
           </div>
         </div>
