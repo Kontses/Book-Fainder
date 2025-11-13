@@ -243,7 +243,7 @@ const Profile = () => {
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
               <Users className="h-4 w-4 mr-2" />
-              Friends
+              {t('friends')}
             </TabsTrigger>
             {isOwnProfile && (
               <TabsTrigger 
