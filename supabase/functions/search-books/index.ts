@@ -156,6 +156,16 @@ Deno.serve(async (req) => {
       queryParams.push(`subject=${encodeURIComponent(searchCriteria.genres[0])}`);
     }
 
+    // Add year range filtering to the search query itself (Open Library doesn't have separate year params)
+    if (searchCriteria.year_range) {
+      if (searchCriteria.year_range.min && searchCriteria.year_range.max) {
+        // Add year range to the main search query for better results
+        searchQuery += ` ${searchCriteria.year_range.min}-${searchCriteria.year_range.max}`;
+      } else if (searchCriteria.year_range.min) {
+        searchQuery += ` ${searchCriteria.year_range.min}`;
+      }
+    }
+
     // Map language names to ISO codes for Open Library
     if (searchCriteria.language) {
       const languageMap: { [key: string]: string } = {
