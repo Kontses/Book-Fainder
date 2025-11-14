@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that extracts book search criteria from user queries. Extract genres, year ranges, authors, language preferences, and keywords. Always extract the language even if not explicitly mentioned - infer it from the query language.'
+            content: 'You are a helpful assistant that extracts book search criteria from user queries. Extract genres, year ranges, authors, language preferences, and keywords. Always extract the language even if not explicitly mentioned - infer it from the query language. IMPORTANT: When the user mentions a decade with "s" suffix (e.g., "1930s", "1940s", "50s"), interpret it as the entire decade range. For example: "1930s" = min:1930, max:1939; "1940s" = min:1940, max:1949; "50s" = min:1950, max:1959; "60s" = min:1960, max:1969, etc.'
           },
           {
             role: 'user',
