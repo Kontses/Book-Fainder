@@ -66,7 +66,15 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that extracts book search criteria from user queries. Extract genres, year ranges, authors, language preferences, and keywords.'
+            content: `You are a helpful assistant that extracts book search criteria from user queries. Extract genres, year ranges, authors, language preferences, and keywords.
+
+IMPORTANT: When you see a decade pattern (e.g., "1930s", "1920s", "60s", "90s"), convert it to a year range covering the entire decade:
+- "1930s" → min: 1930, max: 1939
+- "1920s" → min: 1920, max: 1929
+- "60s" or "1960s" → min: 1960, max: 1969
+- "90s" or "1990s" → min: 1990, max: 1999
+
+Any year followed by 's' or mention of a decade should be interpreted as the full 10-year range.`
           },
           {
             role: 'user',
@@ -138,7 +146,27 @@ Deno.serve(async (req) => {
       );
     }
 
-    const searchCriteria: SearchCriteria = JSON.parse(toolCall.function.arguments);
+    let searchCriteria: SearchCriteria = JSON.parse(toolCall.function.arguments);
+    
+    // Fallback: Detect decade patterns in the original prompt if Gemini didn't extract them
+    const decadeMatch = prompt.match(/\b(\d{2,4})s\b/i);
+    if (decadeMatch && !searchCriteria.year_range) {
+      let baseYear = parseInt(decadeMatch[1]);
+      
+      // Handle short form decades like "60s" or "90s"
+      if (baseYear < 100) {
+        // Assume 1900s for numbers >= 20, 2000s for numbers < 20
+        baseYear = baseYear >= 20 ? 1900 + baseYear : 2000 + baseYear;
+      }
+      
+      searchCriteria.year_range = {
+        min: baseYear,
+        max: baseYear + 9
+      };
+      
+      console.log(`Detected decade pattern: ${decadeMatch[0]} → ${baseYear}-${baseYear + 9}`);
+    }
+    
     console.log('Extracted search criteria:', searchCriteria);
 
     // Build ISBNdb query
