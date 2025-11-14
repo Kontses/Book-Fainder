@@ -140,81 +140,83 @@ Deno.serve(async (req) => {
     const searchCriteria: SearchCriteria = JSON.parse(toolCall.function.arguments);
     console.log('Extracted search criteria:', searchCriteria);
 
-    // Build Open Library search query
+    // Get ISBNDB API key
+    const ISBNDB_API_KEY = Deno.env.get('ISBNDB_API_KEY');
+    if (!ISBNDB_API_KEY) {
+      console.error('Missing ISBNDB_API_KEY');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }), 
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Build ISBNDB search query
     let searchQuery = '';
-    const queryParams: string[] = [];
     
     if (searchCriteria.keywords && searchCriteria.keywords.length > 0) {
       searchQuery = searchCriteria.keywords.join(' ');
     }
     
     if (searchCriteria.author) {
-      queryParams.push(`author=${encodeURIComponent(searchCriteria.author)}`);
+      searchQuery += ` ${searchCriteria.author}`;
     }
 
     if (searchCriteria.genres && searchCriteria.genres.length > 0) {
-      queryParams.push(`subject=${encodeURIComponent(searchCriteria.genres[0])}`);
-    }
-
-    // Add year range filtering to the search query itself (Open Library doesn't have separate year params)
-    if (searchCriteria.year_range) {
-      if (searchCriteria.year_range.min && searchCriteria.year_range.max) {
-        // Add year range to the main search query for better results
-        searchQuery += ` ${searchCriteria.year_range.min}-${searchCriteria.year_range.max}`;
-      } else if (searchCriteria.year_range.min) {
-        searchQuery += ` ${searchCriteria.year_range.min}`;
-      }
-    }
-
-    // Map language names to ISO codes for Open Library
-    if (searchCriteria.language) {
-      const languageMap: { [key: string]: string } = {
-        'greek': 'gre',
-        'ελληνικά': 'gre',
-        'ελληνική': 'gre',
-        'english': 'eng',
-        'αγγλικά': 'eng',
-        'αγγλική': 'eng',
-        'french': 'fre',
-        'γαλλικά': 'fre',
-        'spanish': 'spa',
-        'ισπανικά': 'spa',
-        'german': 'ger',
-        'γερμανικά': 'ger',
-        'italian': 'ita',
-        'ιταλικά': 'ita',
-      };
-      const langCode = languageMap[searchCriteria.language.toLowerCase()] || searchCriteria.language;
-      queryParams.push(`language=${langCode}`);
+      searchQuery += ` ${searchCriteria.genres[0]}`;
     }
 
     if (!searchQuery.trim()) {
       searchQuery = 'fiction'; // Default fallback
     }
 
-    const queryString = queryParams.length > 0 ? `&${queryParams.join('&')}` : '';
-    // Request specific fields including ISBN for better data quality
-    const fields = 'title,author_name,isbn,first_publish_year,cover_i,language,first_sentence';
-    const openLibraryUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}${queryString}&fields=${fields}&limit=50`;
+    // Map language names to ISO codes for ISBNDB
+    let languageCode = '';
+    if (searchCriteria.language) {
+      const languageMap: { [key: string]: string } = {
+        'greek': 'el',
+        'ελληνικά': 'el',
+        'ελληνική': 'el',
+        'english': 'en',
+        'αγγλικά': 'en',
+        'αγγλική': 'en',
+        'french': 'fr',
+        'γαλλικά': 'fr',
+        'spanish': 'es',
+        'ισπανικά': 'es',
+        'german': 'de',
+        'γερμανικά': 'de',
+        'italian': 'it',
+        'ιταλικά': 'it',
+      };
+      languageCode = languageMap[searchCriteria.language.toLowerCase()] || searchCriteria.language;
+    }
+
+    const isbndbUrl = `https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}?page=1&pageSize=50`;
     
-    console.log('Open Library search URL:', openLibraryUrl);
+    console.log('ISBNDB search URL:', isbndbUrl);
+    console.log('Search criteria for filtering:', searchCriteria);
 
-    // Search Open Library
-    const openLibraryResponse = await fetch(openLibraryUrl);
+    // Search ISBNDB
+    const isbndbResponse = await fetch(isbndbUrl, {
+      headers: {
+        'Authorization': ISBNDB_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
 
-    if (!openLibraryResponse.ok) {
-      const errorText = await openLibraryResponse.text();
-      console.error('Open Library API error:', openLibraryResponse.status, errorText);
+    if (!isbndbResponse.ok) {
+      const errorText = await isbndbResponse.text();
+      console.error('ISBNDB API error:', isbndbResponse.status, errorText);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch book data' }), 
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const openLibraryData = await openLibraryResponse.json();
-    console.log(`Open Library returned ${openLibraryData.docs?.length || 0} books`);
+    const isbndbData = await isbndbResponse.json();
+    console.log(`ISBNDB returned ${isbndbData.books?.length || 0} books`);
 
-    if (!openLibraryData.docs || openLibraryData.docs.length === 0) {
+    if (!isbndbData.books || isbndbData.books.length === 0) {
       return new Response(
         JSON.stringify({ book: null }), 
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -222,24 +224,25 @@ Deno.serve(async (req) => {
     }
 
     // Filter books by basic criteria
-    let filteredBooks = openLibraryData.docs.filter((book: any) => {
-      // Must have title and author
-      if (!book.title || !book.author_name || book.author_name.length === 0) return false;
+    let filteredBooks = isbndbData.books.filter((book: any) => {
+      // Must have title and authors
+      if (!book.title || !book.authors || book.authors.length === 0) return false;
       
       return true;
     });
 
     console.log(`After basic filtering: ${filteredBooks.length} books`);
     
-    // Log how many books have ISBN
-    const booksWithISBN = filteredBooks.filter((book: any) => book.isbn && book.isbn.length > 0).length;
-    console.log(`Books with ISBN: ${booksWithISBN} out of ${filteredBooks.length}`);
-    
-    // Apply year range filter
+    // Apply year range filter (decade filtering)
     if (searchCriteria.year_range && filteredBooks.length > 0) {
       const yearFiltered = filteredBooks.filter((book: any) => {
-        if (!book.first_publish_year) return false;
-        const year = book.first_publish_year;
+        if (!book.date_published) return false;
+        
+        // Extract year from date_published (can be "YYYY" or "YYYY-MM-DD")
+        const yearMatch = book.date_published.match(/^(\d{4})/);
+        if (!yearMatch) return false;
+        
+        const year = parseInt(yearMatch[1]);
         if (searchCriteria.year_range?.min && year < searchCriteria.year_range.min) return false;
         if (searchCriteria.year_range?.max && year > searchCriteria.year_range.max) return false;
         return true;
@@ -251,30 +254,13 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Double-check language filtering (Open Library may return mixed results)
-    if (searchCriteria.language && filteredBooks.length > 0) {
-      const languageMap: { [key: string]: string[] } = {
-        'greek': ['gre', 'el', 'gr'],
-        'ελληνικά': ['gre', 'el', 'gr'],
-        'english': ['eng', 'en'],
-        'αγγλικά': ['eng', 'en'],
-        'french': ['fre', 'fr', 'fra'],
-        'spanish': ['spa', 'es'],
-        'german': ['ger', 'de', 'deu'],
-        'italian': ['ita', 'it'],
-      };
-      
-      const searchLang = searchCriteria.language.toLowerCase();
-      const acceptedCodes = languageMap[searchLang] || [searchLang];
-      
+    // Language filtering
+    if (languageCode && filteredBooks.length > 0) {
       const languageFiltered = filteredBooks.filter((book: any) => {
-        if (!book.language || book.language.length === 0) return true; // Keep if no language info
-        return book.language.some((lang: string) => 
-          acceptedCodes.includes(lang.toLowerCase())
-        );
+        if (!book.language) return true; // Keep if no language info
+        return book.language.toLowerCase() === languageCode.toLowerCase();
       });
       
-      // Only use language filtering if it returns results
       if (languageFiltered.length > 0) {
         filteredBooks = languageFiltered;
         console.log(`After language filtering: ${filteredBooks.length} books`);
@@ -284,7 +270,7 @@ Deno.serve(async (req) => {
     // Exclude previously shown books
     if (previousBookIds.length > 0) {
       const newBooks = filteredBooks.filter((book: any) => {
-        const bookIsbn = book.isbn?.[0] || '';
+        const bookIsbn = book.isbn13 || book.isbn || '';
         return !previousBookIds.includes(bookIsbn);
       });
       
@@ -304,19 +290,17 @@ Deno.serve(async (req) => {
     // Pick a random book from filtered results
     const randomBook = filteredBooks[Math.floor(Math.random() * filteredBooks.length)];
 
-    // Get cover URL from Open Library Cover API
-    const isbn = randomBook.isbn?.[0];
-    const coverUrl = isbn 
-      ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
-      : null;
+    // Extract year from date_published
+    const yearMatch = randomBook.date_published?.match(/^(\d{4})/);
+    const year = yearMatch ? yearMatch[1] : null;
 
     const bookResult = {
       title: randomBook.title,
-      author: randomBook.author_name?.[0] || 'Unknown Author',
-      description: randomBook.first_sentence?.[0] || 'No description available',
-      year: randomBook.first_publish_year?.toString() || null,
-      coverUrl,
-      isbn,
+      author: randomBook.authors?.[0] || 'Unknown Author',
+      description: randomBook.synopsis || 'No description available',
+      year,
+      coverUrl: randomBook.image || null,
+      isbn: randomBook.isbn13 || randomBook.isbn || null,
       searchCriteria
     };
 
