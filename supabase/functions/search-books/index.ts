@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
     const booksWithISBN = filteredBooks.filter((book: any) => book.isbn && book.isbn.length > 0).length;
     console.log(`Books with ISBN: ${booksWithISBN} out of ${filteredBooks.length}`);
     
-    // Apply year range filter
+    // Apply year range filter (but keep original if filtering removes too many)
     if (searchCriteria.year_range && filteredBooks.length > 0) {
       const yearFiltered = filteredBooks.filter((book: any) => {
         if (!book.first_publish_year) return false;
@@ -235,9 +235,12 @@ Deno.serve(async (req) => {
         return true;
       });
       
-      if (yearFiltered.length > 0) {
+      // Only use year filtering if we have at least 5 results, otherwise it's too restrictive
+      if (yearFiltered.length >= 5) {
         filteredBooks = yearFiltered;
         console.log(`After year filtering: ${filteredBooks.length} books`);
+      } else {
+        console.log(`Year filtering too restrictive (${yearFiltered.length} books), keeping all ${filteredBooks.length} books`);
       }
     }
 
