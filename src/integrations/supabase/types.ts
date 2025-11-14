@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_public: boolean
           name: string
           updated_at: string
           user_id: string | null
@@ -27,6 +28,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_public?: boolean
           name: string
           updated_at?: string
           user_id?: string | null
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_public?: boolean
           name?: string
           updated_at?: string
           user_id?: string | null
@@ -165,6 +168,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          newsletter_subscribed: boolean
           nickname: string
           updated_at: string
         }
@@ -172,6 +176,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id: string
+          newsletter_subscribed?: boolean
           nickname: string
           updated_at?: string
         }
@@ -179,6 +184,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          newsletter_subscribed?: boolean
           nickname?: string
           updated_at?: string
         }
