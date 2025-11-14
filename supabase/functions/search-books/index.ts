@@ -183,7 +183,9 @@ Deno.serve(async (req) => {
     }
 
     const queryString = queryParams.length > 0 ? `&${queryParams.join('&')}` : '';
-    const openLibraryUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}${queryString}&limit=50`;
+    // Request specific fields including ISBN for better data quality
+    const fields = 'title,author_name,isbn,first_publish_year,cover_i,language,first_sentence';
+    const openLibraryUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}${queryString}&fields=${fields}&limit=50`;
     
     console.log('Open Library search URL:', openLibraryUrl);
 
