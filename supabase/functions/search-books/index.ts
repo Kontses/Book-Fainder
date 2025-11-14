@@ -211,9 +211,6 @@ Deno.serve(async (req) => {
 
     // Filter books by basic criteria
     let filteredBooks = openLibraryData.docs.filter((book: any) => {
-      // Must have ISBN for Amazon linking
-      if (!book.isbn || book.isbn.length === 0) return false;
-      
       // Must have title and author
       if (!book.title || !book.author_name || book.author_name.length === 0) return false;
       
@@ -221,6 +218,10 @@ Deno.serve(async (req) => {
     });
 
     console.log(`After basic filtering: ${filteredBooks.length} books`);
+    
+    // Log how many books have ISBN
+    const booksWithISBN = filteredBooks.filter((book: any) => book.isbn && book.isbn.length > 0).length;
+    console.log(`Books with ISBN: ${booksWithISBN} out of ${filteredBooks.length}`);
     
     // Apply year range filter
     if (searchCriteria.year_range && filteredBooks.length > 0) {
