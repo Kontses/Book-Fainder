@@ -42,10 +42,9 @@ Deno.serve(async (req) => {
     const { prompt, previousBookIds = [] } = validation.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    const ISBNDB_API_KEY = Deno.env.get('ISBNDB_API_KEY');
 
-    if (!LOVABLE_API_KEY || !ISBNDB_API_KEY) {
-      console.error('Missing API keys');
+    if (!LOVABLE_API_KEY) {
+      console.error('Missing LOVABLE_API_KEY');
       return new Response(
         JSON.stringify({ error: 'Server configuration error' }), 
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -66,7 +65,7 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that extracts book search criteria from user queries. Extract genres, year ranges, authors, language preferences, and keywords.'
+            content: 'You are a helpful assistant that extracts book search criteria from user queries. Extract genres, year ranges, authors, language preferences, and keywords. Always extract the language even if not explicitly mentioned - infer it from the query language.'
           },
           {
             role: 'user',
@@ -85,7 +84,7 @@ Deno.serve(async (req) => {
                   genres: {
                     type: 'array',
                     items: { type: 'string' },
-                    description: 'Book genres (e.g., fiction, mystery, science fiction)'
+                    description: 'Book genres in English (e.g., fiction, mystery, science fiction, romance)'
                   },
                   year_range: {
                     type: 'object',
@@ -96,16 +95,16 @@ Deno.serve(async (req) => {
                   },
                   author: {
                     type: 'string',
-                    description: 'Author name or nationality preference'
+                    description: 'Author name in English'
                   },
                   language: {
                     type: 'string',
-                    description: 'Language of the book'
+                    description: 'Language of the book in English (e.g., greek, english, french)'
                   },
                   keywords: {
                     type: 'array',
                     items: { type: 'string' },
-                    description: 'Keywords or themes from the user query'
+                    description: 'Keywords or themes in English'
                   }
                 },
                 additionalProperties: false
@@ -141,140 +140,183 @@ Deno.serve(async (req) => {
     const searchCriteria: SearchCriteria = JSON.parse(toolCall.function.arguments);
     console.log('Extracted search criteria:', searchCriteria);
 
-    // Build ISBNdb query
+    // Build Open Library search query
     let searchQuery = '';
+    const queryParams: string[] = [];
     
     if (searchCriteria.keywords && searchCriteria.keywords.length > 0) {
       searchQuery = searchCriteria.keywords.join(' ');
     }
     
     if (searchCriteria.author) {
-      searchQuery += ` ${searchCriteria.author}`;
+      queryParams.push(`author=${encodeURIComponent(searchCriteria.author)}`);
     }
 
     if (searchCriteria.genres && searchCriteria.genres.length > 0) {
-      searchQuery += ` ${searchCriteria.genres[0]}`;
+      queryParams.push(`subject=${encodeURIComponent(searchCriteria.genres[0])}`);
     }
 
-    // Add language to search query for better filtering
+    // Map language names to ISO codes for Open Library
     if (searchCriteria.language) {
-      searchQuery += ` ${searchCriteria.language}`;
+      const languageMap: { [key: string]: string } = {
+        'greek': 'gre',
+        'ελληνικά': 'gre',
+        'ελληνική': 'gre',
+        'english': 'eng',
+        'αγγλικά': 'eng',
+        'αγγλική': 'eng',
+        'french': 'fre',
+        'γαλλικά': 'fre',
+        'spanish': 'spa',
+        'ισπανικά': 'spa',
+        'german': 'ger',
+        'γερμανικά': 'ger',
+        'italian': 'ita',
+        'ιταλικά': 'ita',
+      };
+      const langCode = languageMap[searchCriteria.language.toLowerCase()] || searchCriteria.language;
+      queryParams.push(`language=${langCode}`);
     }
 
     if (!searchQuery.trim()) {
       searchQuery = 'fiction'; // Default fallback
     }
 
-    console.log('ISBNdb search query:', searchQuery);
+    const queryString = queryParams.length > 0 ? `&${queryParams.join('&')}` : '';
+    const openLibraryUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}${queryString}&limit=50`;
+    
+    console.log('Open Library search URL:', openLibraryUrl);
 
-    // Search ISBNdb
-    const isbndbResponse = await fetch(
-      `https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}?page=1&pageSize=20`,
-      {
-        headers: {
-          'Authorization': ISBNDB_API_KEY,
-        },
-      }
-    );
+    // Search Open Library
+    const openLibraryResponse = await fetch(openLibraryUrl);
 
-    if (!isbndbResponse.ok) {
-      const errorText = await isbndbResponse.text();
-      console.error('ISBNdb API error:', isbndbResponse.status, errorText);
+    if (!openLibraryResponse.ok) {
+      const errorText = await openLibraryResponse.text();
+      console.error('Open Library API error:', openLibraryResponse.status, errorText);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch book data' }), 
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const isbndbData = await isbndbResponse.json();
-    console.log('ISBNdb response:', JSON.stringify(isbndbData, null, 2));
+    const openLibraryData = await openLibraryResponse.json();
+    console.log(`Open Library returned ${openLibraryData.docs?.length || 0} books`);
 
-    if (!isbndbData.books || isbndbData.books.length === 0) {
+    if (!openLibraryData.docs || openLibraryData.docs.length === 0) {
       return new Response(
         JSON.stringify({ book: null }), 
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Filter books by year range and language if specified
-    let filteredBooks = isbndbData.books;
+    // Filter books by basic criteria
+    let filteredBooks = openLibraryData.docs.filter((book: any) => {
+      // Must have ISBN for Amazon linking
+      if (!book.isbn || book.isbn.length === 0) return false;
+      
+      // Must have title and author
+      if (!book.title || !book.author_name || book.author_name.length === 0) return false;
+      
+      return true;
+    });
+
+    console.log(`After basic filtering: ${filteredBooks.length} books`);
     
-    if (searchCriteria.year_range) {
-      filteredBooks = filteredBooks.filter((book: any) => {
-        if (!book.date_published) return false;
-        const year = parseInt(book.date_published.substring(0, 4));
+    // Apply year range filter
+    if (searchCriteria.year_range && filteredBooks.length > 0) {
+      const yearFiltered = filteredBooks.filter((book: any) => {
+        if (!book.first_publish_year) return false;
+        const year = book.first_publish_year;
         if (searchCriteria.year_range?.min && year < searchCriteria.year_range.min) return false;
         if (searchCriteria.year_range?.max && year > searchCriteria.year_range.max) return false;
         return true;
       });
+      
+      if (yearFiltered.length > 0) {
+        filteredBooks = yearFiltered;
+        console.log(`After year filtering: ${filteredBooks.length} books`);
+      }
     }
 
-    // Filter by language if specified
-    if (searchCriteria.language) {
-      const languageBooksFiltered = filteredBooks.filter((book: any) => {
-        if (!book.language) return false;
-        const bookLang = book.language.toLowerCase();
-        const searchLang = searchCriteria.language!.toLowerCase();
-        
-        // Map common language names to their codes and variations
-        const languageMap: { [key: string]: string[] } = {
-          'greek': ['el', 'gr', 'greek', 'ελληνικά', 'ελληνική'],
-          'english': ['en', 'eng', 'english', 'αγγλικά', 'αγγλική'],
-          'french': ['fr', 'fra', 'french', 'γαλλικά', 'γαλλική'],
-          'german': ['de', 'deu', 'german', 'γερμανικά', 'γερμανική'],
-          'spanish': ['es', 'spa', 'spanish', 'ισπανικά', 'ισπανική'],
-          'italian': ['it', 'ita', 'italian', 'ιταλικά', 'ιταλική']
-        };
-        
-        // Check if searchLang matches any language mapping
-        for (const [key, variations] of Object.entries(languageMap)) {
-          if (variations.some(v => searchLang.includes(v) || v.includes(searchLang))) {
-            return variations.some(v => bookLang.includes(v) || v.includes(bookLang));
-          }
-        }
-        
-        // Fallback: direct comparison
-        return bookLang.includes(searchLang) || searchLang.includes(bookLang);
+    // Double-check language filtering (Open Library may return mixed results)
+    if (searchCriteria.language && filteredBooks.length > 0) {
+      const languageMap: { [key: string]: string[] } = {
+        'greek': ['gre', 'el', 'gr'],
+        'ελληνικά': ['gre', 'el', 'gr'],
+        'english': ['eng', 'en'],
+        'αγγλικά': ['eng', 'en'],
+        'french': ['fre', 'fr', 'fra'],
+        'spanish': ['spa', 'es'],
+        'german': ['ger', 'de', 'deu'],
+        'italian': ['ita', 'it'],
+      };
+      
+      const searchLang = searchCriteria.language.toLowerCase();
+      const acceptedCodes = languageMap[searchLang] || [searchLang];
+      
+      const languageFiltered = filteredBooks.filter((book: any) => {
+        if (!book.language || book.language.length === 0) return true; // Keep if no language info
+        return book.language.some((lang: string) => 
+          acceptedCodes.includes(lang.toLowerCase())
+        );
       });
       
-      // Only use language-filtered results if we found any, otherwise use all results
-      if (languageBooksFiltered.length > 0) {
-        filteredBooks = languageBooksFiltered;
+      // Only use language filtering if it returns results
+      if (languageFiltered.length > 0) {
+        filteredBooks = languageFiltered;
+        console.log(`After language filtering: ${filteredBooks.length} books`);
       }
     }
 
-    // If no books match after filtering, return all books
-    if (filteredBooks.length === 0) {
-      filteredBooks = isbndbData.books;
-    }
-
-    // Filter out previously shown books
+    // Exclude previously shown books
     if (previousBookIds.length > 0) {
-      const availableBooks = filteredBooks.filter((book: any) => 
-        !previousBookIds.includes(book.isbn13 || book.isbn)
-      );
+      const newBooks = filteredBooks.filter((book: any) => {
+        const bookIsbn = book.isbn?.[0] || '';
+        return !previousBookIds.includes(bookIsbn);
+      });
       
-      // Use available books if any, otherwise use all filtered books
-      if (availableBooks.length > 0) {
-        filteredBooks = availableBooks;
+      if (newBooks.length > 0) {
+        filteredBooks = newBooks;
+        console.log(`After excluding previous books: ${filteredBooks.length} books`);
       }
     }
 
-    // Pick a random book from the results
+    if (filteredBooks.length === 0) {
+      return new Response(
+        JSON.stringify({ book: null }), 
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Pick a random book from filtered results
     const randomBook = filteredBooks[Math.floor(Math.random() * filteredBooks.length)];
-    
+
+    // Get cover URL from Open Library Cover API
+    const isbn = randomBook.isbn?.[0];
+    const coverUrl = isbn 
+      ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
+      : null;
+
+    const bookResult = {
+      title: randomBook.title,
+      author: randomBook.author_name?.[0] || 'Unknown Author',
+      description: randomBook.first_sentence?.[0] || 'No description available',
+      year: randomBook.first_publish_year?.toString() || null,
+      coverUrl,
+      isbn,
+      searchCriteria
+    };
+
+    console.log('Selected book:', bookResult.title, 'by', bookResult.author);
+
     return new Response(
-      JSON.stringify({ 
-        book: randomBook,
-        searchCriteria 
-      }), 
+      JSON.stringify({ book: bookResult, searchCriteria }), 
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
-    console.error('Error in search-books function:', error);
+    console.error('Search error:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), 
+      JSON.stringify({ error: 'An unexpected error occurred' }), 
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
