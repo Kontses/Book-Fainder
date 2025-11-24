@@ -424,14 +424,105 @@ Return the translation in the same format.`
       );
     }
 
-    // Pick a random book from the results
-    const randomBook = filteredBooks[Math.floor(Math.random() * filteredBooks.length)];
+    // AI Re-ranking: Use Gemini to select the best matching book
+    let selectedBook = filteredBooks[0]; // Default to first book
     
-    console.log(`Returning book: ${randomBook.title} (Used translation: ${usedTranslation})`);
+    if (filteredBooks.length > 1) {
+      console.log(`AI Re-ranking ${filteredBooks.length} books...`);
+      
+      try {
+        const booksForRanking = filteredBooks.slice(0, 10).map((book: any, index: number) => ({
+          index,
+          title: book.title,
+          author: book.authors?.[0] || 'Unknown',
+          year: book.date_published || 'Unknown',
+          description: (book.synopsis || '').substring(0, 500),
+          subjects: book.subjects?.slice(0, 5).join(', ') || 'N/A'
+        }));
+
+        const rankingResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a book recommendation expert. Analyze the user query and available books, then select the BEST matching book based on relevance, themes, and user intent.'
+              },
+              {
+                role: 'user',
+                content: `User Query: "${prompt}"
+
+Available Books:
+${booksForRanking.map(b => `[${b.index}] "${b.title}" by ${b.author} (${b.year})
+   Subjects: ${b.subjects}
+   Description: ${b.description}
+`).join('\n')}
+
+Which book (by index) is the BEST match for this query? Consider relevance, quality, and how well it matches user intent.`
+              }
+            ],
+            tools: [
+              {
+                type: 'function',
+                function: {
+                  name: 'select_best_book',
+                  description: 'Select the best matching book by index',
+                  parameters: {
+                    type: 'object',
+                    properties: {
+                      best_book_index: {
+                        type: 'number',
+                        description: 'Index of the best matching book (0-based)'
+                      },
+                      reasoning: {
+                        type: 'string',
+                        description: 'Brief explanation of why this book is the best match'
+                      }
+                    },
+                    required: ['best_book_index'],
+                    additionalProperties: false
+                  }
+                }
+              }
+            ],
+            tool_choice: { type: 'function', function: { name: 'select_best_book' } }
+          }),
+        });
+
+        if (rankingResponse.ok) {
+          const rankingData = await rankingResponse.json();
+          const rankingToolCall = rankingData.choices?.[0]?.message?.tool_calls?.[0];
+          
+          if (rankingToolCall) {
+            const rankingResult = JSON.parse(rankingToolCall.function.arguments);
+            const bestIndex = rankingResult.best_book_index;
+            
+            console.log(`AI selected book at index ${bestIndex}: ${rankingResult.reasoning || 'No reasoning'}`);
+            
+            if (bestIndex >= 0 && bestIndex < filteredBooks.length) {
+              selectedBook = filteredBooks[bestIndex];
+            } else {
+              console.warn(`Invalid index ${bestIndex}, using first book`);
+            }
+          }
+        } else {
+          console.error('AI ranking failed, using first book');
+        }
+      } catch (rankingError) {
+        console.error('Error during AI ranking:', rankingError);
+      }
+    }
+    
+    console.log(`Returning book: ${selectedBook.title} (Used translation: ${usedTranslation})`);
     
     return new Response(
       JSON.stringify({ 
-        book: randomBook,
+        book: selectedBook,
         searchCriteria,
         usedTranslation 
       }), 
