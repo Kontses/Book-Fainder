@@ -180,7 +180,94 @@ PRIORITY: Use specific fields (title, author) over generic keywords whenever pos
       console.log(`Detected decade pattern: ${decadeMatch[0]} → ${baseYear}-${baseYear + 9}`);
     }
     
-    console.log('Extracted search criteria:', searchCriteria);
+    console.log('Extracted search criteria (original):', searchCriteria);
+
+    // Translate non-English search criteria to English for ISBNdb
+    const needsTranslation = searchCriteria.language && searchCriteria.language.toLowerCase() !== 'english';
+    
+    if (needsTranslation) {
+      console.log('Translating search criteria to English...');
+      
+      try {
+        const translateResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a translation assistant. Translate the provided search criteria to English. Keep proper nouns (author names, book titles) as they are if they are already in Latin script. Only translate descriptive keywords and genres.'
+              },
+              {
+                role: 'user',
+                content: `Translate these book search criteria to English:
+Title: ${searchCriteria.title || 'N/A'}
+Author: ${searchCriteria.author || 'N/A'}
+Keywords: ${searchCriteria.keywords?.join(', ') || 'N/A'}
+Genres: ${searchCriteria.genres?.join(', ') || 'N/A'}
+
+Return the translation in the same format.`
+              }
+            ],
+            tools: [
+              {
+                type: 'function',
+                function: {
+                  name: 'translate_criteria',
+                  description: 'Translate book search criteria to English',
+                  parameters: {
+                    type: 'object',
+                    properties: {
+                      title: { type: 'string', description: 'Translated title (or original if proper noun)' },
+                      author: { type: 'string', description: 'Translated author (or original if name)' },
+                      keywords: { type: 'array', items: { type: 'string' }, description: 'Translated keywords' },
+                      genres: { type: 'array', items: { type: 'string' }, description: 'Translated genres' }
+                    },
+                    additionalProperties: false
+                  }
+                }
+              }
+            ],
+            tool_choice: { type: 'function', function: { name: 'translate_criteria' } }
+          }),
+        });
+
+        if (translateResponse.ok) {
+          const translateData = await translateResponse.json();
+          const translateToolCall = translateData.choices?.[0]?.message?.tool_calls?.[0];
+          
+          if (translateToolCall) {
+            const translatedCriteria = JSON.parse(translateToolCall.function.arguments);
+            console.log('Translated criteria:', translatedCriteria);
+            
+            // Update search criteria with translated values
+            if (translatedCriteria.title && searchCriteria.title) {
+              searchCriteria.title = translatedCriteria.title;
+            }
+            if (translatedCriteria.author && searchCriteria.author) {
+              searchCriteria.author = translatedCriteria.author;
+            }
+            if (translatedCriteria.keywords && searchCriteria.keywords) {
+              searchCriteria.keywords = translatedCriteria.keywords;
+            }
+            if (translatedCriteria.genres && searchCriteria.genres) {
+              searchCriteria.genres = translatedCriteria.genres;
+            }
+          }
+        } else {
+          console.error('Translation failed, using original criteria');
+        }
+      } catch (translateError) {
+        console.error('Error during translation:', translateError);
+        // Continue with original criteria
+      }
+    }
+    
+    console.log('Final search criteria for ISBNdb:', searchCriteria);
 
     // Build ISBNdb query with targeted searches
     let searchQuery = '';
