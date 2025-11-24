@@ -424,14 +424,113 @@ Return the translation in the same format.`
       );
     }
 
-    // Pick a random book from the results
-    const randomBook = filteredBooks[Math.floor(Math.random() * filteredBooks.length)];
+    // AI Re-ranking: Use Gemini to select the best book
+    let selectedBook = filteredBooks[0]; // Default fallback
     
-    console.log(`Returning book: ${randomBook.title} (Used translation: ${usedTranslation})`);
+    if (filteredBooks.length > 1) {
+      try {
+        // Limit to top 10 books for Gemini analysis
+        const booksToAnalyze = filteredBooks.slice(0, 10);
+        
+        const booksForRanking = booksToAnalyze.map((book: any, index: number) => ({
+          index,
+          title: book.title || 'Unknown',
+          author: book.authors?.join(', ') || 'Unknown',
+          year: book.date_published?.substring(0, 4) || 'Unknown',
+          description: (book.synopsis || book.title_long || '').substring(0, 500),
+          subjects: book.subjects?.slice(0, 5) || []
+        }));
+
+        console.log('Sending to Gemini for ranking:', booksForRanking.length, 'books');
+
+        const rankingResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              {
+                role: 'system',
+                content: `You are a book recommendation expert. Analyze the user's query and select the BEST matching book from the available options.
+
+Consider:
+1. Relevance to the user's query
+2. Quality indicators (synopsis, subjects)
+3. User's intent and preferences
+
+Return the index of the book that best matches the user's needs.`
+              },
+              {
+                role: 'user',
+                content: `User Query: "${prompt}"
+
+Available Books:
+${JSON.stringify(booksForRanking, null, 2)}
+
+Select the BEST matching book.`
+              }
+            ],
+            tools: [
+              {
+                type: 'function',
+                function: {
+                  name: 'select_best_book',
+                  description: 'Select the best matching book from the list',
+                  parameters: {
+                    type: 'object',
+                    properties: {
+                      best_book_index: {
+                        type: 'number',
+                        description: 'The index (0-based) of the best matching book'
+                      },
+                      reasoning: {
+                        type: 'string',
+                        description: 'Brief explanation of why this book was selected'
+                      }
+                    },
+                    required: ['best_book_index', 'reasoning'],
+                    additionalProperties: false
+                  }
+                }
+              }
+            ],
+            tool_choice: { type: 'function', function: { name: 'select_best_book' } }
+          }),
+        });
+
+        if (rankingResponse.ok) {
+          const rankingData = await rankingResponse.json();
+          const rankingToolCall = rankingData.choices?.[0]?.message?.tool_calls?.[0];
+          
+          if (rankingToolCall) {
+            const selectionResult = JSON.parse(rankingToolCall.function.arguments);
+            const bestIndex = selectionResult.best_book_index;
+            
+            if (typeof bestIndex === 'number' && bestIndex >= 0 && bestIndex < booksToAnalyze.length) {
+              selectedBook = booksToAnalyze[bestIndex];
+              console.log(`Gemini selected book at index ${bestIndex}: ${selectedBook.title}`);
+              console.log(`Reasoning: ${selectionResult.reasoning}`);
+            } else {
+              console.warn('Invalid book index from Gemini, using first book');
+            }
+          }
+        } else {
+          console.error('Gemini ranking failed, using first book');
+        }
+      } catch (rankingError) {
+        console.error('Error during AI ranking:', rankingError);
+        // Fall back to first book if ranking fails
+      }
+    }
+    
+    console.log(`Returning book: ${selectedBook.title} (Used translation: ${usedTranslation})`);
     
     return new Response(
       JSON.stringify({ 
-        book: randomBook,
+        book: selectedBook,
         searchCriteria,
         usedTranslation 
       }), 
