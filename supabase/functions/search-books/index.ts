@@ -11,12 +11,13 @@ const requestSchema = z.object({
 });
 
 interface SearchCriteria {
+  title?: string;
+  author?: string;
   genres?: string[];
   year_range?: {
     min?: number;
     max?: number;
   };
-  author?: string;
   language?: string;
   keywords?: string[];
 }
@@ -66,15 +67,23 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a helpful assistant that extracts book search criteria from user queries. Extract genres, year ranges, authors, language preferences, and keywords.
+            content: `You are a helpful assistant that extracts book search criteria from user queries. Analyze the query and extract specific fields.
 
-IMPORTANT: When you see a decade pattern (e.g., "1930s", "1920s", "60s", "90s"), convert it to a year range covering the entire decade:
-- "1930s" → min: 1930, max: 1939
-- "1920s" → min: 1920, max: 1929
-- "60s" or "1960s" → min: 1960, max: 1969
-- "90s" or "1990s" → min: 1990, max: 1999
+IMPORTANT RULES:
+1. Extract TITLE if the user mentions a specific book title or asks for books "like X" (where X is a title)
+2. Extract AUTHOR if the user mentions a specific author name or nationality preference
+3. Extract GENRES if the user mentions specific book categories (fiction, mystery, sci-fi, etc.)
+4. Extract YEAR_RANGE for any time-related queries:
+   - "1930s" → min: 1930, max: 1939
+   - "1920s" → min: 1920, max: 1929
+   - "60s" or "1960s" → min: 1960, max: 1969
+   - "before 1950" → max: 1950
+   - "after 2000" → min: 2000
+   - Any year followed by 's' means the full 10-year range
+5. Extract LANGUAGE if specified (Greek, English, French, etc.)
+6. Extract KEYWORDS only for thematic terms that don't fit other categories (war, adventure, love, etc.)
 
-Any year followed by 's' or mention of a decade should be interpreted as the full 10-year range.`
+PRIORITY: Use specific fields (title, author) over generic keywords whenever possible.`
           },
           {
             role: 'user',
@@ -90,6 +99,14 @@ Any year followed by 's' or mention of a decade should be interpreted as the ful
               parameters: {
                 type: 'object',
                 properties: {
+                  title: {
+                    type: 'string',
+                    description: 'Specific book title mentioned by the user'
+                  },
+                  author: {
+                    type: 'string',
+                    description: 'Author name or nationality preference'
+                  },
                   genres: {
                     type: 'array',
                     items: { type: 'string' },
@@ -102,10 +119,6 @@ Any year followed by 's' or mention of a decade should be interpreted as the ful
                       max: { type: 'number', description: 'Maximum publication year' }
                     }
                   },
-                  author: {
-                    type: 'string',
-                    description: 'Author name or nationality preference'
-                  },
                   language: {
                     type: 'string',
                     description: 'Language of the book'
@@ -113,7 +126,7 @@ Any year followed by 's' or mention of a decade should be interpreted as the ful
                   keywords: {
                     type: 'array',
                     items: { type: 'string' },
-                    description: 'Keywords or themes from the user query'
+                    description: 'Thematic keywords (only if not fitting other categories)'
                   }
                 },
                 additionalProperties: false
@@ -169,35 +182,45 @@ Any year followed by 's' or mention of a decade should be interpreted as the ful
     
     console.log('Extracted search criteria:', searchCriteria);
 
-    // Build ISBNdb query
+    // Build ISBNdb query with targeted searches
     let searchQuery = '';
+    let columnParam = '';
     
-    if (searchCriteria.keywords && searchCriteria.keywords.length > 0) {
-      searchQuery = searchCriteria.keywords.join(' ');
-    }
-    
+    // Priority 1: Search by author if specified
     if (searchCriteria.author) {
-      searchQuery += ` ${searchCriteria.author}`;
+      searchQuery = searchCriteria.author;
+      columnParam = '&column=author';
+      console.log('Searching by AUTHOR:', searchQuery);
+    }
+    // Priority 2: Search by title if specified
+    else if (searchCriteria.title) {
+      searchQuery = searchCriteria.title;
+      columnParam = '&column=title';
+      console.log('Searching by TITLE:', searchQuery);
+    }
+    // Priority 3: Search by genre/subject
+    else if (searchCriteria.genres && searchCriteria.genres.length > 0) {
+      searchQuery = searchCriteria.genres[0];
+      columnParam = '&column=subjects';
+      console.log('Searching by GENRE/SUBJECT:', searchQuery);
+    }
+    // Priority 4: Use keywords for general search
+    else if (searchCriteria.keywords && searchCriteria.keywords.length > 0) {
+      searchQuery = searchCriteria.keywords.join(' ');
+      // No column param = general search across all fields
+      console.log('Searching by KEYWORDS:', searchQuery);
+    }
+    // Fallback: default to fiction
+    else {
+      searchQuery = 'fiction';
+      console.log('No criteria - using default: fiction');
     }
 
-    if (searchCriteria.genres && searchCriteria.genres.length > 0) {
-      searchQuery += ` ${searchCriteria.genres[0]}`;
-    }
+    console.log('ISBNdb query:', searchQuery, columnParam);
 
-    // Add language to search query for better filtering
-    if (searchCriteria.language) {
-      searchQuery += ` ${searchCriteria.language}`;
-    }
-
-    if (!searchQuery.trim()) {
-      searchQuery = 'fiction'; // Default fallback
-    }
-
-    console.log('ISBNdb search query:', searchQuery);
-
-    // Search ISBNdb
+    // Search ISBNdb with targeted column parameter
     const isbndbResponse = await fetch(
-      `https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}?page=1&pageSize=20`,
+      `https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}?page=1&pageSize=20${columnParam}`,
       {
         headers: {
           'Authorization': ISBNDB_API_KEY,
