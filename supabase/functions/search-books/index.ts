@@ -180,12 +180,67 @@ PRIORITY: Use specific fields (title, author) over generic keywords whenever pos
       console.log(`Detected decade pattern: ${decadeMatch[0]} → ${baseYear}-${baseYear + 9}`);
     }
     
-    console.log('Extracted search criteria (original):', searchCriteria);
+    console.log('Extracted search criteria:', searchCriteria);
 
-    // Translate non-English search criteria to English for ISBNdb
-    const needsTranslation = searchCriteria.language && searchCriteria.language.toLowerCase() !== 'english';
-    
-    if (needsTranslation) {
+    // Helper function to search ISBNdb
+    const searchISBNdb = async (criteria: SearchCriteria) => {
+      let searchQuery = '';
+      let columnParam = '';
+      
+      // Priority 1: Search by author if specified
+      if (criteria.author) {
+        searchQuery = criteria.author;
+        columnParam = '&column=author';
+        console.log('Searching by AUTHOR:', searchQuery);
+      }
+      // Priority 2: Search by title if specified
+      else if (criteria.title) {
+        searchQuery = criteria.title;
+        columnParam = '&column=title';
+        console.log('Searching by TITLE:', searchQuery);
+      }
+      // Priority 3: Search by genre/subject
+      else if (criteria.genres && criteria.genres.length > 0) {
+        searchQuery = criteria.genres[0];
+        columnParam = '&column=subjects';
+        console.log('Searching by GENRE/SUBJECT:', searchQuery);
+      }
+      // Priority 4: Use keywords for general search
+      else if (criteria.keywords && criteria.keywords.length > 0) {
+        searchQuery = criteria.keywords.join(' ');
+        console.log('Searching by KEYWORDS:', searchQuery);
+      }
+      // Fallback: default to fiction
+      else {
+        searchQuery = 'fiction';
+        console.log('No criteria - using default: fiction');
+      }
+
+      console.log('ISBNdb query:', searchQuery, columnParam);
+
+      const response = await fetch(
+        `https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}?page=1&pageSize=20${columnParam}`,
+        {
+          headers: {
+            'Authorization': ISBNDB_API_KEY,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('ISBNdb API error:', response.status, errorText);
+        return null;
+      }
+
+      const data = await response.json();
+      console.log('ISBNdb response:', JSON.stringify(data, null, 2));
+
+      return data;
+    };
+
+    // Helper function to translate criteria to English
+    const translateToEnglish = async (criteria: SearchCriteria): Promise<SearchCriteria> => {
       console.log('Translating search criteria to English...');
       
       try {
@@ -205,10 +260,10 @@ PRIORITY: Use specific fields (title, author) over generic keywords whenever pos
               {
                 role: 'user',
                 content: `Translate these book search criteria to English:
-Title: ${searchCriteria.title || 'N/A'}
-Author: ${searchCriteria.author || 'N/A'}
-Keywords: ${searchCriteria.keywords?.join(', ') || 'N/A'}
-Genres: ${searchCriteria.genres?.join(', ') || 'N/A'}
+Title: ${criteria.title || 'N/A'}
+Author: ${criteria.author || 'N/A'}
+Keywords: ${criteria.keywords?.join(', ') || 'N/A'}
+Genres: ${criteria.genres?.join(', ') || 'N/A'}
 
 Return the translation in the same format.`
               }
@@ -244,112 +299,41 @@ Return the translation in the same format.`
             const translatedCriteria = JSON.parse(translateToolCall.function.arguments);
             console.log('Translated criteria:', translatedCriteria);
             
-            // Update search criteria with translated values
-            if (translatedCriteria.title && searchCriteria.title) {
-              searchCriteria.title = translatedCriteria.title;
+            const newCriteria = { ...criteria };
+            
+            if (translatedCriteria.title && criteria.title) {
+              newCriteria.title = translatedCriteria.title;
             }
-            if (translatedCriteria.author && searchCriteria.author) {
-              searchCriteria.author = translatedCriteria.author;
+            if (translatedCriteria.author && criteria.author) {
+              newCriteria.author = translatedCriteria.author;
             }
-            if (translatedCriteria.keywords && searchCriteria.keywords) {
-              searchCriteria.keywords = translatedCriteria.keywords;
+            if (translatedCriteria.keywords && criteria.keywords) {
+              newCriteria.keywords = translatedCriteria.keywords;
             }
-            if (translatedCriteria.genres && searchCriteria.genres) {
-              searchCriteria.genres = translatedCriteria.genres;
+            if (translatedCriteria.genres && criteria.genres) {
+              newCriteria.genres = translatedCriteria.genres;
             }
+            
+            return newCriteria;
           }
-        } else {
-          console.error('Translation failed, using original criteria');
         }
       } catch (translateError) {
         console.error('Error during translation:', translateError);
-        // Continue with original criteria
       }
-    }
+      
+      return criteria; // Return original if translation fails
+    };
+
+    // STEP 1: Search with original language criteria
+    console.log('STEP 1: Searching in original language...');
+    let isbndbData = await searchISBNdb(searchCriteria);
+    let usedTranslation = false;
     
-    console.log('Final search criteria for ISBNdb:', searchCriteria);
-
-    // Build ISBNdb query with targeted searches
-    let searchQuery = '';
-    let columnParam = '';
+    // STEP 2: Filter by language if user specified a language
+    let filteredBooks = isbndbData?.books || [];
     
-    // Priority 1: Search by author if specified
-    if (searchCriteria.author) {
-      searchQuery = searchCriteria.author;
-      columnParam = '&column=author';
-      console.log('Searching by AUTHOR:', searchQuery);
-    }
-    // Priority 2: Search by title if specified
-    else if (searchCriteria.title) {
-      searchQuery = searchCriteria.title;
-      columnParam = '&column=title';
-      console.log('Searching by TITLE:', searchQuery);
-    }
-    // Priority 3: Search by genre/subject
-    else if (searchCriteria.genres && searchCriteria.genres.length > 0) {
-      searchQuery = searchCriteria.genres[0];
-      columnParam = '&column=subjects';
-      console.log('Searching by GENRE/SUBJECT:', searchQuery);
-    }
-    // Priority 4: Use keywords for general search
-    else if (searchCriteria.keywords && searchCriteria.keywords.length > 0) {
-      searchQuery = searchCriteria.keywords.join(' ');
-      // No column param = general search across all fields
-      console.log('Searching by KEYWORDS:', searchQuery);
-    }
-    // Fallback: default to fiction
-    else {
-      searchQuery = 'fiction';
-      console.log('No criteria - using default: fiction');
-    }
-
-    console.log('ISBNdb query:', searchQuery, columnParam);
-
-    // Search ISBNdb with targeted column parameter
-    const isbndbResponse = await fetch(
-      `https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}?page=1&pageSize=20${columnParam}`,
-      {
-        headers: {
-          'Authorization': ISBNDB_API_KEY,
-        },
-      }
-    );
-
-    if (!isbndbResponse.ok) {
-      const errorText = await isbndbResponse.text();
-      console.error('ISBNdb API error:', isbndbResponse.status, errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch book data' }), 
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const isbndbData = await isbndbResponse.json();
-    console.log('ISBNdb response:', JSON.stringify(isbndbData, null, 2));
-
-    if (!isbndbData.books || isbndbData.books.length === 0) {
-      return new Response(
-        JSON.stringify({ book: null }), 
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Filter books by year range and language if specified
-    let filteredBooks = isbndbData.books;
-    
-    if (searchCriteria.year_range) {
-      filteredBooks = filteredBooks.filter((book: any) => {
-        if (!book.date_published) return false;
-        const year = parseInt(book.date_published.substring(0, 4));
-        if (searchCriteria.year_range?.min && year < searchCriteria.year_range.min) return false;
-        if (searchCriteria.year_range?.max && year > searchCriteria.year_range.max) return false;
-        return true;
-      });
-    }
-
-    // Filter by language if specified
-    if (searchCriteria.language) {
-      const languageBooksFiltered = filteredBooks.filter((book: any) => {
+    if (searchCriteria.language && filteredBooks.length > 0) {
+      const languageFiltered = filteredBooks.filter((book: any) => {
         if (!book.language) return false;
         const bookLang = book.language.toLowerCase();
         const searchLang = searchCriteria.language!.toLowerCase();
@@ -375,19 +359,51 @@ Return the translation in the same format.`
         return bookLang.includes(searchLang) || searchLang.includes(bookLang);
       });
       
-      // Only use language-filtered results if we found any, otherwise use all results
-      if (languageBooksFiltered.length > 0) {
-        filteredBooks = languageBooksFiltered;
+      console.log(`Filtered by language: ${languageFiltered.length} books found`);
+      
+      // If we found books in the requested language, use them
+      if (languageFiltered.length > 0) {
+        filteredBooks = languageFiltered;
       }
     }
-
-    // If no books match after filtering, return all books
-    if (filteredBooks.length === 0) {
-      filteredBooks = isbndbData.books;
+    
+    // STEP 3: If no books found in original language, translate and retry
+    if (filteredBooks.length === 0 && searchCriteria.language && searchCriteria.language.toLowerCase() !== 'english') {
+      console.log('STEP 3: No books found in original language. Translating to English and retrying...');
+      
+      const translatedCriteria = await translateToEnglish(searchCriteria);
+      translatedCriteria.language = 'english'; // Override language to search for English books
+      
+      isbndbData = await searchISBNdb(translatedCriteria);
+      filteredBooks = isbndbData?.books || [];
+      usedTranslation = true;
+      
+      console.log(`After English translation search: ${filteredBooks.length} books found`);
+    }
+    
+    // If still no books, return null
+    if (!isbndbData || !isbndbData.books || isbndbData.books.length === 0) {
+      console.log('No books found after all attempts');
+      return new Response(
+        JSON.stringify({ book: null }), 
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Filter books by year range if specified
+    if (searchCriteria.year_range && filteredBooks.length > 0) {
+      filteredBooks = filteredBooks.filter((book: any) => {
+        if (!book.date_published) return false;
+        const year = parseInt(book.date_published.substring(0, 4));
+        if (searchCriteria.year_range?.min && year < searchCriteria.year_range.min) return false;
+        if (searchCriteria.year_range?.max && year > searchCriteria.year_range.max) return false;
+        return true;
+      });
+      console.log(`After year filtering: ${filteredBooks.length} books`);
     }
 
     // Filter out previously shown books
-    if (previousBookIds.length > 0) {
+    if (previousBookIds.length > 0 && filteredBooks.length > 0) {
       const availableBooks = filteredBooks.filter((book: any) => 
         !previousBookIds.includes(book.isbn13 || book.isbn)
       );
@@ -395,16 +411,29 @@ Return the translation in the same format.`
       // Use available books if any, otherwise use all filtered books
       if (availableBooks.length > 0) {
         filteredBooks = availableBooks;
+        console.log(`After removing previous books: ${filteredBooks.length} books`);
       }
+    }
+
+    // If still no books after all filtering, return null
+    if (filteredBooks.length === 0) {
+      console.log('No books found after all filtering');
+      return new Response(
+        JSON.stringify({ book: null }), 
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Pick a random book from the results
     const randomBook = filteredBooks[Math.floor(Math.random() * filteredBooks.length)];
     
+    console.log(`Returning book: ${randomBook.title} (Used translation: ${usedTranslation})`);
+    
     return new Response(
       JSON.stringify({ 
         book: randomBook,
-        searchCriteria 
+        searchCriteria,
+        usedTranslation 
       }), 
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
