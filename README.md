@@ -2,18 +2,38 @@
 
 ## Επισκόπηση Έργου
 
-Το Book Fainder είναι ένα έξυπνο σύστημα προτάσεων βιβλίων που επιτρέπει στους χρήστες να περιγράφουν το επιθυμητό βιβλίο τους σε φυσική γλώσσα (Prompt), όπως: "Θέλω ένα βιβλίο Έλληνα συγγραφέα γραμμένο από το '30". Η εφαρμογή μεταφράζει την περιγραφή του χρήστη σε δομημένα, αναζητήσιμα κριτήρια χρησιμοποιώντας τεχνολογία AI και εμφανίζει ένα τυχαίο αποτέλεσμα από τη βάση δεδομένων με όλες τις σχετικές πληροφορίες του βιβλίου (τίτλος, συγγραφέας, περιγραφή, έτος έκδοσης, εξώφυλλο).
+Το Book Fainder είναι ένα έξυπνο σύστημα προτάσεων βιβλίων που επιτρέπει στους χρήστες να περιγράφουν το επιθυμητό βιβλίο τους σε φυσική γλώσσα (Prompt), όπως: "Θέλω ένα mystery novel από τη δεκαετία του 1930" ή "Θέλω ελληνική ποίηση". Η εφαρμογή χρησιμοποιεί **AI Re-Ranking με Google Gemini** για να μεταφράσει την περιγραφή του χρήστη σε δομημένα κριτήρια αναζήτησης και να επιλέξει το **πιο ταιριαστό βιβλίο** από τη βάση δεδομένων με βάση τη συνάφεια, την ποιότητα και την πρόθεση του χρήστη.
 
-Οι χρήστες μπορούν να αποθηκεύουν τα αγαπημένα τους βιβλία σε προσωπικές λίστες, τις οποίες μπορούν να δουν στο προφίλ τους.
+Οι χρήστες μπορούν να αποθηκεύουν τα αγαπημένα τους βιβλία σε προσωπικές λίστες (δημόσιες ή ιδιωτικές), να προσθέτουν φίλους και να εξερευνούν τις βιβλιοθήκες τους, και να μεταφράζουν αυτόματα τις περιγραφές βιβλίων σε 6 γλώσσες.
 
 ## Βασικές Λειτουργίες
 
-*   **AI-Powered Αναζήτηση:** Μετατροπή ελεύθερου κειμένου (prompt) σε δομημένα κριτήρια αναζήτησης (π.χ., είδος, εύρος ετών, συγγραφέας, γλώσσα, λέξεις-κλειδιά) χρησιμοποιώντας το Gemini API.
-*   **Βάση Δεδομένων Βιβλίων:** Χρήση του ISBNdb.com API για την παροχή πραγματικών δεδομένων για τα βιβλία.
-*   **Αυθεντικοποίηση Χρήστη:** Εγγραφή και σύνδεση μέσω Google OAuth, με διαχείριση συνεδριών μέσω Supabase.
-*   **Αποθήκευση Βιβλίων:** Δυνατότητα αποθήκευσης βιβλίων στις προσωπικές λίστες του χρήστη.
-*   **Προφίλ Χρήστη:** Προβολή όλων των αποθηκευμένων βιβλίων σε μια ειδική σελίδα προφίλ, με δυνατότητα διαγραφής.
-*   **Δυναμικό UI:** Εμφάνιση διαφορετικών επιλογών στην κεφαλίδα (Σύνδεση/Εγγραφή ή Προφίλ/Αποσύνδεση) ανάλογα με την κατάσταση σύνδεσης του χρήστη.
+### 🤖 AI-Powered Search & Re-Ranking
+*   **Έξυπνη Ανάλυση Prompt:** Το Gemini αναλύει το prompt του χρήστη και εξάγει δομημένα κριτήρια (είδος, δεκαετία, συγγραφέας, γλώσσα, keywords).
+*   **AI Re-Ranking:** Από τα φιλτραρισμένα αποτελέσματα, το Gemini επιλέγει το **πιο ταιριαστό βιβλίο** με βάση τη συνάφεια και την πρόθεση του χρήστη.
+*   **Έξυπνο Φιλτράρισμα:** Αυτόματη αναγνώριση δεκαετιών (π.χ. "1930s" → 1930-1939), ειδών, και γλωσσών.
+
+### 📚 Διαχείριση Βιβλιοθήκης
+*   **Αποθήκευση Βιβλίων:** Δυνατότητα αποθήκευσης βιβλίων με ένα κλικ στη συλλογή "My Books".
+*   **Προσωπικές Λίστες:** Δημιουργία custom λιστών με δημόσια ή ιδιωτική ορατότητα.
+*   **Hover-to-Save:** Mouseover στην καρδούλα εμφανίζει τις λίστες για άμεση προσθήκη.
+
+### 👥 Social Features
+*   **Friends System:** Προσθήκη φίλων και εξερεύνηση των βιβλιοθηκών τους.
+*   **Δημόσιες Λίστες:** Μοιράσου τις λίστες σου με την κοινότητα ή κράτησε τις ιδιωτικές.
+
+### 🌍 Multi-Language Support
+*   **6 Γλώσσες UI:** Αγγλικά, Ελληνικά, Ισπανικά, Γαλλικά, Γερμανικά, Ιταλικά.
+*   **Αυτόματη Μετάφραση:** Οι περιγραφές βιβλίων μεταφράζονται αυτόματα στη γλώσσα που έχεις επιλέξει.
+
+### 💰 Monetization
+*   **Amazon Affiliate Links:** Κάθε βιβλίο περιλαμβάνει "View on Amazon" button με affiliate tag.
+*   **Newsletter Subscription:** Auto-subscribe στο newsletter για προσωπικές προτάσεις.
+
+### 🎨 User Experience
+*   **Smooth Animations:** Elegant transitions για book cards, hover effects, και heart-pop animation.
+*   **Theme Support:** Light/Dark mode με πλήρη υποστήριξη semantic tokens.
+*   **Responsive Design:** Optimized για όλες τις συσκευές.
 
 ## Τεχνολογίες
 
@@ -62,40 +82,25 @@
     *   **Lovable AI Gateway:** Αποκτήστε ένα API Key από το Lovable AI Gateway.
     *   **ISBNdb.com:** Αποκτήστε ένα API Key από το ISBNdb.com.
 
-4.  **Διαμόρφωση Supabase Database Schema:**
-    Στο Supabase project σας, δημιουργήστε τους παρακάτω πίνακες:
-
-    **Πίνακας `profiles`:**
-    ```sql
-    CREATE TABLE profiles (
-      id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL PRIMARY KEY,
-      username text UNIQUE,
-      avatar_url text
-    );
-    ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-    CREATE POLICY "Public profiles are viewable by everyone." ON profiles FOR SELECT USING (true);
-    CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-    CREATE POLICY "Users can update own profile." ON profiles FOR UPDATE USING (auth.uid() = id);
-    ```
-
-    **Πίνακας `user_books`:**
-    ```sql
-    CREATE TABLE user_books (
-      id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-      user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-      book_title text NOT NULL,
-      book_author text,
-      book_description text,
-      book_year text,
-      book_cover_url text,
-      created_at timestamp with time zone DEFAULT now() NOT NULL
-    );
-    ALTER TABLE user_books ENABLE ROW LEVEL SECURITY;
-    CREATE POLICY "Users can view their own books." ON user_books FOR SELECT USING (auth.uid() = user_id);
-    CREATE POLICY "Users can insert their own books." ON user_books FOR INSERT WITH CHECK (auth.uid() = user_id);
-    CREATE POLICY "Users can update their own books." ON user_books FOR UPDATE USING (auth.uid() = user_id);
-    CREATE POLICY "Users can delete their own books." ON user_books FOR DELETE USING (auth.uid() = user_id);
-    ```
+4.  **Διαμόρφωση Lovable Cloud:**
+    Το έργο χρησιμοποιεί **Lovable Cloud** (powered by Supabase) που παρέχει:
+    *   **Database:** Αυτόματη διαχείριση schema με migrations
+    *   **Authentication:** Google OAuth out-of-the-box
+    *   **Edge Functions:** Serverless functions για AI και external APIs
+    *   **Storage:** File handling με secure buckets
+    
+    Το database schema περιλαμβάνει:
+    *   `profiles` - User profiles με nickname, avatar, newsletter subscription
+    *   `user_books` - Αποθηκευμένα βιβλία
+    *   `book_lists` - Custom λίστες με public/private visibility
+    *   `list_books` - Junction table για βιβλία σε λίστες
+    *   `friendships` - Friend requests και connections
+    *   `genres` - Supported genres με ISBNdb codes
+    *   `languages` - Supported languages με ISO codes
+    *   `user_genres` - User genre preferences
+    *   `user_languages` - User language preferences
+    
+    Όλα τα tables έχουν Row Level Security (RLS) policies για ασφάλεια.
 
 5.  **Εκτελέστε το development server:**
     ```bash
@@ -114,14 +119,40 @@
 3.  **Διαμορφώστε τις περιβαλλοντικές μεταβλητές** (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, LOVABLE_API_KEY, ISBNDB_API_KEY) στο Vercel dashboard.
 4.  **Deploy** την εφαρμογή.
 
+## Architecture Highlights
+
+### AI Re-Ranking System
+Το search functionality χρησιμοποιεί dual-AI approach:
+1. **Gemini για Extraction:** Αναλύει το prompt και εξάγει structured criteria (genre, year range, keywords, language)
+2. **ISBNdb API Search:** Ανακτά βιβλία που ταιριάζουν στα criteria
+3. **Post-filtering:** Φιλτράρει με βάση year range και language
+4. **Gemini Re-Ranking:** Αναλύει τα top 10 results και επιλέγει το πιο ταιριαστό βιβλίο με reasoning
+
+### Edge Functions
+*   `search-books`: Orchestrates το AI search pipeline
+*   `translate-description`: Μεταφράζει book descriptions στη γλώσσα του χρήστη
+
+### Design System
+*   Semantic color tokens (HSL-based) για consistent theming
+*   Tailwind CSS με custom utilities
+*   shadcn/ui components με custom variants
+*   Framer Motion για smooth animations
+
 ## Περαιτέρω Ανάπτυξη
 
-Ο κώδικας είναι δομημένος με τέτοιο τρόπο ώστε να επιτρέπει εύκολη επέκταση και προσθήκη νέων λειτουργιών, όπως:
+Πιθανές επεκτάσεις:
+*   ⭐ Ratings & Reviews system
+*   📖 Reading progress tracking
+*   🎯 ML-based recommendations (collaborative filtering)
+*   📧 Personalized email campaigns
+*   🛒 Multiple affiliate programs (Audible, BookDepository, Greek bookstores)
+*   💳 Premium subscription model
+*   📊 Analytics dashboard για χρήστες
 
-*   Πολλαπλές λίστες βιβλίων για κάθε χρήστη.
-*   Προηγμένη αναζήτηση και φιλτράρισμα στη σελίδα προφίλ.
-*   Βαθμολογήσεις και κριτικές βιβλίων.
-*   Κοινωνική κοινή χρήση βιβλίων.
-*   Ενσωμάτωση με άλλες βιβλιοθήκες βιβλίων ή πηγές δεδομένων.
+## License
 
-Ελπίζουμε να απολαύσετε το Book Fainder!
+MIT License - Ελεύθερο για χρήση και τροποποίηση.
+
+---
+
+Ελπίζουμε να απολαύσετε το Book Fainder! 📚✨
