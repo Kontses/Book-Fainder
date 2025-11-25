@@ -69,21 +69,31 @@ Deno.serve(async (req) => {
             role: 'system',
             content: `You are a helpful assistant that extracts book search criteria from user queries. Analyze the query and extract specific fields.
 
-IMPORTANT RULES:
+CRITICAL EXTRACTION RULES:
 1. Extract TITLE if the user mentions a specific book title or asks for books "like X" (where X is a title)
 2. Extract AUTHOR if the user mentions a specific author name or nationality preference
-3. Extract GENRES if the user mentions specific book categories (fiction, mystery, sci-fi, etc.)
-4. Extract YEAR_RANGE for any time-related queries:
+3. Extract GENRES - ALWAYS extract book genres/categories as an array:
+   - "mystery" → ["mystery"]
+   - "science fiction" → ["science fiction"]
+   - "historical fiction" → ["historical fiction"]
+   - Genre terms: fiction, mystery, thriller, sci-fi, romance, horror, fantasy, biography, etc.
+4. Extract YEAR_RANGE - CRITICAL for decade queries:
    - "1930s" → min: 1930, max: 1939
    - "1920s" → min: 1920, max: 1929
    - "60s" or "1960s" → min: 1960, max: 1969
+   - "from the 1930s" → min: 1930, max: 1939
    - "before 1950" → max: 1950
    - "after 2000" → min: 2000
-   - Any year followed by 's' means the full 10-year range
+   - Any year followed by 's' means the FULL 10-year range (e.g., 1930-1939)
 5. Extract LANGUAGE if specified (Greek, English, French, etc.)
 6. Extract KEYWORDS only for thematic terms that don't fit other categories (war, adventure, love, etc.)
 
-PRIORITY: Use specific fields (title, author) over generic keywords whenever possible.`
+EXAMPLES:
+- "mystery novel from the 1930s" → genres: ["mystery"], year_range: {min: 1930, max: 1939}
+- "sci-fi book from the 60s" → genres: ["science fiction"], year_range: {min: 1960, max: 1969}
+- "Greek poetry" → genres: ["poetry"], language: "Greek"
+
+PRIORITY: Use specific fields (genres, year_range) over generic keywords whenever possible.`
           },
           {
             role: 'user',
@@ -177,10 +187,10 @@ PRIORITY: Use specific fields (title, author) over generic keywords whenever pos
         max: baseYear + 9
       };
       
-      console.log(`Detected decade pattern: ${decadeMatch[0]} → ${baseYear}-${baseYear + 9}`);
+      console.log(`[FALLBACK] Detected decade pattern: ${decadeMatch[0]} → ${baseYear}-${baseYear + 9}`);
     }
     
-    console.log('Extracted search criteria:', searchCriteria);
+    console.log('✅ Final extracted search criteria:', JSON.stringify(searchCriteria, null, 2));
 
     // Helper function to search ISBNdb
     const searchISBNdb = async (criteria: SearchCriteria) => {
@@ -191,29 +201,29 @@ PRIORITY: Use specific fields (title, author) over generic keywords whenever pos
       if (criteria.author) {
         searchQuery = criteria.author;
         columnParam = '&column=author';
-        console.log('Searching by AUTHOR:', searchQuery);
+        console.log('🔍 [ISBNdb] Searching by AUTHOR:', searchQuery);
       }
       // Priority 2: Search by title if specified
       else if (criteria.title) {
         searchQuery = criteria.title;
         columnParam = '&column=title';
-        console.log('Searching by TITLE:', searchQuery);
+        console.log('🔍 [ISBNdb] Searching by TITLE:', searchQuery);
       }
       // Priority 3: Search by genre/subject
       else if (criteria.genres && criteria.genres.length > 0) {
         searchQuery = criteria.genres[0];
         columnParam = '&column=subjects';
-        console.log('Searching by GENRE/SUBJECT:', searchQuery);
+        console.log('🔍 [ISBNdb] Searching by GENRE/SUBJECT:', searchQuery);
       }
       // Priority 4: Use keywords for general search
       else if (criteria.keywords && criteria.keywords.length > 0) {
         searchQuery = criteria.keywords.join(' ');
-        console.log('Searching by KEYWORDS:', searchQuery);
+        console.log('🔍 [ISBNdb] Searching by KEYWORDS:', searchQuery);
       }
       // Fallback: default to fiction
       else {
         searchQuery = 'fiction';
-        console.log('No criteria - using default: fiction');
+        console.log('🔍 [ISBNdb] No criteria - using default: fiction');
       }
 
       console.log('ISBNdb query:', searchQuery, columnParam);
@@ -392,6 +402,7 @@ Return the translation in the same format.`
     
     // Filter books by year range if specified
     if (searchCriteria.year_range && filteredBooks.length > 0) {
+      const beforeFiltering = filteredBooks.length;
       filteredBooks = filteredBooks.filter((book: any) => {
         if (!book.date_published) return false;
         const year = parseInt(book.date_published.substring(0, 4));
@@ -399,7 +410,7 @@ Return the translation in the same format.`
         if (searchCriteria.year_range?.max && year > searchCriteria.year_range.max) return false;
         return true;
       });
-      console.log(`After year filtering: ${filteredBooks.length} books`);
+      console.log(`📅 [Year Filter] ${searchCriteria.year_range.min}-${searchCriteria.year_range.max}: ${beforeFiltering} → ${filteredBooks.length} books`);
     }
 
     // Filter out previously shown books
