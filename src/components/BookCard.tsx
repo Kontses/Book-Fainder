@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Heart, Share2, ShoppingCart, Plus } from "lucide-react";
+import { Heart, ShoppingCart, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { supabase } from "@/integrations/supabase/client";
@@ -140,26 +140,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
     }
   };
 
-  const handleShare = async () => {
-    const shareData = {
-      title: `Book Recommendation: ${title}`,
-      text: `Check out this book: "${title}" by ${author}`,
-      url: globalThis.location.href,
-    };
 
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.log('Error sharing:', err);
-      }
-    } else {
-      // Fallback: copy to clipboard
-      const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
-      navigator.clipboard.writeText(shareText);
-      toast.success('Link copied to clipboard!');
-    }
-  };
   
   const isCompact = variant === "compact";
 
@@ -212,14 +193,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleShare}
-                  className="text-primary hover:text-primary-glow hover:bg-primary/10 transition-colors"
-                >
-                  <Share2 className={cn(isCompact ? "h-4 w-4" : "h-5 w-5")} />
-                </Button>
+
                 {onSave && (
                   <HoverCard open={isHoverOpen} onOpenChange={setIsHoverOpen} openDelay={200} closeDelay={300}>
                     <HoverCardTrigger asChild>
