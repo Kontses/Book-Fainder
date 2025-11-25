@@ -1,3 +1,4 @@
+// @ts-ignore
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
@@ -22,33 +23,36 @@ interface SearchCriteria {
   keywords?: string[];
 }
 
-Deno.serve(async (req) => {
+// @ts-ignore
+Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const body = await req.json();
-    
+
     const validation = requestSchema.safeParse(body);
-    
+
     if (!validation.success) {
       const firstError = validation.error.errors[0];
       return new Response(
-        JSON.stringify({ error: firstError.message }), 
+        JSON.stringify({ error: firstError.message }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     const { prompt, previousBookIds = [] } = validation.data;
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    // @ts-ignore
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    // @ts-ignore
     const ISBNDB_API_KEY = Deno.env.get('ISBNDB_API_KEY');
 
-    if (!LOVABLE_API_KEY || !ISBNDB_API_KEY) {
+    if (!GEMINI_API_KEY || !ISBNDB_API_KEY) {
       console.error('Missing API keys');
       return new Response(
-        JSON.stringify({ error: 'Server configuration error' }), 
+        JSON.stringify({ error: 'Server configuration error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -56,18 +60,15 @@ Deno.serve(async (req) => {
     console.log('Parsing prompt with Gemini:', prompt);
 
     // Use Gemini to extract structured search criteria from the prompt
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a helpful assistant that extracts book search criteria from user queries. Analyze the query and extract specific fields.
+        system_instruction: {
+          parts: {
+            text: `You are a helpful assistant that extracts book search criteria from user queries. Analyze the query and extract specific fields.
 
 CRITICAL EXTRACTION RULES:
 1. Extract TITLE if the user mentions a specific book title or asks for books "like X" (where X is a title)
@@ -94,57 +95,67 @@ EXAMPLES:
 - "Greek poetry" → genres: ["poetry"], language: "Greek"
 
 PRIORITY: Use specific fields (genres, year_range) over generic keywords whenever possible.`
-          },
+          }
+        },
+        contents: [
           {
             role: 'user',
-            content: prompt
+            parts: {
+              text: prompt
+            }
           }
         ],
         tools: [
           {
-            type: 'function',
-            function: {
-              name: 'extract_search_criteria',
-              description: 'Extract structured book search criteria from a user query',
-              parameters: {
-                type: 'object',
-                properties: {
-                  title: {
-                    type: 'string',
-                    description: 'Specific book title mentioned by the user'
-                  },
-                  author: {
-                    type: 'string',
-                    description: 'Author name or nationality preference'
-                  },
-                  genres: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    description: 'Book genres (e.g., fiction, mystery, science fiction)'
-                  },
-                  year_range: {
-                    type: 'object',
-                    properties: {
-                      min: { type: 'number', description: 'Minimum publication year' },
-                      max: { type: 'number', description: 'Maximum publication year' }
+            function_declarations: [
+              {
+                name: 'extract_search_criteria',
+                description: 'Extract structured book search criteria from a user query',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    title: {
+                      type: 'string',
+                      description: 'Specific book title mentioned by the user'
+                    },
+                    author: {
+                      type: 'string',
+                      description: 'Author name or nationality preference'
+                    },
+                    genres: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Book genres (e.g., fiction, mystery, science fiction)'
+                    },
+                    year_range: {
+                      type: 'object',
+                      properties: {
+                        min: { type: 'number', description: 'Minimum publication year' },
+                        max: { type: 'number', description: 'Maximum publication year' }
+                      }
+                    },
+                    language: {
+                      type: 'string',
+                      description: 'Language of the book'
+                    },
+                    keywords: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Thematic keywords (only if not fitting other categories)'
                     }
                   },
-                  language: {
-                    type: 'string',
-                    description: 'Language of the book'
-                  },
-                  keywords: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    description: 'Thematic keywords (only if not fitting other categories)'
-                  }
-                },
-                additionalProperties: false
+                  required: [] // Optional but good to specify if any are mandatory
+                }
               }
-            }
+            ]
           }
         ],
-        tool_choice: { type: 'function', function: { name: 'extract_search_criteria' } }
+        tool_config: {
+          function_calling_config: {
+            mode: "ANY",
+            allowed_function_names: ["extract_search_criteria"]
+          }
+        }
       }),
     });
 
@@ -152,7 +163,7 @@ PRIORITY: Use specific fields (genres, year_range) over generic keywords wheneve
       const errorText = await aiResponse.text();
       console.error('Gemini API error:', aiResponse.status, errorText);
       return new Response(
-        JSON.stringify({ error: 'Failed to parse search criteria' }), 
+        JSON.stringify({ error: 'Failed to parse search criteria' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -160,43 +171,43 @@ PRIORITY: Use specific fields (genres, year_range) over generic keywords wheneve
     const aiData = await aiResponse.json();
     console.log('Gemini response:', JSON.stringify(aiData, null, 2));
 
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) {
-      console.error('No tool call in response');
+    const functionCall = aiData.candidates?.[0]?.content?.parts?.[0]?.functionCall;
+    if (!functionCall) {
+      console.error('No function call in response');
       return new Response(
-        JSON.stringify({ error: 'Failed to extract search criteria' }), 
+        JSON.stringify({ error: 'Failed to extract search criteria' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    let searchCriteria: SearchCriteria = JSON.parse(toolCall.function.arguments);
-    
+    let searchCriteria: SearchCriteria = functionCall.args;
+
     // Fallback: Detect decade patterns in the original prompt if Gemini didn't extract them
     const decadeMatch = prompt.match(/\b(\d{2,4})s\b/i);
     if (decadeMatch && !searchCriteria.year_range) {
       let baseYear = parseInt(decadeMatch[1]);
-      
+
       // Handle short form decades like "60s" or "90s"
       if (baseYear < 100) {
         // Assume 1900s for numbers >= 20, 2000s for numbers < 20
         baseYear = baseYear >= 20 ? 1900 + baseYear : 2000 + baseYear;
       }
-      
+
       searchCriteria.year_range = {
         min: baseYear,
         max: baseYear + 9
       };
-      
+
       console.log(`[FALLBACK] Detected decade pattern: ${decadeMatch[0]} → ${baseYear}-${baseYear + 9}`);
     }
-    
+
     console.log('✅ Final extracted search criteria:', JSON.stringify(searchCriteria, null, 2));
 
     // Helper function to search ISBNdb
     const searchISBNdb = async (criteria: SearchCriteria) => {
       let searchQuery = '';
       let columnParam = '';
-      
+
       // Priority 1: Search by author if specified
       if (criteria.author) {
         searchQuery = criteria.author;
@@ -252,65 +263,72 @@ PRIORITY: Use specific fields (genres, year_range) over generic keywords wheneve
     // Helper function to translate criteria to English
     const translateToEnglish = async (criteria: SearchCriteria): Promise<SearchCriteria> => {
       console.log('Translating search criteria to English...');
-      
+
       try {
-        const translateResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const translateResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
-            messages: [
-              {
-                role: 'system',
-                content: 'You are a translation assistant. Translate the provided search criteria to English. Keep proper nouns (author names, book titles) as they are if they are already in Latin script. Only translate descriptive keywords and genres.'
-              },
+            system_instruction: {
+              parts: {
+                text: 'You are a translation assistant. Translate the provided search criteria to English. Keep proper nouns (author names, book titles) as they are if they are already in Latin script. Only translate descriptive keywords and genres.'
+              }
+            },
+            contents: [
               {
                 role: 'user',
-                content: `Translate these book search criteria to English:
+                parts: {
+                  text: `Translate these book search criteria to English:
 Title: ${criteria.title || 'N/A'}
 Author: ${criteria.author || 'N/A'}
 Keywords: ${criteria.keywords?.join(', ') || 'N/A'}
 Genres: ${criteria.genres?.join(', ') || 'N/A'}
 
 Return the translation in the same format.`
+                }
               }
             ],
             tools: [
               {
-                type: 'function',
-                function: {
-                  name: 'translate_criteria',
-                  description: 'Translate book search criteria to English',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      title: { type: 'string', description: 'Translated title (or original if proper noun)' },
-                      author: { type: 'string', description: 'Translated author (or original if name)' },
-                      keywords: { type: 'array', items: { type: 'string' }, description: 'Translated keywords' },
-                      genres: { type: 'array', items: { type: 'string' }, description: 'Translated genres' }
-                    },
-                    additionalProperties: false
+                function_declarations: [
+                  {
+                    name: 'translate_criteria',
+                    description: 'Translate book search criteria to English',
+                    parameters: {
+                      type: 'object',
+                      properties: {
+                        title: { type: 'string', description: 'Translated title (or original if proper noun)' },
+                        author: { type: 'string', description: 'Translated author (or original if name)' },
+                        keywords: { type: 'array', items: { type: 'string' }, description: 'Translated keywords' },
+                        genres: { type: 'array', items: { type: 'string' }, description: 'Translated genres' }
+                      },
+                      additionalProperties: false
+                    }
                   }
-                }
+                ]
               }
             ],
-            tool_choice: { type: 'function', function: { name: 'translate_criteria' } }
+            tool_config: {
+              function_calling_config: {
+                mode: "ANY",
+                allowed_function_names: ["translate_criteria"]
+              }
+            }
           }),
         });
 
         if (translateResponse.ok) {
           const translateData = await translateResponse.json();
-          const translateToolCall = translateData.choices?.[0]?.message?.tool_calls?.[0];
-          
-          if (translateToolCall) {
-            const translatedCriteria = JSON.parse(translateToolCall.function.arguments);
+          const functionCall = translateData.candidates?.[0]?.content?.parts?.[0]?.functionCall;
+
+          if (functionCall) {
+            const translatedCriteria = functionCall.args;
             console.log('Translated criteria:', translatedCriteria);
-            
+
             const newCriteria = { ...criteria };
-            
+
             if (translatedCriteria.title && criteria.title) {
               newCriteria.title = translatedCriteria.title;
             }
@@ -323,14 +341,14 @@ Return the translation in the same format.`
             if (translatedCriteria.genres && criteria.genres) {
               newCriteria.genres = translatedCriteria.genres;
             }
-            
+
             return newCriteria;
           }
         }
       } catch (translateError) {
         console.error('Error during translation:', translateError);
       }
-      
+
       return criteria; // Return original if translation fails
     };
 
@@ -338,16 +356,16 @@ Return the translation in the same format.`
     console.log('STEP 1: Searching in original language...');
     let isbndbData = await searchISBNdb(searchCriteria);
     let usedTranslation = false;
-    
+
     // STEP 2: Filter by language if user specified a language
     let filteredBooks = isbndbData?.books || [];
-    
+
     if (searchCriteria.language && filteredBooks.length > 0) {
       const languageFiltered = filteredBooks.filter((book: any) => {
         if (!book.language) return false;
         const bookLang = book.language.toLowerCase();
         const searchLang = searchCriteria.language!.toLowerCase();
-        
+
         // Map common language names to their codes and variations
         const languageMap: { [key: string]: string[] } = {
           'greek': ['el', 'gr', 'greek', 'ελληνικά', 'ελληνική'],
@@ -357,49 +375,49 @@ Return the translation in the same format.`
           'spanish': ['es', 'spa', 'spanish', 'ισπανικά', 'ισπανική'],
           'italian': ['it', 'ita', 'italian', 'ιταλικά', 'ιταλική']
         };
-        
+
         // Check if searchLang matches any language mapping
         for (const [key, variations] of Object.entries(languageMap)) {
           if (variations.some(v => searchLang.includes(v) || v.includes(searchLang))) {
             return variations.some(v => bookLang.includes(v) || v.includes(bookLang));
           }
         }
-        
+
         // Fallback: direct comparison
         return bookLang.includes(searchLang) || searchLang.includes(bookLang);
       });
-      
+
       console.log(`Filtered by language: ${languageFiltered.length} books found`);
-      
+
       // If we found books in the requested language, use them
       if (languageFiltered.length > 0) {
         filteredBooks = languageFiltered;
       }
     }
-    
+
     // STEP 3: If no books found in original language, translate and retry
     if (filteredBooks.length === 0 && searchCriteria.language && searchCriteria.language.toLowerCase() !== 'english') {
       console.log('STEP 3: No books found in original language. Translating to English and retrying...');
-      
+
       const translatedCriteria = await translateToEnglish(searchCriteria);
       translatedCriteria.language = 'english'; // Override language to search for English books
-      
+
       isbndbData = await searchISBNdb(translatedCriteria);
       filteredBooks = isbndbData?.books || [];
       usedTranslation = true;
-      
+
       console.log(`After English translation search: ${filteredBooks.length} books found`);
     }
-    
+
     // If still no books, return null
     if (!isbndbData || !isbndbData.books || isbndbData.books.length === 0) {
       console.log('No books found after all attempts');
       return new Response(
-        JSON.stringify({ book: null }), 
+        JSON.stringify({ book: null }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     // Filter books by year range if specified
     if (searchCriteria.year_range && filteredBooks.length > 0) {
       const beforeFiltering = filteredBooks.length;
@@ -415,10 +433,10 @@ Return the translation in the same format.`
 
     // Filter out previously shown books
     if (previousBookIds.length > 0 && filteredBooks.length > 0) {
-      const availableBooks = filteredBooks.filter((book: any) => 
+      const availableBooks = filteredBooks.filter((book: any) =>
         !previousBookIds.includes(book.isbn13 || book.isbn)
       );
-      
+
       // Use available books if any, otherwise use all filtered books
       if (availableBooks.length > 0) {
         filteredBooks = availableBooks;
@@ -430,19 +448,19 @@ Return the translation in the same format.`
     if (filteredBooks.length === 0) {
       console.log('No books found after all filtering');
       return new Response(
-        JSON.stringify({ book: null }), 
+        JSON.stringify({ book: null }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // AI Re-ranking: Use Gemini to select the best book
     let selectedBook = filteredBooks[0]; // Default fallback
-    
+
     if (filteredBooks.length > 1) {
       try {
         // Limit to top 10 books for Gemini analysis
         const booksToAnalyze = filteredBooks.slice(0, 10);
-        
+
         const booksForRanking = booksToAnalyze.map((book: any, index: number) => ({
           index,
           title: book.title || 'Unknown',
@@ -454,18 +472,15 @@ Return the translation in the same format.`
 
         console.log('Sending to Gemini for ranking:', booksForRanking.length, 'books');
 
-        const rankingResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const rankingResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
-            messages: [
-              {
-                role: 'system',
-                content: `You are a book recommendation expert. Analyze the user's query and select the BEST matching book from the available options.
+            system_instruction: {
+              parts: {
+                text: `You are a book recommendation expert. Analyze the user's query and select the BEST matching book from the available options.
 
 Consider:
 1. Relevance to the user's query
@@ -473,53 +488,62 @@ Consider:
 3. User's intent and preferences
 
 Return the index of the book that best matches the user's needs.`
-              },
+              }
+            },
+            contents: [
               {
                 role: 'user',
-                content: `User Query: "${prompt}"
+                parts: {
+                  text: `User Query: "${prompt}"
 
 Available Books:
 ${JSON.stringify(booksForRanking, null, 2)}
 
 Select the BEST matching book.`
+                }
               }
             ],
             tools: [
               {
-                type: 'function',
-                function: {
-                  name: 'select_best_book',
-                  description: 'Select the best matching book from the list',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      best_book_index: {
-                        type: 'number',
-                        description: 'The index (0-based) of the best matching book'
+                function_declarations: [
+                  {
+                    name: 'select_best_book',
+                    description: 'Select the best matching book from the list',
+                    parameters: {
+                      type: 'object',
+                      properties: {
+                        best_book_index: {
+                          type: 'number',
+                          description: 'The index (0-based) of the best matching book'
+                        },
+                        reasoning: {
+                          type: 'string',
+                          description: 'Brief explanation of why this book was selected'
+                        }
                       },
-                      reasoning: {
-                        type: 'string',
-                        description: 'Brief explanation of why this book was selected'
-                      }
-                    },
-                    required: ['best_book_index', 'reasoning'],
-                    additionalProperties: false
+                      required: ['best_book_index', 'reasoning']
+                    }
                   }
-                }
+                ]
               }
             ],
-            tool_choice: { type: 'function', function: { name: 'select_best_book' } }
+            tool_config: {
+              function_calling_config: {
+                mode: "ANY",
+                allowed_function_names: ["select_best_book"]
+              }
+            }
           }),
         });
 
         if (rankingResponse.ok) {
           const rankingData = await rankingResponse.json();
-          const rankingToolCall = rankingData.choices?.[0]?.message?.tool_calls?.[0];
-          
-          if (rankingToolCall) {
-            const selectionResult = JSON.parse(rankingToolCall.function.arguments);
+          const functionCall = rankingData.candidates?.[0]?.content?.parts?.[0]?.functionCall;
+
+          if (functionCall) {
+            const selectionResult = functionCall.args;
             const bestIndex = selectionResult.best_book_index;
-            
+
             if (typeof bestIndex === 'number' && bestIndex >= 0 && bestIndex < booksToAnalyze.length) {
               selectedBook = booksToAnalyze[bestIndex];
               console.log(`Gemini selected book at index ${bestIndex}: ${selectedBook.title}`);
@@ -536,22 +560,22 @@ Select the BEST matching book.`
         // Fall back to first book if ranking fails
       }
     }
-    
+
     console.log(`Returning book: ${selectedBook.title} (Used translation: ${usedTranslation})`);
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         book: selectedBook,
         searchCriteria,
-        usedTranslation 
-      }), 
+        usedTranslation
+      }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Error in search-books function:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), 
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
