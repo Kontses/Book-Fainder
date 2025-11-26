@@ -32,7 +32,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   const [isHoverOpen, setIsHoverOpen] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const bookDetails = { title, author, description, year, coverUrl };
-  
+
   // Proper HTML parsing to preserve spaces
   const cleanedDescription = (() => {
     try {
@@ -60,27 +60,33 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
 
     if (data) setUserLists(data);
   };
-  
+
   // Amazon Affiliate configuration
   const AMAZON_AFFILIATE_TAG = import.meta.env.VITE_AMAZON_AFFILIATE_TAG || 'your-tag-20';
-  
+
   const getAmazonLink = () => {
     // Clean ISBN by removing any non-alphanumeric characters
     const cleanISBN = isbn?.replace(/[^0-9X]/gi, '');
-    
+
     let searchQuery = '';
-    
+
     if (cleanISBN && cleanISBN.length >= 10) {
       // Use cleaned ISBN for search
       searchQuery = cleanISBN;
     } else {
-      // Fall back to title and author
-      searchQuery = `${title} ${author}`;
+      // Fall back to title and author, but clean them up first
+      // 1. Title: Take text before first slash or parenthesis to avoid "Title / Translated Title" or "Title (Series)"
+      const cleanTitle = title.split(/[\/\(]/)[0].trim();
+
+      // 2. Author: Remove dates (e.g., "1909-2004") and special chars
+      const cleanAuthor = author.replace(/\d{4}-\d{4}/g, '').replace(/[^\w\s,.-]/g, '').trim();
+
+      searchQuery = `${cleanTitle} ${cleanAuthor}`;
     }
-    
+
     return `https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}&tag=${AMAZON_AFFILIATE_TAG}`;
   };
-  
+
   const handleAddToList = async (listId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -126,7 +132,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
       setIsHoverOpen(false);
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 600);
-      
+
       // Trigger save callback to update UI
       if (onSave) {
         onSave(bookDetails);
@@ -141,7 +147,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   };
 
 
-  
+
   const isCompact = variant === "compact";
 
   return (
@@ -160,8 +166,8 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                 "flex-shrink-0 cursor-pointer hover:opacity-90 transition-all duration-300 overflow-hidden group",
                 isCompact ? "w-24 h-36" : "w-48 h-64"
               )}>
-                <img 
-                  src={coverUrl} 
+                <img
+                  src={coverUrl}
                   alt={`Εξώφυλλο: ${title}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -169,8 +175,8 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
             </DialogTrigger>
             <DialogContent className="max-w-3xl">
               <div className="flex items-center justify-center p-4">
-                <img 
-                  src={coverUrl} 
+                <img
+                  src={coverUrl}
                   alt={`Εξώφυλλο: ${title}`}
                   className="max-h-[80vh] w-auto object-contain"
                 />
@@ -205,12 +211,12 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                           isSaved ? "text-red-500 bg-red-500/20" : "text-red-500 hover:bg-red-500/20"
                         )}
                       >
-                        <Heart 
+                        <Heart
                           className={cn(
                             isCompact ? "h-4 w-4" : "h-5 w-5",
                             justSaved && "animate-heart-pop"
-                          )} 
-                          fill={isSaved ? "currentColor" : "none"} 
+                          )}
+                          fill={isSaved ? "currentColor" : "none"}
                         />
                       </Button>
                     </HoverCardTrigger>
