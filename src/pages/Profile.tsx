@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, Library, ListChecks, Users, Settings } from "lucide-react";
+import { BookOpen, LogOut, Library, ListChecks, Users, Settings, Search, ArrowUpDown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -13,7 +13,14 @@ import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { BookLists } from "@/components/profile/BookLists";
 import { Friends } from "@/components/profile/Friends";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UserBook {
   id: string;
@@ -22,6 +29,7 @@ interface UserBook {
   book_description: string;
   book_year: string;
   book_cover_url: string;
+  created_at: string;
 }
 
 const Profile = () => {
@@ -30,8 +38,13 @@ const Profile = () => {
   const [profileUser, setProfileUser] = useState<any>(null);
   const [bookLists, setBookLists] = useState<any[]>([]);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+
+  // Search and Sort State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { nickname } = useParams();
 
   useEffect(() => {
@@ -96,7 +109,7 @@ const Profile = () => {
       if (error) {
         throw error;
       }
-      
+
       // Remove duplicate books (same title + author)
       const uniqueBooks = data?.reduce((acc: UserBook[], book) => {
         const isDuplicate = acc.some(
@@ -107,7 +120,7 @@ const Profile = () => {
         }
         return acc;
       }, []) || [];
-      
+
       setUserBooks(uniqueBooks);
 
       // Fetch book lists count
@@ -115,7 +128,7 @@ const Profile = () => {
         .from('book_lists')
         .select('*')
         .eq('user_id', profileData.id);
-      
+
       setBookLists(listsData || []);
     } catch (error: any) {
       console.error('Error fetching user profile or books:', error.message);
@@ -156,6 +169,31 @@ const Profile = () => {
       toast.error(`${t('failedSave')}: ${error.message}`);
     }
   };
+
+  // Filter and Sort Logic
+  const filteredAndSortedBooks = userBooks
+    .filter((book) => {
+      const query = searchQuery.toLowerCase();
+      return (
+        book.book_title?.toLowerCase().includes(query) ||
+        book.book_author?.toLowerCase().includes(query) ||
+        book.book_description?.toLowerCase().includes(query)
+      );
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "a-z":
+          return a.book_title.localeCompare(b.book_title, language === 'el' ? 'el' : 'en');
+        case "z-a":
+          return b.book_title.localeCompare(a.book_title, language === 'el' ? 'el' : 'en');
+        default:
+          return 0;
+      }
+    });
 
   if (loading) {
     return (
@@ -204,7 +242,7 @@ const Profile = () => {
               <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
                 {profileUser?.nickname || t('profile')}
               </h1>
-              
+
               {/* Stats */}
               <div className="flex gap-6 mb-4">
                 <div className="flex items-center gap-2">
@@ -224,21 +262,21 @@ const Profile = () => {
 
         <Tabs defaultValue="books" className="w-full">
           <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8 bg-transparent gap-2">
-            <TabsTrigger 
+            <TabsTrigger
               value="books"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               {t('myBooks')}
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="lists"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
               <ListChecks className="h-4 w-4 mr-2" />
               {t('myLists')}
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="friends"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
             >
@@ -246,7 +284,7 @@ const Profile = () => {
               {t('friends')}
             </TabsTrigger>
             {isOwnProfile && (
-              <TabsTrigger 
+              <TabsTrigger
                 value="settings"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
               >
@@ -257,6 +295,31 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value="books">
+            {/* Search and Sort Controls */}
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={language === 'el' ? "Αναζήτηση στα βιβλία σας..." : "Search your books..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px]">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">{language === 'el' ? "Πιο πρόσφατα" : "Most Recent"}</SelectItem>
+                  <SelectItem value="oldest">{language === 'el' ? "Πιο παλιά" : "Oldest"}</SelectItem>
+                  <SelectItem value="a-z">{language === 'el' ? "Α-Ω" : "A-Z"}</SelectItem>
+                  <SelectItem value="z-a">{language === 'el' ? "Ω-Α" : "Z-A"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {userBooks.length === 0 ? (
               <div className="text-center py-20 text-muted-foreground">
                 <BookOpen className="h-20 w-20 mx-auto mb-4 opacity-40" />
@@ -266,9 +329,13 @@ const Profile = () => {
                   {t('startSearch')}
                 </Button>
               </div>
+            ) : filteredAndSortedBooks.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <p className="text-lg">{language === 'el' ? "Δεν βρέθηκαν βιβλία με αυτή την αναζήτηση." : "No books found matching your search."}</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
-                {userBooks.map((book) => (
+                {filteredAndSortedBooks.map((book) => (
                   <BookCard
                     key={book.id}
                     title={book.book_title}
