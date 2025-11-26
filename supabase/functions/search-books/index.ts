@@ -265,7 +265,7 @@ PRIORITY: Use specific fields (genres, year_range) over generic keywords wheneve
       console.log('Translating search criteria to English...');
 
       try {
-        const translateResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const translateResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -472,7 +472,7 @@ Return the translation in the same format.`
 
         console.log('Sending to Gemini for ranking:', booksForRanking.length, 'books');
 
-        const rankingResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const rankingResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
