@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
     console.log('Parsing prompt with Gemini:', prompt);
 
     // Use Gemini to extract structured search criteria from the prompt
-    const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
