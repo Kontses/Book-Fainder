@@ -46,14 +46,14 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
     if (data) {
       setNickname(data.nickname);
       setAvatarUrl(data.avatar_url);
-      
+
       // Fetch newsletter preference separately to avoid type issues
       const { data: profileData } = await supabase
         .from('profiles')
         .select('newsletter_subscribed')
         .eq('id', user.id)
         .maybeSingle();
-      
+
       setNewsletterSubscribed((profileData as any)?.newsletter_subscribed ?? true);
     }
   };
@@ -107,8 +107,8 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
       // Update profile with new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
-        .upsert({ 
-          id: user.id, 
+        .upsert({
+          id: user.id,
           avatar_url: publicUrl,
           nickname: nickname || 'user_' + user.id.substring(0, 8)
         }, { onConflict: 'id' });
@@ -158,7 +158,7 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
 
   const handleSave = async () => {
     const validation = nicknameSchema.safeParse(nickname.trim());
-    
+
     if (!validation.success) {
       toast.error(validation.error.errors[0].message);
       return;
@@ -171,7 +171,7 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
     try {
       const { error } = await supabase
         .from('profiles')
-        .upsert({ 
+        .upsert({
           id: user.id,
           nickname: validation.data,
           avatar_url: avatarUrl
@@ -186,9 +186,17 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
         }
       } else {
         toast.success(t('savedSuccessfully') as string);
-        onProfileUpdate?.();
-        // Navigate to the new profile URL with the updated nickname
-        navigate(`/profile/${validation.data}`);
+        toast.success(t('savedSuccessfully') as string);
+
+        // If nickname changed, navigate to new URL immediately
+        // Do NOT call onProfileUpdate because it uses the OLD nickname from URL params
+        // which would cause a "Profile not found" error since we just changed it in DB
+        if (profileUser?.nickname !== validation.data) {
+          navigate(`/profile/${validation.data}`);
+        } else {
+          // If nickname didn't change (e.g. only avatar update), just refresh data
+          onProfileUpdate?.();
+        }
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -272,7 +280,7 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
         {/* Email Preferences Section */}
         <div className="space-y-4 border-t pt-6">
           <h3 className="text-lg font-semibold">{t('emailPreferences')}</h3>
-          
+
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="newsletter" className="flex-1 text-sm font-normal">
               {t('receiveNewsletter')}
