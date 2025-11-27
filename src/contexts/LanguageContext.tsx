@@ -17,6 +17,7 @@ const translations: Translations = {
     password: 'Password',
     continueWithGoogle: 'Continue with Google',
     continueWithApple: 'Continue with Apple',
+    continueWithFacebook: 'Continue with Facebook',
     haveAccount: 'Already have an account? Sign in',
     noAccount: "Don't have an account? Sign up",
     createAccount: 'Create an account to save your favorite books',
@@ -114,6 +115,7 @@ const translations: Translations = {
     password: 'Κωδικός',
     continueWithGoogle: 'Συνέχεια με Google',
     continueWithApple: 'Συνέχεια με Apple',
+    continueWithFacebook: 'Συνέχεια με Facebook',
     haveAccount: 'Έχετε ήδη λογαριασμό; Συνδεθείτε',
     noAccount: 'Δεν έχετε λογαριασμό; Εγγραφείτε',
     createAccount: 'Δημιουργήστε λογαριασμό για να αποθηκεύετε τα αγαπημένα σας βιβλία',
@@ -211,6 +213,7 @@ const translations: Translations = {
     password: 'Contraseña',
     continueWithGoogle: 'Continuar con Google',
     continueWithApple: 'Continuar con Apple',
+    continueWithFacebook: 'Continuar con Facebook',
     haveAccount: '¿Ya tienes una cuenta? Inicia sesión',
     noAccount: '¿No tienes cuenta? Regístrate',
     createAccount: 'Crea una cuenta para guardar tus libros favoritos',
@@ -308,6 +311,7 @@ const translations: Translations = {
     password: 'Mot de passe',
     continueWithGoogle: 'Continuer avec Google',
     continueWithApple: 'Continuer avec Apple',
+    continueWithFacebook: 'Continuer avec Facebook',
     haveAccount: 'Vous avez déjà un compte? Connectez-vous',
     noAccount: "Vous n'avez pas de compte? Inscrivez-vous",
     createAccount: 'Créez un compte pour sauvegarder vos livres préférés',
@@ -405,6 +409,7 @@ const translations: Translations = {
     password: 'Passwort',
     continueWithGoogle: 'Mit Google fortfahren',
     continueWithApple: 'Mit Apple fortfahren',
+    continueWithFacebook: 'Mit Facebook fortfahren',
     haveAccount: 'Haben Sie bereits ein Konto? Anmelden',
     noAccount: 'Kein Konto? Registrieren',
     createAccount: 'Erstellen Sie ein Konto, um Ihre Lieblingsbücher zu speichern',
@@ -502,6 +507,7 @@ const translations: Translations = {
     password: 'Password',
     continueWithGoogle: 'Continua con Google',
     continueWithApple: 'Continua con Apple',
+    continueWithFacebook: 'Continua con Facebook',
     haveAccount: 'Hai già un account? Accedi',
     noAccount: 'Non hai un account? Registrati',
     createAccount: 'Crea un account per salvare i tuoi libri preferiti',
@@ -620,10 +626,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translations[language][key] || key;
   }, [language]);
 
-  const contextValue = useMemo(() => ({ 
-    language, 
-    setLanguage: handleSetLanguage, 
-    t 
+  const contextValue = useMemo(() => ({
+    language,
+    setLanguage: handleSetLanguage,
+    t
   }), [language, handleSetLanguage, t]);
 
   return (
