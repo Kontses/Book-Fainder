@@ -149,10 +149,10 @@ All colors MUST be HSL.
     z-index: 9999;
   }
 
-  @keyframes slide-down {
+  @keyframes item-slide-down {
     from {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-8px);
     }
 
     to {
@@ -161,7 +161,9 @@ All colors MUST be HSL.
     }
   }
 
-  .animate-slide-down {
-    animation: slide-down 0.3s ease-out forwards;
+  .animate-item-slide-down {
+    opacity: 0;
+    /* Start hidden */
+    animation: item-slide-down 0.3s ease-out forwards;
   }
 }

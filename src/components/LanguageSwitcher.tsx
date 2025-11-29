@@ -28,12 +28,13 @@ export const LanguageSwitcher = () => {
           <Globe className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-popover z-50 animate-slide-down">
-        {languages.map((lang) => (
+      <DropdownMenuContent align="end" className="w-48 bg-popover z-50">
+        {languages.map((lang, index) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLanguage(lang.code as any)}
-            className={`cursor-pointer ${language === lang.code ? 'bg-accent' : ''}`}
+            className={`cursor-pointer ${language === lang.code ? 'bg-accent' : ''} animate-item-slide-down`}
+            style={{ animationDelay: `${index * 50}ms` }}
           >
             <span className="mr-2">{lang.flag}</span>
             {lang.name}
