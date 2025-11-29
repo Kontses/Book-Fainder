@@ -28,7 +28,7 @@ export const LanguageSwitcher = () => {
           <Globe className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-popover z-50">
+      <DropdownMenuContent align="end" className="w-48 bg-popover z-50 animate-slide-down">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
