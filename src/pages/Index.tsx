@@ -73,10 +73,28 @@ const Index = () => {
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
-    
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
+      // Increment search count for feedback prompt
+      if (session?.user) {
+        const currentCount = parseInt(localStorage.getItem(`searchCount_${session.user.id}`) || '0');
+        const newCount = currentCount + 1;
+        localStorage.setItem(`searchCount_${session.user.id}`, newCount.toString());
+
+        if (newCount === 10) {
+          toast(t('feedbackPrompt') || "We'd love your feedback!", {
+            description: t('feedbackPromptDesc') || "You've done 10 searches! Please let us know what you think in your profile.",
+            action: {
+              label: t('giveFeedback') || "Give Feedback",
+              onClick: () => userNickname ? navigate(`/profile/${userNickname}`) : null,
+            },
+            duration: 10000,
+          });
+        }
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/search-books`, {
         method: 'POST',
         headers: {
@@ -91,13 +109,13 @@ const Index = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.book) {
         const bookId = data.book.isbn13 || data.book.isbn;
         if (bookId) {
           setPreviousBookIds(prev => [...prev, bookId]);
         }
-        
+
         const originalDescription = data.book.synopsis || "No description available.";
         let translatedDescription = originalDescription;
 
@@ -105,16 +123,16 @@ const Index = () => {
         if (language !== 'en') {
           try {
             const { data: { session } } = await supabase.auth.getSession();
-            
+
             const translateResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-description`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session?.access_token || ''}`,
               },
-              body: JSON.stringify({ 
-                description: originalDescription, 
-                targetLanguage: language 
+              body: JSON.stringify({
+                description: originalDescription,
+                targetLanguage: language
               }),
             });
 
@@ -128,14 +146,14 @@ const Index = () => {
             console.error('Error translating description:', translateError);
           }
         }
-        
+
         // Trigger exit animation if there's a current book, right before showing new one
         if (currentBook) {
           setIsExiting(true);
           // Wait for exit animation to complete
           await new Promise(resolve => setTimeout(resolve, 400));
         }
-        
+
         setCurrentBook({
           title: data.book.title,
           author: data.book.authors?.[0] || "Unknown Author",
@@ -160,7 +178,7 @@ const Index = () => {
 
   const handleSaveBook = async (book: Omit<any, 'onSave'>) => {
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       toast.error(t('mustSignIn'));
       return;
@@ -240,12 +258,11 @@ const Index = () => {
 
         {/* Results Section */}
         {currentBook && (
-          <div 
-            className={`max-w-4xl mx-auto transition-all duration-500 ${
-              isExiting 
-                ? 'opacity-0 scale-95 -translate-y-8' 
+          <div
+            className={`max-w-4xl mx-auto transition-all duration-500 ${isExiting
+                ? 'opacity-0 scale-95 -translate-y-8'
                 : 'opacity-100 scale-100 translate-y-0 animate-in fade-in slide-in-from-bottom-8'
-            }`}
+              }`}
             style={{
               animation: isExiting ? 'none' : undefined
             }}

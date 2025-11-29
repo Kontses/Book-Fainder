@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, Library, ListChecks, Users, Settings, Search, ArrowUpDown } from "lucide-react";
+import { BookOpen, LogOut, Library, ListChecks, Users, Settings, Search, ArrowUpDown, MessageSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { BookLists } from "@/components/profile/BookLists";
 import { Friends } from "@/components/profile/Friends";
+import { Feedback } from "@/components/profile/Feedback";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
@@ -285,6 +286,15 @@ const Profile = () => {
             </TabsTrigger>
             {isOwnProfile && (
               <TabsTrigger
+                value="feedback"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                {t('feedback') || "Feedback"}
+              </TabsTrigger>
+            )}
+            {isOwnProfile && (
+              <TabsTrigger
                 value="settings"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
               >
@@ -365,6 +375,14 @@ const Profile = () => {
           <TabsContent value="friends">
             <Friends userId={profileUser.id} isOwnProfile={isOwnProfile} />
           </TabsContent>
+
+          {isOwnProfile && (
+            <TabsContent value="feedback">
+              <div className="max-w-2xl mx-auto">
+                <Feedback />
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </main>
     </div>
