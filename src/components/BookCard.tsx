@@ -97,26 +97,29 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
     try {
       // Clean ISBN by removing any non-alphanumeric characters
       const cleanISBN = isbn?.replace(/[^0-9X]/gi, '');
-      let query = '';
 
       if (cleanISBN && cleanISBN.length >= 10) {
-        query = cleanISBN;
+        // Use the direct link format found on NYTimes
+        const affiliateUrl = `https://goto.applebooks.apple/${cleanISBN}?at=${APPLE_AFFILIATE_TOKEN}`;
+        window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
       } else {
+        // Fallback to iTunes search if no clean ISBN
+        let query = '';
         const cleanTitle = title.split(/[\/\(]/)[0].trim();
         const cleanAuthor = author.replace(/\d{4}-\d{4}/g, '').replace(/[^\w\s,.-]/g, '').trim();
         query = `${cleanTitle} ${cleanAuthor}`;
-      }
 
-      const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=ebook&entity=ebook&limit=1`);
-      const data = await response.json();
+        const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=ebook&entity=ebook&limit=1`);
+        const data = await response.json();
 
-      if (data.resultCount > 0) {
-        const bookUrl = data.results[0].trackViewUrl;
-        // Append affiliate token
-        const affiliateUrl = `${bookUrl}&at=${APPLE_AFFILIATE_TOKEN}`;
-        window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        toast.error('Book not found on Apple Books');
+        if (data.resultCount > 0) {
+          const bookUrl = data.results[0].trackViewUrl;
+          // Append affiliate token
+          const affiliateUrl = `${bookUrl}&at=${APPLE_AFFILIATE_TOKEN}`;
+          window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          toast.error('Book not found on Apple Books');
+        }
       }
     } catch (error) {
       console.error('Error searching Apple Books:', error);
