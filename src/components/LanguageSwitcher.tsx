@@ -69,6 +69,8 @@ export const LanguageSwitcher = () => {
                 className={`cursor-pointer ${language === lang.code ? 'bg-accent' : ''}`}
               >
                 <motion.img
+                  initial="closed"
+                  animate="open"
                   src={lang.flag}
                   alt={lang.name}
                   className="mr-2 h-4 w-6 object-cover rounded-sm shadow-sm"
@@ -78,13 +80,13 @@ export const LanguageSwitcher = () => {
                       scale: 1,
                       x: 0,
                       transition: {
-                        delay: languages.length * 0.1, // Wait for all texts to appear
+                        delay: 0.8, // Increased delay to be clearly after text
                         type: "spring",
                         stiffness: 300,
                         damping: 24
                       }
                     },
-                    closed: { opacity: 0, scale: 0.5, x: -10 }
+                    closed: { opacity: 0, scale: 0, x: -20 } // More dramatic hidden state
                   }}
                 />
                 {lang.name}
