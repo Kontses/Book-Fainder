@@ -51,7 +51,7 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(355 60% 40%), hsl(355 70% 55%));
     --gradient-warm: linear-gradient(180deg, hsl(35 25% 97%), hsl(35 30% 94%));
-    
+
     /* Shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(355 60% 40% / 0.2);
     --shadow-soft: 0 4px 12px hsl(25 20% 15% / 0.08);
@@ -105,7 +105,7 @@ All colors MUST be HSL.
 
     --gradient-primary: linear-gradient(135deg, hsl(355 65% 55%), hsl(355 75% 65%));
     --gradient-warm: linear-gradient(180deg, hsl(25 20% 10%), hsl(25 20% 8%));
-    
+
     --shadow-elegant: 0 10px 30px -10px hsl(355 65% 55% / 0.3);
     --shadow-soft: 0 4px 12px hsl(0 0% 0% / 0.4);
 
@@ -131,6 +131,7 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
@@ -142,14 +143,6 @@ All colors MUST be HSL.
   }
 
   ::view-transition-new(root) {
-    z-index: 2147483646;
-  }
-
-  .dark::view-transition-old(root) {
-    z-index: 2147483646;
-  }
-
-  .dark::view-transition-new(root) {
-    z-index: 1;
+    z-index: 9999;
   }
 }
