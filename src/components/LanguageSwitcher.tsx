@@ -10,12 +10,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'en', name: 'English', flag: 'https://flagcdn.com/w40/gb.png' },
+  { code: 'el', name: 'Ελληνικά', flag: 'https://flagcdn.com/w40/gr.png' },
+  { code: 'es', name: 'Español', flag: 'https://flagcdn.com/w40/es.png' },
+  { code: 'fr', name: 'Français', flag: 'https://flagcdn.com/w40/fr.png' },
+  { code: 'de', name: 'Deutsch', flag: 'https://flagcdn.com/w40/de.png' },
+  { code: 'it', name: 'Italiano', flag: 'https://flagcdn.com/w40/it.png' },
 ];
 
 export const LanguageSwitcher = () => {
@@ -68,7 +68,11 @@ export const LanguageSwitcher = () => {
                 onClick={() => setLanguage(lang.code as any)}
                 className={`cursor-pointer ${language === lang.code ? 'bg-accent' : ''}`}
               >
-                <span className="mr-2">{lang.flag}</span>
+                <img
+                  src={lang.flag}
+                  alt={lang.name}
+                  className="mr-2 h-4 w-6 object-cover rounded-sm shadow-sm"
+                />
                 {lang.name}
               </DropdownMenuItem>
             </motion.div>
