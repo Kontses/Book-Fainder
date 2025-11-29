@@ -378,9 +378,7 @@ const Profile = () => {
 
           {isOwnProfile && (
             <TabsContent value="feedback">
-              <div className="max-w-2xl mx-auto">
-                <Feedback />
-              </div>
+              <Feedback nickname={profileUser?.nickname} />
             </TabsContent>
           )}
         </Tabs>

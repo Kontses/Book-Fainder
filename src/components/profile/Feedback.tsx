@@ -10,10 +10,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MessageSquare, Send } from "lucide-react";
 
-export const Feedback = () => {
+interface FeedbackProps {
+    nickname?: string;
+}
+
+export const Feedback = ({ nickname }: FeedbackProps) => {
     const [message, setMessage] = useState("");
     const [category, setCategory] = useState("general");
-    const [rating, setRating] = useState("5");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useLanguage();
 
@@ -28,7 +31,6 @@ export const Feedback = () => {
                 body: {
                     message,
                     category,
-                    rating: parseInt(rating),
                     userId: user?.id,
                     userEmail: user?.email
                 }
@@ -39,7 +41,6 @@ export const Feedback = () => {
             toast.success(t('feedbackSentSuccess') || "Feedback sent successfully!");
             setMessage("");
             setCategory("general");
-            setRating("5");
         } catch (error) {
             console.error('Error sending feedback:', error);
             toast.error(t('feedbackError') || "Failed to send feedback");
@@ -56,6 +57,7 @@ export const Feedback = () => {
                     {t('feedbackTitle') || "Send Feedback"}
                 </CardTitle>
                 <CardDescription>
+                    {nickname ? `${t('feedbackGreeting') || 'Hi'} ${nickname} ` : ''}
                     {t('feedbackDescription') || "Help us improve Book Fainder by sharing your thoughts."}
                 </CardDescription>
             </CardHeader>
@@ -72,22 +74,7 @@ export const Feedback = () => {
                                 <SelectItem value="bug">{t('feedbackBug') || "Bug Report"}</SelectItem>
                                 <SelectItem value="feature">{t('feedbackFeature') || "Feature Request"}</SelectItem>
                                 <SelectItem value="content">{t('feedbackContent') || "Content Issue"}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>{t('feedbackRating') || "Rating"}</Label>
-                        <Select value={rating} onValueChange={setRating}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="5">⭐⭐⭐⭐⭐ (Excellent)</SelectItem>
-                                <SelectItem value="4">⭐⭐⭐⭐ (Good)</SelectItem>
-                                <SelectItem value="3">⭐⭐⭐ (Average)</SelectItem>
-                                <SelectItem value="2">⭐⭐ (Poor)</SelectItem>
-                                <SelectItem value="1">⭐ (Terrible)</SelectItem>
+                                <SelectItem value="cooperation">{t('feedbackCooperation') || "Professional Cooperation"}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

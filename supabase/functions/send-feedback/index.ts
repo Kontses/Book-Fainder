@@ -15,7 +15,6 @@ const corsHeaders = {
 interface FeedbackRequest {
     message: string;
     category: string;
-    rating?: number;
     userId?: string;
     userEmail?: string;
 }
@@ -26,7 +25,7 @@ serve(async (req: Request) => {
     }
 
     try {
-        const { message, category, rating, userId, userEmail }: FeedbackRequest = await req.json();
+        const { message, category, userId, userEmail }: FeedbackRequest = await req.json();
 
         const emailResponse = await resend.emails.send({
             from: "Book Fainder <info@bookfainder.com>",
@@ -37,7 +36,6 @@ serve(async (req: Request) => {
         <p><strong>Category:</strong> ${category}</p>
         <p><strong>Message:</strong></p>
         <p>${message}</p>
-        ${rating ? `<p><strong>Rating:</strong> ${rating}/5</p>` : ''}
         <hr />
         <h3>User Details</h3>
         <p><strong>User ID:</strong> ${userId || 'Anonymous'}</p>
