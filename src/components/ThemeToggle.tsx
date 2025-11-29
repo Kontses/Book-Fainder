@@ -50,6 +50,7 @@ export const ThemeToggle = () => {
       {
         duration: 500,
         easing: "ease-in-out",
+        fill: "forwards",
         pseudoElement: isDark
           ? "::view-transition-new(root)"
           : "::view-transition-old(root)",
