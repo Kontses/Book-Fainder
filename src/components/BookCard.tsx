@@ -295,7 +295,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                 </p>
               </ScrollArea>
             )}
-            <div className="flex flex-col gap-2 mt-auto">
+            <div className="grid grid-cols-2 gap-2 mt-auto">
               <Button
                 className={cn(
                   "w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg",
@@ -313,7 +313,14 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                 )}
                 onClick={() => window.open(getAppleBooksLink(), '_blank', 'noopener,noreferrer')}
               >
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Apple_Books_Icon.png" alt="Apple Books" className={cn("mr-2 object-contain", isCompact ? "h-4 w-4" : "h-5 w-5")} />
+                <svg
+                  role="img"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={cn("mr-2 fill-current", isCompact ? "h-4 w-4" : "h-5 w-5")}
+                >
+                  <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.127 3.688-.543 9.138 1.519 12.153 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
+                </svg>
                 Apple Books
               </Button>
             </div>
