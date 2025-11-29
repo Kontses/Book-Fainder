@@ -83,12 +83,12 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
                   {searchMode === 'precise' ? (
                     <>
                       <Target className="h-4 w-4 text-primary" />
-                      Deep Search
+                      {t('deepSearchTitle')}
                     </>
                   ) : (
                     <>
                       <Zap className="h-4 w-4 text-yellow-500" />
-                      Fast Search
+                      {t('fastSearchTitle')}
                     </>
                   )}
                 </Label>
@@ -102,11 +102,11 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
                   <TooltipContent>
                     {searchMode === 'precise' ? (
                       <p className="max-w-xs">
-                        <strong>Deep Search:</strong> Uses advanced AI to analyze all results and pick the absolute best match for your query. Slower but more accurate.
+                        <strong>{t('deepSearchTitle')}:</strong> {t('deepSearchDesc')}
                       </p>
                     ) : (
                       <p className="max-w-xs">
-                        <strong>Fast Search:</strong> Quickly finds matching books and selects one at random. Skips deep AI analysis for speed.
+                        <strong>{t('fastSearchTitle')}:</strong> {t('fastSearchDesc')}
                       </p>
                     )}
                   </TooltipContent>
