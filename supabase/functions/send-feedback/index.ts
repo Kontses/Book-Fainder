@@ -30,6 +30,7 @@ serve(async (req: Request) => {
         const emailResponse = await resend.emails.send({
             from: "Book Fainder <info@bookfainder.com>",
             to: ["bookfainder@gmail.com"], // Replace with admin email or env var
+            reply_to: userEmail,
             subject: `New Feedback: ${category}`,
             html: `
         <h1>New Feedback Received</h1>
