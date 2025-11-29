@@ -136,13 +136,16 @@ All colors MUST be HSL.
   ::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
-  }
-
-  ::view-transition-old(root) {
     z-index: 1;
   }
 
-  ::view-transition-new(root) {
+  /* Light -> Dark: New (Dark) on top */
+  .dark::view-transition-new(root) {
+    z-index: 9999;
+  }
+
+  /* Dark -> Light: Old (Dark) on top */
+  :root:not(.dark)::view-transition-old(root) {
     z-index: 9999;
   }
 }
