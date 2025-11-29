@@ -79,18 +79,31 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
                   checked={searchMode === 'precise'}
                   onCheckedChange={(checked) => setSearchMode(checked ? 'precise' : 'fast')}
                 />
-                <Label htmlFor="search-mode" className="text-sm font-medium cursor-pointer flex items-center gap-2">
-                  {searchMode === 'precise' ? (
-                    <>
-                      <Target className="h-4 w-4 text-primary" />
-                      {t('deepSearchTitle')}
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="h-4 w-4 text-yellow-500" />
-                      {t('fastSearchTitle')}
-                    </>
-                  )}
+                <Label htmlFor="search-mode" className="text-sm font-medium cursor-pointer grid grid-cols-1 items-center">
+                  {/* Visible content */}
+                  <span className="col-start-1 row-start-1 flex items-center gap-2">
+                    {searchMode === 'precise' ? (
+                      <>
+                        <Target className="h-4 w-4 text-primary" />
+                        {t('deepSearchTitle')}
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4 text-yellow-500" />
+                        {t('fastSearchTitle')}
+                      </>
+                    )}
+                  </span>
+
+                  {/* Spacers to reserve width */}
+                  <span className="col-start-1 row-start-1 flex items-center gap-2 opacity-0 pointer-events-none invisible" aria-hidden="true">
+                    <Target className="h-4 w-4" />
+                    {t('deepSearchTitle')}
+                  </span>
+                  <span className="col-start-1 row-start-1 flex items-center gap-2 opacity-0 pointer-events-none invisible" aria-hidden="true">
+                    <Zap className="h-4 w-4" />
+                    {t('fastSearchTitle')}
+                  </span>
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
