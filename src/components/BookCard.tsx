@@ -104,7 +104,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
       searchQuery = `${cleanTitle} ${cleanAuthor}`;
     }
 
-    return `https://books.apple.com/search?term=${encodeURIComponent(searchQuery)}&at=${APPLE_AFFILIATE_TOKEN}`;
+    return `https://books.apple.com/us/search?term=${encodeURIComponent(searchQuery)}&at=${APPLE_AFFILIATE_TOKEN}`;
   };
 
   const handleAddToList = async (listId: string) => {
