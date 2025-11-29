@@ -88,7 +88,7 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
   };
 
   // Apple Books Affiliate configuration
-  const APPLE_AFFILIATE_TOKEN = '1000l3dlk';
+  const APPLE_AFFILIATE_TOKEN = import.meta.env.VITE_APPLE_AFFILIATE_TOKEN || '1000l3dlk';
 
   const getAppleBooksLink = () => {
     // Clean ISBN by removing any non-alphanumeric characters
