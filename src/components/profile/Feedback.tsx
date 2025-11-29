@@ -66,7 +66,7 @@ export const Feedback = ({ nickname }: FeedbackProps) => {
                     <div className="space-y-2">
                         <Label>{t('feedbackCategory') || "Category"}</Label>
                         <Select value={category} onValueChange={setCategory}>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full md:w-[280px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
