@@ -144,26 +144,154 @@ All colors MUST be HSL.
     z-index: 9999;
   }
 
-  /* Dark -> Light: Old (Dark) on top */
-  :root:not(.dark)::view-transition-old(root) {
-    z-index: 9999;
-  }
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 
-  @keyframes item-slide-down {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
+  /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+  @layer base {
+    :root {
+      /* Warm, bookish color palette */
+      --background: 35 25% 97%;
+      --foreground: 25 20% 15%;
+
+      --card: 35 40% 98%;
+      --card-foreground: 25 20% 15%;
+
+      --popover: 35 40% 98%;
+      --popover-foreground: 25 20% 15%;
+
+      /* Burgundy wine tones for primary */
+      --primary: 355 60% 40%;
+      --primary-foreground: 35 25% 97%;
+      --primary-glow: 355 70% 55%;
+
+      /* Cream/parchment for secondary */
+      --secondary: 40 35% 92%;
+      --secondary-foreground: 25 20% 15%;
+
+      /* Muted warm tones */
+      --muted: 35 25% 90%;
+      --muted-foreground: 25 15% 45%;
+
+      /* Deep amber accents */
+      --accent: 30 80% 50%;
+      --accent-foreground: 35 25% 97%;
+
+      /* Soft rose for hover states */
+      --hover-subtle: 355 40% 92%;
+      --hover-subtle-foreground: 25 20% 15%;
+
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 35 25% 97%;
+
+      --border: 35 20% 88%;
+      --input: 35 20% 88%;
+      --ring: 355 60% 40%;
+
+      --radius: 0.75rem;
+
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, hsl(355 60% 40%), hsl(355 70% 55%));
+      --gradient-warm: linear-gradient(180deg, hsl(35 25% 97%), hsl(35 30% 94%));
+
+      /* Shadows */
+      --shadow-elegant: 0 10px 30px -10px hsl(355 60% 40% / 0.2);
+      --shadow-soft: 0 4px 12px hsl(25 20% 15% / 0.08);
+
+      /* Transitions */
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      --sidebar-background: 35 25% 95%;
+      --sidebar-foreground: 25 20% 15%;
+      --sidebar-primary: 355 60% 40%;
+      --sidebar-primary-foreground: 35 25% 97%;
+      --sidebar-accent: 35 25% 90%;
+      --sidebar-accent-foreground: 25 20% 15%;
+      --sidebar-border: 35 20% 88%;
+      --sidebar-ring: 355 60% 40%;
     }
 
-    to {
-      opacity: 1;
-      transform: translateY(0);
+    .dark {
+      --background: 25 20% 10%;
+      --foreground: 35 25% 95%;
+
+      --card: 25 20% 12%;
+      --card-foreground: 35 25% 95%;
+
+      --popover: 25 20% 12%;
+      --popover-foreground: 35 25% 95%;
+
+      --primary: 355 65% 55%;
+      --primary-foreground: 25 20% 10%;
+      --primary-glow: 355 75% 65%;
+
+      --secondary: 25 20% 18%;
+      --secondary-foreground: 35 25% 95%;
+
+      --muted: 25 20% 18%;
+      --muted-foreground: 35 15% 60%;
+
+      --accent: 30 85% 60%;
+      --accent-foreground: 25 20% 10%;
+
+      /* Soft rose for hover states - dark mode */
+      --hover-subtle: 355 30% 25%;
+      --hover-subtle-foreground: 35 25% 95%;
+
+      --destructive: 0 62.8% 50%;
+      --destructive-foreground: 35 25% 95%;
+
+      --border: 25 20% 22%;
+      --input: 25 20% 22%;
+      --ring: 355 65% 55%;
+
+      --gradient-primary: linear-gradient(135deg, hsl(355 65% 55%), hsl(355 75% 65%));
+      --gradient-warm: linear-gradient(180deg, hsl(25 20% 10%), hsl(25 20% 8%));
+
+      --shadow-elegant: 0 10px 30px -10px hsl(355 65% 55% / 0.3);
+      --shadow-soft: 0 4px 12px hsl(0 0% 0% / 0.4);
+
+      --sidebar-background: 25 20% 8%;
+      --sidebar-foreground: 35 25% 95%;
+      --sidebar-primary: 355 65% 55%;
+      --sidebar-primary-foreground: 25 20% 10%;
+      --sidebar-accent: 25 20% 18%;
+      --sidebar-accent-foreground: 35 25% 95%;
+      --sidebar-border: 25 20% 22%;
+      --sidebar-ring: 355 65% 55%;
     }
   }
 
-  .animate-item-slide-down {
-    opacity: 0;
-    /* Start hidden */
-    animation: item-slide-down 0.3s ease-out forwards;
+  @layer base {
+    * {
+      @apply border-border;
+    }
+
+    body {
+      @apply bg-background text-foreground;
+    }
   }
-}
+
+  @layer utilities {
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
+      mix-blend-mode: normal;
+      z-index: 1;
+    }
+
+    /* Light -> Dark: New (Dark) on top */
+    .dark::view-transition-new(root) {
+      z-index: 9999;
+    }
+
+    /* Dark -> Light: Old (Dark) on top */
+    :root:not(.dark)::view-transition-old(root) {
+      z-index: 9999;
+    }
+  }
