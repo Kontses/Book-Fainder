@@ -17,6 +17,7 @@ interface FeedbackRequest {
     category: string;
     userId?: string;
     userEmail?: string;
+    nickname?: string;
 }
 
 serve(async (req: Request) => {
@@ -25,7 +26,7 @@ serve(async (req: Request) => {
     }
 
     try {
-        const { message, category, userId, userEmail }: FeedbackRequest = await req.json();
+        const { message, category, userId, userEmail, nickname }: FeedbackRequest = await req.json();
 
         const emailResponse = await resend.emails.send({
             from: "Book Fainder <info@bookfainder.com>",
@@ -39,6 +40,7 @@ serve(async (req: Request) => {
         <p>${message}</p>
         <hr />
         <h3>User Details</h3>
+        <p><strong>Nickname:</strong> ${nickname || 'Anonymous'}</p>
         <p><strong>User ID:</strong> ${userId || 'Anonymous'}</p>
         <p><strong>Email:</strong> ${userEmail || 'Not provided'}</p>
       `,

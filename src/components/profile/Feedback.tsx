@@ -32,7 +32,8 @@ export const Feedback = ({ nickname }: FeedbackProps) => {
                     message,
                     category,
                     userId: user?.id,
-                    userEmail: user?.email
+                    userEmail: user?.email,
+                    nickname
                 }
             });
 
