@@ -87,6 +87,26 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
     return `https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}&tag=${AMAZON_AFFILIATE_TAG}`;
   };
 
+  // Apple Books Affiliate configuration
+  const APPLE_AFFILIATE_TOKEN = '1000l3dlk';
+
+  const getAppleBooksLink = () => {
+    // Clean ISBN by removing any non-alphanumeric characters
+    const cleanISBN = isbn?.replace(/[^0-9X]/gi, '');
+
+    let searchQuery = '';
+
+    if (cleanISBN && cleanISBN.length >= 10) {
+      searchQuery = cleanISBN;
+    } else {
+      const cleanTitle = title.split(/[\/\(]/)[0].trim();
+      const cleanAuthor = author.replace(/\d{4}-\d{4}/g, '').replace(/[^\w\s,.-]/g, '').trim();
+      searchQuery = `${cleanTitle} ${cleanAuthor}`;
+    }
+
+    return `https://books.apple.com/search?term=${encodeURIComponent(searchQuery)}&at=${APPLE_AFFILIATE_TOKEN}`;
+  };
+
   const handleAddToList = async (listId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -275,16 +295,28 @@ export const BookCard = ({ title, author, description, year, coverUrl, isbn, onS
                 </p>
               </ScrollArea>
             )}
-            <Button
-              className={cn(
-                "w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg mt-auto",
-                isCompact && "text-sm py-2"
-              )}
-              onClick={() => window.open(getAmazonLink(), '_blank', 'noopener,noreferrer')}
-            >
-              <ShoppingCart className={cn("mr-2", isCompact ? "h-4 w-4" : "h-5 w-5")} />
-              View on Amazon
-            </Button>
+            <div className="flex flex-col gap-2 mt-auto">
+              <Button
+                className={cn(
+                  "w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-black font-semibold transition-all duration-300 hover:shadow-lg",
+                  isCompact && "text-sm py-2"
+                )}
+                onClick={() => window.open(getAmazonLink(), '_blank', 'noopener,noreferrer')}
+              >
+                <ShoppingCart className={cn("mr-2", isCompact ? "h-4 w-4" : "h-5 w-5")} />
+                Amazon
+              </Button>
+              <Button
+                className={cn(
+                  "w-full bg-black hover:bg-black/90 text-white font-semibold transition-all duration-300 hover:shadow-lg",
+                  isCompact && "text-sm py-2"
+                )}
+                onClick={() => window.open(getAppleBooksLink(), '_blank', 'noopener,noreferrer')}
+              >
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Apple_Books_Icon.png" alt="Apple Books" className={cn("mr-2 object-contain", isCompact ? "h-4 w-4" : "h-5 w-5")} />
+                Apple Books
+              </Button>
+            </div>
           </CardContent>
         </div>
       </div>
