@@ -456,7 +456,16 @@ Return the translation in the same format.`
     // AI Re-ranking: Use Gemini to select the best book
     let selectedBook = filteredBooks[0]; // Default fallback
 
-    if (filteredBooks.length > 1) {
+    // Check mode
+    const { mode } = validation.data;
+
+    if (mode === 'fast') {
+      console.log('⚡ [Fast Mode] Skipping AI re-ranking. Selecting random book from top results.');
+      // Select a random book from the top 5 results to ensure some relevance
+      const topResults = filteredBooks.slice(0, 5);
+      const randomIndex = Math.floor(Math.random() * topResults.length);
+      selectedBook = topResults[randomIndex];
+    } else if (filteredBooks.length > 1) {
       try {
         // Limit to top 10 books for Gemini analysis
         const booksToAnalyze = filteredBooks.slice(0, 10);

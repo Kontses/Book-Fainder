@@ -71,7 +71,7 @@ const Index = () => {
     }
   };
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = async (query: string, mode: 'fast' | 'precise' = 'precise') => {
     setIsSearching(true);
 
     try {
@@ -101,7 +101,7 @@ const Index = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token || ''}`,
         },
-        body: JSON.stringify({ prompt: query, previousBookIds }),
+        body: JSON.stringify({ prompt: query, previousBookIds, mode }),
       });
 
       if (!response.ok) {
@@ -260,8 +260,8 @@ const Index = () => {
         {currentBook && (
           <div
             className={`max-w-4xl mx-auto transition-all duration-500 ${isExiting
-                ? 'opacity-0 scale-95 -translate-y-8'
-                : 'opacity-100 scale-100 translate-y-0 animate-in fade-in slide-in-from-bottom-8'
+              ? 'opacity-0 scale-95 -translate-y-8'
+              : 'opacity-100 scale-100 translate-y-0 animate-in fade-in slide-in-from-bottom-8'
               }`}
             style={{
               animation: isExiting ? 'none' : undefined
