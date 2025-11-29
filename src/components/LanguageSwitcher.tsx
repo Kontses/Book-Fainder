@@ -68,10 +68,24 @@ export const LanguageSwitcher = () => {
                 onClick={() => setLanguage(lang.code as any)}
                 className={`cursor-pointer ${language === lang.code ? 'bg-accent' : ''}`}
               >
-                <img
+                <motion.img
                   src={lang.flag}
                   alt={lang.name}
                   className="mr-2 h-4 w-6 object-cover rounded-sm shadow-sm"
+                  variants={{
+                    open: {
+                      opacity: 1,
+                      scale: 1,
+                      x: 0,
+                      transition: {
+                        delay: languages.length * 0.1, // Wait for all texts to appear
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 24
+                      }
+                    },
+                    closed: { opacity: 0, scale: 0.5, x: -10 }
+                  }}
                 />
                 {lang.name}
               </DropdownMenuItem>
