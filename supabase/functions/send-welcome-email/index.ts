@@ -1,10 +1,18 @@
 // @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-ignore
-import Resend from "https://esm.sh/resend@2.0.0";
-
 // @ts-ignore
-const resend = new Resend.Resend(Deno.env.get("RESEND_API_KEY"));
+import nodemailer from "https://esm.sh/nodemailer@6.9.13";
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: Deno.env.get("SMTP_USER"),
+        pass: Deno.env.get("SMTP_PASS"),
+    },
+});
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -29,9 +37,9 @@ serve(async (req: Request) => {
             throw new Error("Email is required");
         }
 
-        const emailResponse = await resend.emails.send({
-            from: "Book Fainder <info@bookfainder.com>",
-            to: [email],
+        const info = await transporter.sendMail({
+            from: '"Book Fainder" <info@bookfainder.com>',
+            to: email,
             subject: "Welcome to Book Fainder!",
             html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -45,7 +53,9 @@ serve(async (req: Request) => {
       `,
         });
 
-        return new Response(JSON.stringify(emailResponse), {
+        console.log("Message sent: %s", info.messageId);
+
+        return new Response(JSON.stringify(info), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: 200,
         });

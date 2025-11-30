@@ -1,10 +1,18 @@
 // @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-ignore
-import Resend from "https://esm.sh/resend@2.0.0";
-
 // @ts-ignore
-const resend = new Resend.Resend(Deno.env.get("RESEND_API_KEY"));
+import nodemailer from "https://esm.sh/nodemailer@6.9.13";
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: Deno.env.get("SMTP_USER"),
+        pass: Deno.env.get("SMTP_PASS"),
+    },
+});
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -28,10 +36,10 @@ serve(async (req: Request) => {
     try {
         const { message, category, userId, userEmail, nickname }: FeedbackRequest = await req.json();
 
-        const emailResponse = await resend.emails.send({
-            from: "Book Fainder <info@bookfainder.com>",
-            to: ["bookfainder@gmail.com"], // Replace with admin email or env var
-            reply_to: userEmail,
+        const info = await transporter.sendMail({
+            from: '"Book Fainder Feedback" <info@bookfainder.com>',
+            to: "bookfainder@gmail.com", // Admin email
+            replyTo: userEmail,
             subject: `New Feedback: ${category}`,
             html: `
         <h1>New Feedback Received</h1>
@@ -46,7 +54,7 @@ serve(async (req: Request) => {
       `,
         });
 
-        return new Response(JSON.stringify(emailResponse), {
+        return new Response(JSON.stringify(info), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: 200,
         });
