@@ -60,7 +60,7 @@ export const Feedback = ({ nickname }: FeedbackProps) => {
                 <CardDescription>
                     {nickname ? (
                         <>
-                            {t('feedbackGreeting') || 'Hi'} <span className="font-bold text-foreground">{nickname}</span>{" "}
+                            {t('feedbackGreeting') || 'Hi'} <span className="font-bold text-foreground">{nickname}</span>{"! "}
                         </>
                     ) : ''}
                     {t('feedbackDescription') || "Help us improve Book Fainder by sharing your thoughts."}
