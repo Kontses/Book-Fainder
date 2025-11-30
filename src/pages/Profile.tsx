@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, LogOut, Library, ListChecks, Users, Settings, Search, ArrowUpDown, MessageSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -47,6 +47,22 @@ const Profile = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { nickname } = useParams();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("books");
+
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (hash && ['books', 'lists', 'friends', 'feedback', 'settings'].includes(hash)) {
+      setActiveTab(hash);
+    } else {
+      setActiveTab('books');
+    }
+  }, [location.hash]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    window.location.hash = value;
+  };
 
   useEffect(() => {
     fetchUserProfileAndBooks();
@@ -261,7 +277,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="books" className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="flex w-full justify-start overflow-x-auto whitespace-nowrap mb-8 bg-transparent gap-2">
             <TabsTrigger
               value="books"
