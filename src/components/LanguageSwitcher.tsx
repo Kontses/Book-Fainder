@@ -23,7 +23,7 @@ export const LanguageSwitcher = () => {
   const currentLanguage = languages.find(lang => lang.code === language);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="hover:bg-primary/10">
           <Globe className="h-5 w-5" />
