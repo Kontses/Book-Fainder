@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ThreeDot } from "react-loading-indicators";
 import { SearchBar } from "@/components/SearchBar";
 import { BookCard } from "@/components/BookCard";
 import { Button } from "@/components/ui/button";
@@ -254,6 +255,14 @@ const Index = () => {
         {/* Search Section */}
         <div className="mb-12">
           <SearchBar onSearch={handleSearch} isLoading={isSearching} />
+        </div>
+
+        {/* Loading State - Animated Container */}
+        <div
+          className={`transition-all duration-500 ease-in-out overflow-hidden flex flex-col items-center justify-center ${isSearching ? 'max-h-32 opacity-100 py-6' : 'max-h-0 opacity-0 py-0'
+            }`}
+        >
+          <ThreeDot variant="bounce" color="hsl(355 60% 40%)" size="small" text="" textColor="" />
         </div>
 
         {/* Results Section */}
