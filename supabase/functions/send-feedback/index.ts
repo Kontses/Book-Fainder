@@ -1,10 +1,10 @@
 // @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-ignore
-import { Resend } from "npm:resend@2.0.0";
+import Resend from "https://esm.sh/resend@2.0.0";
 
 // @ts-ignore
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const resend = new Resend.Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",

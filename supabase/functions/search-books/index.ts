@@ -8,7 +8,8 @@ const corsHeaders = {
 
 const requestSchema = z.object({
   prompt: z.string().min(1, "Prompt is required").max(500, "Prompt too long"),
-  previousBookIds: z.array(z.string()).optional()
+  previousBookIds: z.array(z.string()).optional(),
+  mode: z.enum(['fast', 'precise']).optional().default('precise')
 });
 
 interface SearchCriteria {
