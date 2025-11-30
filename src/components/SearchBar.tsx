@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Sparkles, Dices, Zap, Target } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTypewriter } from "@/hooks/useTypewriter";
 
 interface SearchBarProps {
   onSearch: (query: string, mode: 'fast' | 'precise') => void;
@@ -37,6 +38,16 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
     }
   };
 
+
+
+  // ... inside component
+  const placeholderText = t('searchPlaceholder') as string;
+  const animatedPlaceholder = useTypewriter({
+    text: placeholderText,
+    speed: 30, // Slightly faster typing
+    delay: 500 // Start after half a second
+  });
+
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
       <div className="relative">
@@ -44,7 +55,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           <Textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t('searchPlaceholder') as string}
+            placeholder={animatedPlaceholder}
             className="min-h-[120px] pr-12 text-base resize-none bg-card/80 backdrop-blur-sm border-border/50 focus:border-primary transition-colors"
             disabled={isLoading}
           />
