@@ -411,8 +411,11 @@ Return the translation in the same format.`
     }
 
     // STEP 3: If no books found in original language, translate and retry
-    if (filteredBooks.length === 0 && searchCriteria.language && searchCriteria.language.toLowerCase() !== 'english') {
-      console.log('STEP 3: No books found in original language. Translating to English and retrying...');
+    // We try translation if:
+    // 1. No books found
+    // 2. AND (Language is NOT English OR Language is undefined) - if it's undefined, it might be a non-English query that needs translation
+    if (filteredBooks.length === 0 && (!searchCriteria.language || searchCriteria.language.toLowerCase() !== 'english')) {
+      console.log('STEP 3: No books found. Attempting translation to English...');
 
       const translatedCriteria = await translateToEnglish(searchCriteria);
       translatedCriteria.language = 'english'; // Override language to search for English books
