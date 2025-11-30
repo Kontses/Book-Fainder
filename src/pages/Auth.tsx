@@ -31,10 +31,30 @@ const Auth = () => {
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('[Auth] State change event:', event, 'Session exists:', !!session);
         if (event === 'SIGNED_IN' && session) {
-          console.log('[Auth] User signed in, navigating to home');
+          console.log('[Auth] User signed in');
+
+          // Check if user is new (created within last 30 seconds)
+          if (session.user.created_at) {
+            const createdAt = new Date(session.user.created_at).getTime();
+            const now = new Date().getTime();
+            const isNewUser = (now - createdAt) < 30000; // 30 seconds threshold
+
+            if (isNewUser) {
+              console.log('[Auth] New user detected, sending welcome email...');
+              try {
+                await supabase.functions.invoke('send-welcome-email', {
+                  body: { email: session.user.email }
+                });
+                console.log('[Auth] Welcome email request sent');
+              } catch (emailError) {
+                console.error('[Auth] Failed to send welcome email:', emailError);
+              }
+            }
+          }
+
           navigate("/");
         }
         if (event === 'SIGNED_OUT') {
