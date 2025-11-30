@@ -120,20 +120,6 @@ All colors MUST be HSL.
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  html {
-    overflow-y: scroll;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
 @layer utilities {
 
   ::view-transition-old(root),
