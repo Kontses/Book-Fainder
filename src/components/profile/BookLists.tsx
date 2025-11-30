@@ -182,7 +182,7 @@ export const BookLists = () => {
             lists.map((list) => (
               <div
                 key={list.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/15 transition-colors cursor-pointer group"
                 onClick={() => setSelectedList({ id: list.id, name: list.name })}
               >
                 <div className="flex items-center flex-1">
