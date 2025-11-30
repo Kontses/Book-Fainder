@@ -73,12 +73,13 @@ Deno.serve(async (req: Request) => {
 
 CRITICAL EXTRACTION RULES:
 1. Extract TITLE if the user mentions a specific book title or asks for books "like X" (where X is a title)
-2. Extract AUTHOR if the user mentions a specific author name or nationality preference
+2. Extract AUTHOR if the user mentions a specific author name
 3. Extract GENRES - ALWAYS extract book genres/categories as an array:
    - "mystery" → ["mystery"]
-   - "science fiction" → ["science fiction"]
+   - "science fiction" → ["science fiction"]  
    - "historical fiction" → ["historical fiction"]
-   - Genre terms: fiction, mystery, thriller, sci-fi, romance, horror, fantasy, biography, etc.
+   - "biography" → ["biography", "autobiography"]
+   - Genre terms: fiction, mystery, thriller, sci-fi, romance, horror, fantasy, biography, autobiography, poetry, etc.
 4. Extract YEAR_RANGE - CRITICAL for decade queries:
    - "1930s" → min: 1930, max: 1939
    - "1920s" → min: 1920, max: 1929
@@ -87,13 +88,27 @@ CRITICAL EXTRACTION RULES:
    - "before 1950" → max: 1950
    - "after 2000" → min: 2000
    - Any year followed by 's' means the FULL 10-year range (e.g., 1930-1939)
-5. Extract LANGUAGE if specified (Greek, English, French, etc.)
-6. Extract KEYWORDS only for thematic terms that don't fit other categories (war, adventure, love, etc.)
+5. Extract LANGUAGE if the user wants books IN that language (not ABOUT that language):
+   - "Greek book" or "book in Greek" → language: "Greek"
+   - "book about Greek" or "Greek literature textbook" → DO NOT set language, use keywords instead
+   - ONLY set language when the user wants to READ in that language
+6. Extract KEYWORDS for thematic terms:
+   - If user asks for "Greek writer" or "Greek author" → keywords: ["Greek literature", "Greek author"]
+   - Nationality + writer/author → keywords: ["{nationality} literature", "{nationality} author"]
+   - Theme terms: war, adventure, love, classical literature, etc.
+
+NATIONALITY VS LANGUAGE:
+- "Greek book about a Greek writer" → keywords: ["Greek literature", "Greek author"], NO language field
+- "book in Greek" → language: "Greek"  
+- "French novel" → keywords: ["French literature"], language: "French"
+- "book about ancient Greece" → keywords: ["ancient Greece", "Greek history"]
 
 EXAMPLES:
 - "mystery novel from the 1930s" → genres: ["mystery"], year_range: {min: 1930, max: 1939}
 - "sci-fi book from the 60s" → genres: ["science fiction"], year_range: {min: 1960, max: 1969}
-- "Greek poetry" → genres: ["poetry"], language: "Greek"
+- "Greek poetry book" → genres: ["poetry"], keywords: ["Greek literature"], language: "Greek"
+- "book about a Greek writer" → keywords: ["Greek literature", "Greek author", "biography"]
+- "French romance novel" → genres: ["romance"], keywords: ["French literature"], language: "French"
 
 PRIORITY: Use specific fields (genres, year_range) over generic keywords whenever possible.`
           }
@@ -492,12 +507,29 @@ Return the translation in the same format.`
               parts: {
                 text: `You are a book recommendation expert. Analyze the user's query and select the BEST matching book from the available options.
 
-Consider:
-1. Relevance to the user's query
-2. Quality indicators (synopsis, subjects)
-3. User's intent and preferences
+CRITICAL MATCHING RULES:
+1. Understand USER INTENT - what is the user REALLY asking for?
+   - "Greek book about a Greek writer" → wants books BY Greek authors or ABOUT Greek literature (NOT textbooks for learning Greek)
+   - "mystery from the 1930s" → wants mystery novels published in that decade
+   - "French novel" → wants novels BY French authors or IN French language
 
-Return the index of the book that best matches the user's needs.`
+2. AVOID MISMATCHES:
+   - Do NOT recommend language learning books unless explicitly requested
+   - Do NOT recommend textbooks when user wants literary works
+   - Do NOT recommend books ABOUT a subject when user wants books FROM that subject
+   - "Greek writer" means Greek AUTHORS, not books about HOW TO WRITE in Greek
+
+3. QUALITY INDICATORS:
+   - Literary works > textbooks (unless textbooks requested)
+   - Books matching INTENT > books matching only keywords
+   - Classics and well-reviewed books > obscure matches
+
+4. RANKING PRIORITY:
+   a) Perfect intent match (author nationality, genre, theme)
+   b) Partial match but high quality
+   c) Keyword match but wrong context (AVOID)
+
+Return the index of the book that BEST MATCHES the user's TRUE INTENT.`
               }
             },
             contents: [
