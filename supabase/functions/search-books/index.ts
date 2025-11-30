@@ -8,8 +8,7 @@ const corsHeaders = {
 
 const requestSchema = z.object({
   prompt: z.string().min(1, "Prompt is required").max(500, "Prompt too long"),
-  previousBookIds: z.array(z.string()).optional(),
-  mode: z.enum(['fast', 'precise']).optional().default('precise')
+  previousBookIds: z.array(z.string()).optional()
 });
 
 interface SearchCriteria {
@@ -469,19 +468,10 @@ Return the translation in the same format.`
       );
     }
 
-    // AI Re-ranking: Use Gemini to select the best book
+    // AI Re-ranking: Use Gemini to select the best book from top 20 results
     let selectedBook = filteredBooks[0]; // Default fallback
 
-    // Check mode
-    const { mode } = validation.data;
-
-    if (mode === 'fast') {
-      console.log('⚡ [Fast Mode] Skipping AI re-ranking. Selecting random book from top results.');
-      // Select a random book from the top 5 results to ensure some relevance
-      const topResults = filteredBooks.slice(0, 5);
-      const randomIndex = Math.floor(Math.random() * topResults.length);
-      selectedBook = topResults[randomIndex];
-    } else if (filteredBooks.length > 1) {
+    if (filteredBooks.length > 1) {
       try {
         // Limit to top 10 books for Gemini analysis
         const booksToAnalyze = filteredBooks.slice(0, 10);

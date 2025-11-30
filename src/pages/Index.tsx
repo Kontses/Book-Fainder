@@ -71,7 +71,7 @@ const Index = () => {
     }
   };
 
-  const handleSearch = async (query: string, mode: 'fast' | 'precise' = 'precise') => {
+  const handleSearch = async (query: string) => {
     setIsSearching(true);
 
     try {
@@ -101,7 +101,7 @@ const Index = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token || ''}`,
         },
-        body: JSON.stringify({ prompt: query, previousBookIds, mode }),
+        body: JSON.stringify({ prompt: query, previousBookIds }),
       });
 
       if (!response.ok) {
