@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface FriendsProps {
   userId: string;
   isOwnProfile: boolean;
+  onRequestsUpdated?: () => void;
 }
 
 interface Friend {
@@ -28,7 +29,7 @@ interface FriendRequest {
   sender: Friend;
 }
 
-export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
+export const Friends = ({ userId, isOwnProfile, onRequestsUpdated }: FriendsProps) => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -188,6 +189,7 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
       toast.success('Friend request accepted!');
       fetchFriends();
       fetchPendingRequests();
+      if (onRequestsUpdated) onRequestsUpdated();
     } catch (error: any) {
       console.error('Error accepting friend request:', error);
       toast.error(t('failedSave'));
@@ -205,6 +207,7 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
 
       toast.success('Friend request rejected');
       fetchPendingRequests();
+      if (onRequestsUpdated) onRequestsUpdated();
     } catch (error: any) {
       console.error('Error rejecting friend request:', error);
       toast.error(t('failedSave'));
@@ -216,8 +219,8 @@ export const Friends = ({ userId, isOwnProfile }: FriendsProps) => {
       {/* Add Friend Button for non-own profiles */}
       {!isOwnProfile && friendshipStatus === null && (
         <Card className="p-6">
-          <Button 
-            onClick={() => sendFriendRequest(userId)} 
+          <Button
+            onClick={() => sendFriendRequest(userId)}
             className="w-full"
           >
             <UserPlus className="mr-2 h-5 w-5" />

@@ -39,6 +39,7 @@ const Profile = () => {
   const [profileUser, setProfileUser] = useState<any>(null);
   const [bookLists, setBookLists] = useState<any[]>([]);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
   // Search and Sort State
   const [searchQuery, setSearchQuery] = useState("");
@@ -154,6 +155,27 @@ const Profile = () => {
       setLoading(false);
     }
   };
+
+  const fetchPendingRequestsCount = async (userId: string) => {
+    try {
+      const { count, error } = await supabase
+        .from('friendships')
+        .select('*', { count: 'exact', head: true })
+        .eq('friend_id', userId)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+      setPendingRequestsCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching pending requests count:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (isOwnProfile && profileUser?.id) {
+      fetchPendingRequestsCount(profileUser.id);
+    }
+  }, [isOwnProfile, profileUser]);
 
   const handleSignOut = async () => {
     try {
@@ -295,10 +317,15 @@ const Profile = () => {
             </TabsTrigger>
             <TabsTrigger
               value="friends"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-6 hover:bg-[hsl(var(--hover-subtle))] transition-colors relative"
             >
               <Users className="h-4 w-4 mr-2" />
               {t('friends')}
+              {isOwnProfile && pendingRequestsCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {pendingRequestsCount}
+                </span>
+              )}
             </TabsTrigger>
             {isOwnProfile && (
               <TabsTrigger
@@ -389,7 +416,11 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="friends">
-            <Friends userId={profileUser.id} isOwnProfile={isOwnProfile} />
+            <Friends
+              userId={profileUser.id}
+              isOwnProfile={isOwnProfile}
+              onRequestsUpdated={() => fetchPendingRequestsCount(profileUser.id)}
+            />
           </TabsContent>
 
           {isOwnProfile && (
