@@ -6,10 +6,12 @@ interface ListThumbnailProps {
 }
 
 export const ListThumbnail = ({ coverUrls }: ListThumbnailProps) => {
+    const [isHovered, setIsHovered] = React.useState(false);
+
     // If no covers, show a placeholder
     if (!coverUrls || coverUrls.length === 0) {
         return (
-            <div className="w-16 h-20 bg-muted rounded-md flex items-center justify-center border border-border/50 shadow-sm">
+            <div className="w-16 h-20 bg-muted rounded-md flex items-center justify-center border border-border/50 shadow-sm transition-transform duration-300 hover:scale-105">
                 <BookOpen className="h-6 w-6 text-muted-foreground/50" />
             </div>
         );
@@ -19,7 +21,11 @@ export const ListThumbnail = ({ coverUrls }: ListThumbnailProps) => {
     const displayCovers = coverUrls.slice(0, 3);
 
     return (
-        <div className="relative w-20 h-24 mr-6 flex-shrink-0">
+        <div
+            className="relative w-20 h-24 mr-6 flex-shrink-0 cursor-pointer group"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             {displayCovers.map((url, index) => {
                 // Calculate styles for stacking effect
                 // index 0: front (z-30), no offset
@@ -29,12 +35,21 @@ export const ListThumbnail = ({ coverUrls }: ListThumbnailProps) => {
                 // Reverse index for z-index (0 is top, so highest z-index)
                 const zIndex = 30 - (index * 10);
 
-                // Offset calculation - increased further for better visibility
-                const left = index * 10; // 10px shift right per item
-                const top = index * -8; // 8px shift up per item
+                // Offset calculation - dynamic based on hover
+                // Normal: 10px right, -8px top
+                // Hover: 20px right, -12px top (spread out)
+                const spreadFactor = isHovered ? 20 : 10;
+                const liftFactor = isHovered ? -12 : -8;
+
+                const left = index * spreadFactor;
+                const top = index * liftFactor;
 
                 // Scale calculation
-                const scale = 1 - (index * 0.05); // Less scaling to keep them larger
+                // Normal: slight reduction for back items
+                // Hover: all items scale up slightly
+                const baseScale = 1 - (index * 0.05);
+                const hoverScale = isHovered ? 1.05 : 1;
+                const finalScale = baseScale * hoverScale;
 
                 // Opacity - made more visible
                 const opacity = 1 - (index * 0.1); // Higher opacity (1, 0.9, 0.8)
@@ -47,7 +62,7 @@ export const ListThumbnail = ({ coverUrls }: ListThumbnailProps) => {
                             zIndex,
                             left: `${left}px`,
                             top: `${16 + top}px`, // Push down slightly to account for negative top offset
-                            transform: `scale(${scale})`,
+                            transform: `scale(${finalScale})`,
                             transformOrigin: 'bottom left',
                             opacity,
                         }}
