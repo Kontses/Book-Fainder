@@ -29,15 +29,15 @@ export const ListThumbnail = ({ coverUrls }: ListThumbnailProps) => {
                 // Reverse index for z-index (0 is top, so highest z-index)
                 const zIndex = 30 - (index * 10);
 
-                // Offset calculation - increased for visibility
-                const left = index * 8; // 8px shift right per item
-                const top = index * -4; // 4px shift up per item
+                // Offset calculation - increased further for better visibility
+                const left = index * 10; // 10px shift right per item
+                const top = index * -8; // 8px shift up per item
 
                 // Scale calculation
-                const scale = 1 - (index * 0.1);
+                const scale = 1 - (index * 0.05); // Less scaling to keep them larger
 
-                // Opacity for "fading out" effect
-                const opacity = 1 - (index * 0.2);
+                // Opacity - made more visible
+                const opacity = 1 - (index * 0.1); // Higher opacity (1, 0.9, 0.8)
 
                 return (
                     <div
