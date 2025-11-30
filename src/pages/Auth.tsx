@@ -83,6 +83,16 @@ const Auth = () => {
 
         if (error) throw error;
 
+        // Send welcome email
+        try {
+          await supabase.functions.invoke('send-welcome-email', {
+            body: { email }
+          });
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't block the signup flow if email fails
+        }
+
         toast.success(t('signedUpSuccess'));
         setIsSignUp(false);
         setPassword("");
