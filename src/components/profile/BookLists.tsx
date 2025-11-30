@@ -10,12 +10,14 @@ import { Plus, Trash2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ListDetail } from "./ListDetail";
+import { ListThumbnail } from "./ListThumbnail";
 
 interface BookList {
   id: string;
   name: string;
   description: string | null;
   created_at: string;
+  covers?: string[];
 }
 
 export const BookLists = () => {
@@ -34,13 +36,42 @@ export const BookLists = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('book_lists')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    try {
+      // Fetch lists
+      const { data: listsData, error: listsError } = await supabase
+        .from('book_lists')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-    if (data) setLists(data);
+      if (listsError) throw listsError;
+
+      if (listsData) {
+        // Fetch covers for each list
+        const listsWithCovers = await Promise.all(listsData.map(async (list) => {
+          const { data: booksData } = await supabase
+            .from('list_books')
+            .select(`
+              user_books (
+                book_cover_url
+              )
+            `)
+            .eq('list_id', list.id)
+            .limit(3); // Only need top 3
+
+          const covers = booksData
+            ?.map((item: any) => item.user_books?.book_cover_url)
+            .filter(Boolean) || [];
+
+          return { ...list, covers };
+        }));
+
+        setLists(listsWithCovers);
+      }
+    } catch (error: any) {
+      console.error('Error fetching lists:', error);
+      toast.error(t('failedSearch'));
+    }
   };
 
   const handleCreateList = async () => {
@@ -84,10 +115,13 @@ export const BookLists = () => {
 
   if (selectedList) {
     return (
-      <ListDetail 
+      <ListDetail
         listId={selectedList.id}
         listName={selectedList.name}
-        onBack={() => setSelectedList(null)}
+        onBack={() => {
+          setSelectedList(null);
+          fetchLists(); // Refresh to update thumbnails if changed
+        }}
       />
     );
   }
@@ -151,11 +185,16 @@ export const BookLists = () => {
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
                 onClick={() => setSelectedList({ id: list.id, name: list.name })}
               >
-                <div className="flex-1">
-                  <h3 className="font-semibold">{list.name}</h3>
-                  {list.description && (
-                    <p className="text-sm text-muted-foreground">{list.description}</p>
-                  )}
+                <div className="flex items-center flex-1">
+                  {/* Thumbnail */}
+                  <ListThumbnail coverUrls={list.covers || []} />
+
+                  <div className="ml-2">
+                    <h3 className="font-semibold">{list.name}</h3>
+                    {list.description && (
+                      <p className="text-sm text-muted-foreground">{list.description}</p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
