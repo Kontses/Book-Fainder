@@ -34,7 +34,7 @@ const translations: Translations = {
     signOut: 'Sign Out',
     discoverYourNextBook: 'Discover your next book',
     describeBookAI: 'Describe the book you\'re looking for and AI will find the perfect recommendation for you.',
-    searchPlaceholder: 'Describe the book you\'re looking for... e.g. I want a mystery novel from the 1930s',
+    searchPlaceholder: 'Describe the book you\'re looking for... e.g. I want a mystery novel',
     suggestMeBook: 'Suggest me a book',
     searching: 'Searching...',
     ourRecommendation: 'Our recommendation for you',
@@ -123,7 +123,7 @@ const translations: Translations = {
     giveFeedback: "Give Feedback",
     // Random prompts
     randomPrompts: [
-      'I want a mystery novel from the 1930s',
+      'I want a mystery novel',
       'Looking for a sci-fi book about space exploration',
       'A romantic comedy set in Paris',
       'Historical fiction about ancient Rome',
@@ -157,7 +157,7 @@ const translations: Translations = {
     signOut: 'Αποσύνδεση',
     discoverYourNextBook: 'Ανακαλύψτε το επόμενο βιβλίο σας',
     describeBookAI: 'Περιγράψτε το βιβλίο που ψάχνετε και η τεχνητή νοημοσύνη θα βρει την τέλεια σύσταση για εσάς.',
-    searchPlaceholder: 'Περιγράψτε το βιβλίο που ψάχνετε... π.χ. Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
+    searchPlaceholder: 'Περιγράψτε το βιβλίο που ψάχνετε... π.χ. Θέλω ένα μυθιστόρη μυστηρίου',
     suggestMeBook: 'Πρότεινέ μου ένα βιβλίο',
     searching: 'Αναζήτηση...',
     ourRecommendation: 'Η πρότασή μας για εσάς',
@@ -245,7 +245,7 @@ const translations: Translations = {
     giveFeedback: "Δώστε Σχόλια",
     // Random prompts
     randomPrompts: [
-      'Θέλω ένα μυστήριο μυθιστόρημα από τη δεκαετία του 1930',
+      'Θέλω ένα μυθιστόρημα μυστηρίου',
       'Ψάχνω για ένα επιστημονικής φαντασίας βιβλίο για διαστημική εξερεύνηση',
       'Μια ρομαντική κωμωδία στο Παρίσι',
       'Ιστορική μυθοπλασία για την αρχαία Ρώμη',
@@ -368,7 +368,7 @@ const translations: Translations = {
     giveFeedback: "Dar Opinión",
     // Random prompts
     randomPrompts: [
-      'Quiero una novela de misterio de los años 30',
+      'Quiero una novela de misterio',
       'Busco un libro de ciencia ficción sobre exploración espacial',
       'Una comedia romántica ambientada en París',
       'Ficción histórica sobre la antigua Roma',
@@ -491,7 +491,7 @@ const translations: Translations = {
     giveFeedback: "Donner un Avis",
     // Random prompts
     randomPrompts: [
-      'Je veux un roman policier des années 1930',
+      'Je veux un roman policier',
       'À la recherche d\'un livre de science-fiction sur l\'exploration spatiale',
       'Une comédie romantique se déroulant à Paris',
       'Fiction historique sur la Rome antique',
@@ -614,7 +614,7 @@ const translations: Translations = {
     giveFeedback: "Feedback Geben",
     // Random prompts
     randomPrompts: [
-      'Ich möchte einen Kriminalroman aus den 1930er Jahren',
+      'Ich möchte einen Kriminalroman',
       'Auf der Suche nach einem Science-Fiction-Buch über Weltraumforschung',
       'Eine romantische Komödie in Paris',
       'Historische Fiktion über das antike Rom',
@@ -737,7 +737,7 @@ const translations: Translations = {
     giveFeedback: "Dai Feedback",
     // Random prompts
     randomPrompts: [
-      'Voglio un romanzo giallo degli anni \'30',
+      'Voglio un romanzo giallo',
       'Cerco un libro di fantascienza sull\'esplorazione spaziale',
       'Una commedia romantica ambientata a Parigi',
       'Narrativa storica sull\'antica Roma',
