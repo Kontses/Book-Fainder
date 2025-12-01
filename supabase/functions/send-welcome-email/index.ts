@@ -48,13 +48,31 @@ serve(async (req: Request) => {
             to: email,
             subject: "Welcome to Book Fainder!",
             html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">Welcome to Book Fainder${nickname ? `, ${nickname}` : ''}!</h1>
-          <p>We're excited to have you on board.</p>
-          <p>Start discovering your next favorite book today.</p>
-          <br />
-          <p>Best regards,</p>
-          <p>The Book Fainder Team</p>
+        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+          <!-- Header -->
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+            <!-- REPLACE WITH YOUR LOGO URL -->
+            <img src="https://placehold.co/200x50/png?text=Book+Fainder" alt="Book Fainder" style="max-height: 50px;">
+          </div>
+
+          <!-- Content -->
+          <div style="padding: 40px 20px; color: #333333; line-height: 1.6;">
+            <h1 style="color: #1a1a1a; margin-bottom: 20px; font-size: 24px;">Welcome to Book Fainder${nickname ? `, ${nickname}` : ''}!</h1>
+            <p>We are thrilled to have you join our community of book lovers.</p>
+            <p>Discover your next favorite book, connect with friends, and share your reading journey.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://bookfainder.com" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Go to Book Fainder</a>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666666; border-top: 1px solid #e0e0e0;">
+            <p>&copy; ${new Date().getFullYear()} Book Fainder. All rights reserved.</p>
+            <p>
+              <a href="https://bookfainder.com/profile/${nickname || 'user'}#settings" style="color: #666666; text-decoration: underline;">Unsubscribe from these emails</a>
+            </p>
+          </div>
         </div>
       `,
         });
