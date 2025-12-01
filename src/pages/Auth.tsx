@@ -42,15 +42,21 @@ const Auth = () => {
             const now = new Date().getTime();
             const isNewUser = (now - createdAt) < 30000; // 30 seconds threshold
 
+            console.log('[Auth] Debug: CreatedAt', createdAt, 'Now', now, 'Diff', now - createdAt, 'isNewUser', isNewUser);
+
             if (isNewUser) {
               console.log('[Auth] New user detected, sending welcome email...');
+              toast.info("Sending welcome email..."); // DEBUG
               try {
-                await supabase.functions.invoke('send-welcome-email', {
+                const { error } = await supabase.functions.invoke('send-welcome-email', {
                   body: { email: session.user.email }
                 });
+                if (error) throw error;
                 console.log('[Auth] Welcome email request sent');
-              } catch (emailError) {
+                toast.success("Welcome email sent!"); // DEBUG
+              } catch (emailError: any) {
                 console.error('[Auth] Failed to send welcome email:', emailError);
+                toast.error(`Email failed: ${emailError.message}`); // DEBUG
               }
             }
           }
@@ -104,12 +110,17 @@ const Auth = () => {
         if (error) throw error;
 
         // Send welcome email
+        // Send welcome email
         try {
-          await supabase.functions.invoke('send-welcome-email', {
+          toast.info("Sending welcome email..."); // DEBUG
+          const { error } = await supabase.functions.invoke('send-welcome-email', {
             body: { email }
           });
-        } catch (emailError) {
+          if (error) throw error;
+          toast.success("Welcome email sent!"); // DEBUG
+        } catch (emailError: any) {
           console.error('Failed to send welcome email:', emailError);
+          toast.error(`Email failed: ${emailError.message}`); // DEBUG
           // Don't block the signup flow if email fails
         }
 
