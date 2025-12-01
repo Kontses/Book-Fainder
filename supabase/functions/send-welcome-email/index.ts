@@ -48,32 +48,81 @@ serve(async (req: Request) => {
             to: email,
             subject: "Welcome to Book Fainder!",
             html: `
-        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-          <!-- Header -->
-          <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-bottom: 1px solid #e0e0e0;">
-            <!-- REPLACE WITH YOUR LOGO URL -->
-            <img src="https://placehold.co/200x50/png?text=Book+Fainder" alt="Book Fainder" style="max-height: 50px;">
-          </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Book Fainder</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #fcf9f2; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fcf9f2;">
+    <tr>
+      <td align="center" style="padding: 40px 0;">
+        <!-- Container -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          
+          <!-- Header with Logo -->
+          <tr>
+            <td align="center" style="padding: 30px 20px; background-color: #ffffff; border-bottom: 1px solid #f0f0f0;">
+              <!-- TODO: Replace with your actual Logo URL from Supabase Storage -->
+              <img src="https://placehold.co/200x60/ffffff/a32933?text=Book+Fainder" width="200" alt="Book Fainder" style="display: block; border: 0;">
+            </td>
+          </tr>
+
+          <!-- Hero Image -->
+          <tr>
+            <td style="padding: 0;">
+              <!-- TODO: Replace with your actual Hero Image URL from Supabase Storage -->
+              <img src="https://placehold.co/600x300/fcf9f2/a32933?text=Welcome+to+the+Community" width="600" style="width: 100%; max-width: 600px; height: auto; display: block;" alt="Welcome">
+            </td>
+          </tr>
 
           <!-- Content -->
-          <div style="padding: 40px 20px; color: #333333; line-height: 1.6;">
-            <h1 style="color: #1a1a1a; margin-bottom: 20px; font-size: 24px;">Welcome to Book Fainder${nickname ? `, ${nickname}` : ''}!</h1>
-            <p>We are thrilled to have you join our community of book lovers.</p>
-            <p>Discover your next favorite book, connect with friends, and share your reading journey.</p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="https://bookfainder.com" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Go to Book Fainder</a>
-            </div>
-          </div>
+          <tr>
+            <td style="padding: 40px 30px; color: #2e2621;">
+              <h1 style="color: #a32933; font-size: 28px; margin: 0 0 20px 0; font-weight: bold;">Welcome, ${nickname || 'Book Lover'}!</h1>
+              
+              <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                We are thrilled to have you join our community of book lovers. Book Fainder is your companion in discovering your next literary adventure.
+              </p>
+              
+              <p style="font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+                Connect with friends, share your reading journey, and find hidden gems tailored just for you.
+              </p>
+
+              <!-- CTA Button -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center">
+                    <a href="https://bookfainder.com" style="background-color: #a32933; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; mso-padding-alt: 0;">
+                      Start Reading
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
           <!-- Footer -->
-          <div style="background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666666; border-top: 1px solid #e0e0e0;">
-            <p>&copy; ${new Date().getFullYear()} Book Fainder. All rights reserved.</p>
-            <p>
-              <a href="https://bookfainder.com/profile/${nickname || 'user'}#settings" style="color: #666666; text-decoration: underline;">Unsubscribe from these emails</a>
-            </p>
-          </div>
-        </div>
+          <tr>
+            <td style="background-color: #f8f5f0; padding: 30px; text-align: center; border-top: 1px solid #f0f0f0;">
+              <p style="font-size: 12px; color: #888888; margin: 0 0 10px 0;">
+                &copy; ${new Date().getFullYear()} Book Fainder. All rights reserved.
+              </p>
+              <p style="font-size: 12px; color: #888888; margin: 0;">
+                You received this email because you signed up for Book Fainder.<br>
+                <a href="https://bookfainder.com/profile/${nickname || 'user'}#settings" style="color: #888888; text-decoration: underline;">Unsubscribe</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
       `,
         });
 
