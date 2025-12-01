@@ -2,7 +2,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-ignore
 // @ts-ignore
+// @ts-ignore
 import nodemailer from "https://esm.sh/nodemailer@6.9.13";
+// @ts-ignore
+import { Buffer } from "node:buffer";
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
