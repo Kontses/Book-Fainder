@@ -33,8 +33,8 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('[Auth] State change event:', event, 'Session exists:', !!session);
-        if (event === 'SIGNED_IN' && session) {
-          console.log('[Auth] User signed in');
+        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+          console.log(`[Auth] Handling event: ${event}`);
 
           // Check if user is new (created within last 30 seconds)
           if (session.user.created_at) {
