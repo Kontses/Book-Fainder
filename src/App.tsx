@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
+import { WelcomeEmailHandler } from "@/components/WelcomeEmailHandler";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,9 @@ const App = () => (
         <LanguageProvider>
           <TooltipProvider>
             <Toaster />
+            <Toaster />
             <Sonner />
+            <WelcomeEmailHandler />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />

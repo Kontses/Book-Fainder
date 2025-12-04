@@ -36,31 +36,7 @@ const Auth = () => {
         if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
           console.log(`[Auth] Handling event: ${event}`);
 
-          // Check if user is new (created within last 30 seconds)
-          if (session.user.created_at) {
-            const createdAt = new Date(session.user.created_at).getTime();
-            const now = new Date().getTime();
-            const isNewUser = (now - createdAt) < 60000; // 60 seconds threshold
-
-            console.log('[Auth] Debug: CreatedAt', createdAt, 'Now', now, 'Diff', now - createdAt, 'isNewUser', isNewUser);
-
-            if (isNewUser) {
-              console.log('[Auth] New user detected, ATTEMPTING to send welcome email...');
-              toast.info("Sending welcome email..."); // DEBUG
-              try {
-                const { error } = await supabase.functions.invoke('send-welcome-email', {
-                  body: { email: session.user.email }
-                });
-                if (error) throw error;
-                console.log('[Auth] Welcome email request sent');
-                toast.success("Welcome email sent!"); // DEBUG
-              } catch (emailError: any) {
-                console.error('[Auth] Failed to send welcome email:', emailError);
-                toast.error(`Email failed: ${emailError.message}`); // DEBUG
-              }
-            }
-          }
-
+          // Welcome email logic moved to WelcomeEmailHandler.tsx
           navigate("/");
         }
         if (event === 'SIGNED_OUT') {
@@ -109,24 +85,7 @@ const Auth = () => {
 
         if (error) throw error;
 
-        // Send welcome email
-        try {
-          console.log('[Auth] handleSubmit: Attempting to send welcome email to', email);
-          toast.info("Sending welcome email..."); // DEBUG
-          const { data, error } = await supabase.functions.invoke('send-welcome-email', {
-            body: { email }
-          });
-          if (error) {
-            console.error('[Auth] handleSubmit: Invoke returned error:', error);
-            throw error;
-          }
-          console.log('[Auth] handleSubmit: Welcome email sent successfully. Response data:', data);
-          toast.success("Welcome email sent!"); // DEBUG
-        } catch (emailError: any) {
-          console.error('[Auth] handleSubmit: Failed to send welcome email (catch block):', emailError);
-          toast.error(`Email failed: ${emailError.message}`); // DEBUG
-          // Don't block the signup flow if email fails
-        }
+        // Welcome email logic moved to WelcomeEmailHandler.tsx
 
         toast.success(t('signedUpSuccess'));
         setIsSignUp(false);
