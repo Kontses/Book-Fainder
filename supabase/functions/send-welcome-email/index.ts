@@ -65,7 +65,9 @@ serve(async (req: Request) => {
           <!-- Header with Logo -->
           <tr>
             <td align="center" style="padding: 40px 20px 20px 20px; background-color: #ffffff;">
-              <img src="https://rrsinicayjxwazxjrtds.supabase.co/storage/v1/object/public/email-assets/logo.png" width="200" alt="Book Fainder" style="display: block; border: 0; max-width: 200px; height: auto;">
+              <a href="https://www.bookfainder.com/" style="text-decoration: none; display: inline-block;">
+                <img src="https://rrsinicayjxwazxjrtds.supabase.co/storage/v1/object/public/email-assets/logo.png" width="200" alt="Book Fainder" style="display: block; border: 0; max-width: 200px; height: auto;">
+              </a>
             </td>
           </tr>
 
@@ -83,7 +85,7 @@ serve(async (req: Request) => {
               </p>
 
               <p style="font-size: 16px; line-height: 1.6; margin: 0 0 30px 0; text-align: justify;">
-                "Describe the book you want to read and Artificial Intelligence will search for that book for you."
+                Describe the book you want to read and Artificial Intelligence will search for that book for you.
               </p>
 
               <!-- Feature Sections -->
@@ -166,11 +168,11 @@ serve(async (req: Request) => {
                 </tr>
               </table>
               
-              <p style="margin-top: 30px; font-size: 14px; color: #666; text-align: center;">
+              <p style="margin-top: 30px; font-size: 14px; color: #666; text-align: justify;">
                 If you have any questions, don’t hesitate to contact us. We are here to help!
               </p>
               
-              <p style="margin-top: 10px; font-size: 14px; color: #2e2621; font-weight: bold; text-align: center;">
+              <p style="margin-top: 10px; font-size: 14px; color: #2e2621; font-weight: bold; text-align: justify;">
                 Happy reading,<br>
                 The BookFainder Team
               </p>
