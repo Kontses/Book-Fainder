@@ -74,7 +74,7 @@ serve(async (req: Request) => {
             <td style="padding: 20px 40px 40px 40px; color: #2e2621;">
               <h1 style="color: #a32933; font-size: 28px; margin: 0 0 20px 0; font-weight: bold; text-align: center;">Welcome, ${nickname || 'Book Lover'}!</h1>
               
-              <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; text-align: center;">
+              <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; text-align: justify;">
                 We are so glad you signed up for our platform. You are ready to discover a world full of books and find your next favorite read.
               </p>
               
@@ -82,7 +82,7 @@ serve(async (req: Request) => {
                 BookFainder is an intelligent book recommendation system, helping you explore thousands of book titles, discover new authors and find exactly what you are looking for with the help of Artificial Intelligence.
               </p>
 
-              <p style="font-size: 16px; line-height: 1.6; margin: 0 0 30px 0; text-align: center; font-style: italic; color: #555;">
+              <p style="font-size: 16px; line-height: 1.6; margin: 0 0 30px 0; text-align: justify;">
                 "Describe the book you want to read and Artificial Intelligence will search for that book for you."
               </p>
 
@@ -143,7 +143,7 @@ serve(async (req: Request) => {
                         </td>
                         <td valign="top">
                           <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #2e2621;">
-                            <a href="https://www.bookfainder.com/profile/${nickname || 'user'}?tab=friends" style="text-decoration: none; color: #2e2621;">Exchange Ideas</a>
+                            <a href="https://www.bookfainder.com/profile/${nickname || 'user'}#friends" style="text-decoration: none; color: #2e2621;">Exchange Ideas</a>
                           </h3>
                           <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.4;">
                             Discover new books based on your preferences and invite friends to exchange book ideas.
@@ -185,7 +185,7 @@ serve(async (req: Request) => {
               </p>
               <p style="font-size: 12px; color: #888888; margin: 0;">
                 You received this email because you signed up for Book Fainder.<br>
-                <a href="https://www.bookfainder.com/profile/${nickname || 'user'}#settings#email_preferences" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
+                <a href="https://www.bookfainder.com/profile/${nickname || 'user'}#settings" style="color: #888888; text-decoration: underline;">Unsubscribe from these emails</a>
               </p>
             </td>
           </tr>
