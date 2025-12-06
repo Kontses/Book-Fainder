@@ -20,7 +20,12 @@ interface BookList {
   covers?: string[];
 }
 
-export const BookLists = () => {
+interface BookListsProps {
+  userId?: string;
+  isOwnProfile?: boolean;
+}
+
+export const BookLists = ({ userId, isOwnProfile = false }: BookListsProps) => {
   const [lists, setLists] = useState<BookList[]>([]);
   const [newListName, setNewListName] = useState("");
   const [newListDescription, setNewListDescription] = useState("");
@@ -29,19 +34,20 @@ export const BookLists = () => {
   const { t } = useLanguage();
 
   useEffect(() => {
-    fetchLists();
-  }, []);
+    if (userId) {
+      fetchLists();
+    }
+  }, [userId]);
 
   const fetchLists = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!userId) return;
 
     try {
       // Fetch lists
       const { data: listsData, error: listsError } = await supabase
         .from('book_lists')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (listsError) throw listsError;
@@ -78,6 +84,12 @@ export const BookLists = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Safety check: ensure we are creating list for the logged in user, and it matches the profile
+    if (!isOwnProfile) {
+      toast.error("You can only create lists on your own profile");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('book_lists')
@@ -99,6 +111,8 @@ export const BookLists = () => {
   };
 
   const handleDeleteList = async (listId: string) => {
+    if (!isOwnProfile) return;
+
     try {
       const { error } = await supabase
         .from('book_lists')
@@ -106,7 +120,7 @@ export const BookLists = () => {
         .eq('id', listId);
 
       if (error) throw error;
-      toast.success(t('savedSuccessfully'));
+      toast.success(t('savedSuccessfully')); // keeping existing translation key as requested in snippet, though "Deleted successfully" might be better
       fetchLists();
     } catch (error: any) {
       toast.error(error.message);
@@ -122,6 +136,7 @@ export const BookLists = () => {
           setSelectedList(null);
           fetchLists(); // Refresh to update thumbnails if changed
         }}
+        isOwnProfile={isOwnProfile}
       />
     );
   }
@@ -132,44 +147,46 @@ export const BookLists = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>{t('myLists')}</CardTitle>
-            <CardDescription>{t('createList')}</CardDescription>
+            {isOwnProfile && <CardDescription>{t('createList')}</CardDescription>}
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                {t('createNewList')}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{t('createNewList')}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="listName">{t('listName')}</Label>
-                  <Input
-                    id="listName"
-                    value={newListName}
-                    onChange={(e) => setNewListName(e.target.value)}
-                    placeholder={t('listName') as string}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="listDescription">{t('listDescription')}</Label>
-                  <Textarea
-                    id="listDescription"
-                    value={newListDescription}
-                    onChange={(e) => setNewListDescription(e.target.value)}
-                    placeholder={t('listDescription') as string}
-                  />
-                </div>
-                <Button onClick={handleCreateList} className="w-full">
+          {isOwnProfile && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
                   {t('createNewList')}
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t('createNewList')}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="listName">{t('listName')}</Label>
+                    <Input
+                      id="listName"
+                      value={newListName}
+                      onChange={(e) => setNewListName(e.target.value)}
+                      placeholder={t('listName') as string}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="listDescription">{t('listDescription')}</Label>
+                    <Textarea
+                      id="listDescription"
+                      value={newListDescription}
+                      onChange={(e) => setNewListDescription(e.target.value)}
+                      placeholder={t('listDescription') as string}
+                    />
+                  </div>
+                  <Button onClick={handleCreateList} className="w-full">
+                    {t('createNewList')}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -196,19 +213,24 @@ export const BookLists = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                {isOwnProfile && (
+                  <div className="flex items-center gap-2">
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteList(list.id);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                )}
+                {!isOwnProfile && (
                   <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteList(list.id);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
+                )}
               </div>
             ))
           )}

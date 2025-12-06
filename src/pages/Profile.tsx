@@ -117,14 +117,14 @@ const Profile = () => {
         navigate("/");
         return;
       }
-      
+
       // Fetch bio separately (column may not exist yet in types)
       const { data: bioData } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', profileData.id)
         .maybeSingle();
-      
+
       setProfileUser({
         ...profileData,
         bio: (bioData as any)?.bio || ""
@@ -431,7 +431,7 @@ const Profile = () => {
           )}
 
           <TabsContent value="lists">
-            <BookLists />
+            <BookLists userId={profileUser?.id} isOwnProfile={isOwnProfile} />
           </TabsContent>
 
           <TabsContent value="friends">

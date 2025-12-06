@@ -21,18 +21,26 @@ interface ListDetailProps {
   listId: string;
   listName: string;
   onBack: () => void;
+  isOwnProfile: boolean;
 }
 
-export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
+export const ListDetail = ({ listId, listName, onBack, isOwnProfile }: ListDetailProps) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
   const { t } = useLanguage();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    checkCurrentUser();
     fetchListBooks();
     fetchListVisibility();
   }, [listId]);
+
+  const checkCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setCurrentUserId(user?.id || null);
+  };
 
   const fetchListVisibility = async () => {
     try {
@@ -57,7 +65,7 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
         .eq('id', listId);
 
       if (error) throw error;
-      
+
       setIsPublic(checked);
       toast.success(checked ? t('listNowPublic') : t('listNowPrivate'));
     } catch (error: any) {
@@ -109,11 +117,40 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
         .eq('book_id', bookId);
 
       if (error) throw error;
-      
+
       toast.success('Removed from list');
       fetchListBooks();
     } catch (error: any) {
       toast.error(`Error: ${error.message}`);
+    }
+  };
+
+  const handleSaveBook = async (bookToSave: Book) => {
+    if (!currentUserId) {
+      toast.error(t('mustSignIn'));
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_books')
+        .insert({
+          user_id: currentUserId,
+          book_title: bookToSave.book_title,
+          book_author: bookToSave.book_author,
+          book_description: bookToSave.book_description,
+          book_year: bookToSave.book_year,
+          book_cover_url: bookToSave.book_cover_url
+        });
+
+      if (error) throw error;
+      toast.success(t('bookSaved'));
+    } catch (error: any) {
+      if (error.code === '23505') { // unique_violation
+        toast.error(t('bookAlreadySaved'));
+      } else {
+        toast.error(`${t('failedSave')}: ${error.message}`);
+      }
     }
   };
 
@@ -123,34 +160,36 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
 
   return (
     <div>
-      <Button 
-        variant="ghost" 
+      <Button
+        variant="ghost"
         onClick={onBack}
         className="mb-4"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         {t('back') || 'Back'}
       </Button>
-      
+
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-serif font-bold">{listName}</h2>
-        
-        <div className="flex items-center gap-3">
-          {isPublic ? (
-            <Globe className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <Lock className="h-4 w-4 text-muted-foreground" />
-          )}
-          <Label htmlFor="list-visibility" className="text-sm font-normal cursor-pointer">
-            {t('publicList')}
-          </Label>
-          <Switch
-            id="list-visibility"
-            checked={isPublic}
-            onCheckedChange={handleVisibilityToggle}
-            className="scale-75"
-          />
-        </div>
+
+        {isOwnProfile && (
+          <div className="flex items-center gap-3">
+            {isPublic ? (
+              <Globe className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <Lock className="h-4 w-4 text-muted-foreground" />
+            )}
+            <Label htmlFor="list-visibility" className="text-sm font-normal cursor-pointer">
+              {t('publicList')}
+            </Label>
+            <Switch
+              id="list-visibility"
+              checked={isPublic}
+              onCheckedChange={handleVisibilityToggle}
+              className="scale-75"
+            />
+          </div>
+        )}
       </div>
 
       {books.length === 0 ? (
@@ -167,8 +206,8 @@ export const ListDetail = ({ listId, listName, onBack }: ListDetailProps) => {
               description={book.book_description || "No description available."}
               year={book.book_year || "Unknown Year"}
               coverUrl={book.book_cover_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"}
-              onSave={() => handleRemoveFromList(book.id)}
-              isSaved={true}
+              onSave={isOwnProfile ? () => handleRemoveFromList(book.id) : undefined}
+              isSaved={isOwnProfile}
               variant="compact"
             />
           ))}
