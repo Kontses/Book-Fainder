@@ -9,7 +9,7 @@ export const ProfileBio = ({ bio }: ProfileBioProps) => {
     text: bio,
     speed: 30,
     delay: 300,
-    cursor: '|'
+    cursor: ''
   });
 
   if (!bio) return null;
