@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -21,6 +22,7 @@ interface ProfileSettingsProps {
 
 export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSettingsProps) => {
   const [nickname, setNickname] = useState("");
+  const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,6 +48,14 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
     if (data) {
       setNickname(data.nickname);
       setAvatarUrl(data.avatar_url);
+      
+      // Fetch bio separately (column may not exist yet in types)
+      const { data: bioData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      setBio((bioData as any)?.bio || "");
 
       // Fetch newsletter preference separately to avoid type issues
       const { data: profileData } = await supabase
@@ -174,8 +184,9 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
         .upsert({
           id: user.id,
           nickname: validation.data,
-          avatar_url: avatarUrl
-        }, { onConflict: 'id' });
+          avatar_url: avatarUrl,
+          bio: bio.trim() || null
+        } as any, { onConflict: 'id' });
 
       if (error) {
         // Check for unique constraint violation
@@ -274,6 +285,22 @@ export const ProfileSettings = ({ profileUser, onProfileUpdate }: ProfileSetting
           />
           <p className="text-sm text-muted-foreground">
             {t('nicknameUnique')}
+          </p>
+        </div>
+
+        {/* Bio Section */}
+        <div className="space-y-2">
+          <Label htmlFor="bio">{t('bio')}</Label>
+          <Textarea
+            id="bio"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            placeholder={t('bioPlaceholder') as string}
+            className="max-w-lg min-h-[100px] resize-none"
+            maxLength={500}
+          />
+          <p className="text-sm text-muted-foreground">
+            {bio.length}/500
           </p>
         </div>
 
