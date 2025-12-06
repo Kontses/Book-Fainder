@@ -13,6 +13,7 @@ import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { BookLists } from "@/components/profile/BookLists";
 import { Friends } from "@/components/profile/Friends";
 import { Feedback } from "@/components/profile/Feedback";
+import { ProfileBio } from "@/components/profile/ProfileBio";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
@@ -116,7 +117,18 @@ const Profile = () => {
         navigate("/");
         return;
       }
-      setProfileUser(profileData);
+      
+      // Fetch bio separately (column may not exist yet in types)
+      const { data: bioData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profileData.id)
+        .maybeSingle();
+      
+      setProfileUser({
+        ...profileData,
+        bio: (bioData as any)?.bio || ""
+      });
       setIsOwnProfile(currentUserId === profileData.id);
 
       const { data, error } = await supabase
@@ -278,9 +290,16 @@ const Profile = () => {
 
             {/* Profile Info */}
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">
                 {profileUser?.nickname || t('profile')}
               </h1>
+
+              {/* Bio with Typewriter Effect */}
+              {profileUser?.bio && (
+                <div className="mb-4">
+                  <ProfileBio bio={profileUser.bio} />
+                </div>
+              )}
 
               {/* Stats */}
               <div className="flex gap-6 mb-4">
