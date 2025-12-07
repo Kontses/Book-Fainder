@@ -102,7 +102,11 @@ const Index = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token || ''}`,
         },
-        body: JSON.stringify({ prompt: query, previousBookIds }),
+        body: JSON.stringify({
+          prompt: query,
+          previousBookIds,
+          targetLanguage: language // Pass current language for server-side translation
+        }),
       });
 
       if (!response.ok) {
@@ -118,35 +122,8 @@ const Index = () => {
         }
 
         const originalDescription = data.book.synopsis || "No description available.";
-        let translatedDescription = originalDescription;
-
-        // Translate description if language is not English
-        if (language !== 'en') {
-          try {
-            const { data: { session } } = await supabase.auth.getSession();
-
-            const translateResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-description`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session?.access_token || ''}`,
-              },
-              body: JSON.stringify({
-                description: originalDescription,
-                targetLanguage: language
-              }),
-            });
-
-            if (translateResponse.ok) {
-              const translateData = await translateResponse.json();
-              translatedDescription = translateData.translatedDescription || originalDescription;
-            } else {
-              console.error('Translation failed, using original description');
-            }
-          } catch (translateError) {
-            console.error('Error translating description:', translateError);
-          }
-        }
+        // Use server-provided translation if available, otherwise original
+        const translatedDescription = data.book.translated_description || originalDescription;
 
         // Trigger exit animation if there's a current book, right before showing new one
         if (currentBook) {
